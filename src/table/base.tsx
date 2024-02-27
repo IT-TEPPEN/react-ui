@@ -13,8 +13,8 @@ export default function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
   const { cols, rows } = props;
 
   return (
-    <table className={``}>
-      <thead className={``}>
+    <table className={`table table-auto w-full`}>
+      <thead className={`bg-gray-200 text-gray-600`}>
         <tr data-testid="table-header">
           {cols.map((col) => (
             <th key={col.key} className={``}>
@@ -25,11 +25,16 @@ export default function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
       </thead>
       <tbody>
         {rows.map((r) => (
-          <tr key={r.id} data-testid={r.id} className={``} onClick={r.onClick}>
+          <tr
+            key={r.id}
+            data-testid={r.id}
+            className={`hover:bg-gray-100`}
+            onClick={r.onClick}
+          >
             {cols.map((col) => (
               <td key={col.key}>
                 <div
-                  className={``}
+                  className={`p-2 w-fit text-left cursor-default`}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
