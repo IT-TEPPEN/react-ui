@@ -1,3 +1,5 @@
+import { tv } from "tailwind-variants";
+
 type DataObject = {
   [key: string]: any;
   id: number | string;
@@ -9,15 +11,40 @@ type TPropsTable<T extends DataObject> = {
   rows: T[];
 };
 
+// const tvTableDesign = tv({
+//   slots: {
+//     frame: "table table-auto w-full",
+//     header: "bg-gray-200 text-gray-600",
+//     row: "hover:bg-gray-100",
+//     cell: "p-2 w-fit text-left cursor-default",
+//   },
+//   variants: {
+//     hover: {
+//       true: {
+//         row: "hover:cursor-pointer",
+//       },
+//     },
+//   },
+// });
+
+const tvTableDesign = (t: { hover: any }) => ({
+  frame: () => "table table-auto w-full",
+  header: () => "bg-gray-200 text-gray-600",
+  row: () => "hover:bg-gray-100",
+  cell: () => "p-2 w-fit text-left cursor-default",
+});
+
 export default function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
   const { cols, rows } = props;
-
+  const { frame, cell, row, header } = tvTableDesign({
+    hover: !!rows[0]?.onClick,
+  });
   return (
-    <table className={`table table-auto w-full`}>
-      <thead className={`bg-gray-200 text-gray-600`}>
-        <tr data-testid="table-header">
+    <table className={frame()}>
+      <thead className={header()}>
+        <tr>
           {cols.map((col) => (
-            <th key={col.key} className={``}>
+            <th key={col.key} className={cell()}>
               {col.label}
             </th>
           ))}
@@ -27,14 +54,14 @@ export default function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
         {rows.map((r) => (
           <tr
             key={r.id}
-            data-testid={r.id}
-            className={`hover:bg-gray-100`}
+            className={row()}
             onClick={r.onClick}
+            data-testid={r.id}
           >
             {cols.map((col) => (
               <td key={col.key}>
                 <div
-                  className={`p-2 w-fit text-left cursor-default`}
+                  className={cell()}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();

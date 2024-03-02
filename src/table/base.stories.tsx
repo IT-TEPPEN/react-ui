@@ -19,6 +19,14 @@ export const Default: Story = {
       { id: "1", name: "a" },
       { id: "2", name: "b" },
     ],
-    cols: [{ key: "id" }, { key: "name", label: "名前" }],
+    cols: [
+      { key: "id", label: "ID" },
+      { key: "name", label: "名前" },
+    ],
   },
+  render: (props) => (
+    <div className="w-96">
+      <BaseTable {...props} />
+    </div>
+  ),
 };

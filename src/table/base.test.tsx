@@ -1,9 +1,11 @@
-import { render, screen, within } from "@testing-library/react";
+import { cleanup, render, within } from "@testing-library/react";
 import BaseTable from "./base";
+
+afterEach(cleanup);
 
 describe("SmartRating", () => {
   test("renders the Rating component", () => {
-    render(
+    const { getByTestId, getByRole } = render(
       <BaseTable
         rows={[
           { id: "1", name: "a" },
@@ -13,13 +15,13 @@ describe("SmartRating", () => {
       />
     );
 
-    const item1 = within(screen.getByTestId("1")).getByText("a");
+    const item1 = within(getByTestId("1")).getByText("a");
     expect(item1).toBeDefined();
-    const item2 = within(screen.getByTestId("2")).getByText("b");
+    const item2 = within(getByTestId("2")).getByText("b");
     expect(item2).toBeDefined();
-    expect(() => within(screen.getByTestId("1")).getByText("b")).toThrow();
+    expect(() => within(getByTestId("1")).getByText("b")).toThrow();
 
-    const header = screen.getByTestId("table-header");
-    expect(within(header).getByText("名前")).toBeDefined();
+    const header2 = getByRole("columnheader", { name: "名前" });
+    expect(header2).toBeDefined();
   });
 });

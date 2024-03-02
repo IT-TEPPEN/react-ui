@@ -45,7 +45,18 @@ export default [
   {
     input: "src/index.ts",
     output: [{ file: "dist/index.d.ts", format: "es" }],
-    plugins: [dts.default()],
-    external: [/\.css$/],
+    plugins: [
+      dts.default(),
+      postcss({
+        config: {
+          path: "./postcss.config.js",
+        },
+        extensions: [".css"],
+        minimize: true,
+        inject: {
+          insertAt: "top",
+        },
+      }),
+    ],
   },
 ];

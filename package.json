@@ -7,7 +7,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "clean": "rimraf dist",
-    "rollup": "npm run clean && rollup -c --bundleConfigAsCjs",
+    "rollup": "npm run clean && rollup -c --bundleConfigAsCjs --forceExit",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test": "jest"
@@ -52,7 +52,8 @@
   },
   "peerDependencies": {
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "tailwind-variants": "^0.2.0"
   },
   "files": [
     "package.json",
