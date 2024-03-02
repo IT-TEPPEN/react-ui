@@ -11,27 +11,20 @@ type TPropsTable<T extends DataObject> = {
   rows: T[];
 };
 
-// const tvTableDesign = tv({
-//   slots: {
-//     frame: "table table-auto w-full",
-//     header: "bg-gray-200 text-gray-600",
-//     row: "hover:bg-gray-100",
-//     cell: "p-2 w-fit text-left cursor-default",
-//   },
-//   variants: {
-//     hover: {
-//       true: {
-//         row: "hover:cursor-pointer",
-//       },
-//     },
-//   },
-// });
-
-const tvTableDesign = (t: { hover: any }) => ({
-  frame: () => "table table-auto w-full",
-  header: () => "bg-gray-200 text-gray-600",
-  row: () => "hover:bg-gray-100",
-  cell: () => "p-2 w-fit text-left cursor-default",
+const tvTableDesign = tv({
+  slots: {
+    frame: "table table-auto w-full",
+    header: "bg-gray-200 text-gray-600",
+    row: "hover:bg-gray-100",
+    cell: "p-2 w-fit text-left cursor-default",
+  },
+  variants: {
+    hover: {
+      true: {
+        row: "hover:cursor-pointer",
+      },
+    },
+  },
 });
 
 export default function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
