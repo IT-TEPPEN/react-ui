@@ -34,8 +34,6 @@ export default [
         },
         extensions: [".css"],
         minimize: true,
-        modules: true,
-        extract: true,
         inject: {
           insertAt: "top",
         },
