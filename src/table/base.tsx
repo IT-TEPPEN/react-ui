@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { tv } from "tailwind-variants";
 
 type DataObject = {
@@ -27,8 +28,50 @@ const tvTableDesign = tv({
   },
 });
 
-export default function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
+type State = {
+  key: string;
+  order: "ASC" | "DESC";
+};
+
+function useTable<T extends DataObject>(props: TPropsTable<T>) {
+  const [key, changeKey] = useState<State>({ key: "id", order: "ASC" });
   const { cols, rows } = props;
+
+  const sortedRows = [...rows].sort((a, b) => {
+    if (a[key.key] < b[key.key]) {
+      return key.order === "ASC" ? -1 : 1;
+    }
+    if (a[key.key] > b[key.key]) {
+      return key.order === "ASC" ? 1 : -1;
+    }
+    return 0;
+  });
+
+  const colsWithSort = cols.map((col) => ({
+    ...col,
+    onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      if (key.key === col.key) {
+        changeKey({
+          key: col.key,
+          order: key.order === "ASC" ? "DESC" : "ASC",
+        });
+      } else {
+        changeKey({ key: col.key, order: "ASC" });
+      }
+    },
+  }));
+
+  return {
+    cols: colsWithSort,
+    rows: sortedRows,
+    sortKey: key.key,
+    sortOrder: key.order,
+  };
+}
+
+export default function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
+  const { cols, rows, sortKey, sortOrder } = useTable(props);
   const { frame, cell, row, header } = tvTableDesign({
     hover: !!rows[0]?.onClick,
   });
@@ -39,6 +82,9 @@ export default function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
           {cols.map((col) => (
             <th key={col.key} className={cell()}>
               {col.label}
+              <button onClick={col.onClick}>
+                {sortKey === col.key ? (sortOrder === "ASC" ? "▲" : "▼") : "△"}
+              </button>
             </th>
           ))}
         </tr>

@@ -5,7 +5,7 @@ afterEach(cleanup);
 
 describe("SmartRating", () => {
   test("renders the Rating component", () => {
-    const { getByTestId, getByRole } = render(
+    const { getByTestId, getByRole, debug } = render(
       <BaseTable
         rows={[
           { id: "1", name: "a" },
@@ -21,7 +21,7 @@ describe("SmartRating", () => {
     expect(item2).toBeDefined();
     expect(() => within(getByTestId("1")).getByText("b")).toThrow();
 
-    const header2 = getByRole("columnheader", { name: "名前" });
+    const header2 = getByRole("columnheader", { name: /名前/ });
     expect(header2).toBeDefined();
   });
 });

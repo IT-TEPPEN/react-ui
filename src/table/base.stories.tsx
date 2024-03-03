@@ -17,6 +17,8 @@ export const Default: Story = {
   args: {
     rows: [
       { id: "1", name: "a" },
+      { id: "4", name: "c" },
+      { id: "3", name: "d" },
       { id: "2", name: "b" },
     ],
     cols: [
