@@ -6,6 +6,8 @@ import terser from "@rollup/plugin-terser";
 import peerDepsExternal from "rollup-plugin-peer-deps-external";
 import postcss from "rollup-plugin-postcss";
 import { preserveDirectives } from "rollup-plugin-preserve-directives";
+import tailwindcss from "tailwindcss";
+const tailwindConfig = require("./tailwind.config.js");
 
 export default [
   {
@@ -37,6 +39,7 @@ export default [
         inject: {
           insertAt: "top",
         },
+        plugins: [tailwindcss(tailwindConfig)],
       }),
       typescript({ tsconfig: "./tsconfig.json" }),
       preserveDirectives(),
