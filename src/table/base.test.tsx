@@ -5,7 +5,7 @@ afterEach(cleanup);
 
 describe("SmartRating", () => {
   test("renders the Rating component", () => {
-    const { getByTestId, getByRole, debug } = render(
+    const { getByTestId, getByRole } = render(
       <BaseTable
         rows={[
           { id: "1", name: "a" },
