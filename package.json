@@ -47,12 +47,12 @@
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-preserve-directives": "^0.4.0",
     "storybook": "^7.6.17",
-    "tailwind-variants": "^0.2.0",
     "tailwindcss": "^3.4.1",
     "tslib": "^2.6.2",
     "typescript": "^5.3.3"
   },
   "peerDependencies": {
+    "tailwind-variants": "^0.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
