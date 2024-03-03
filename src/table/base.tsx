@@ -78,8 +78,8 @@ export default function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
     hover: !!rows[0]?.onClick,
   });
   return (
-    <table className={frame()}>
-      <thead className={header()}>
+    <table className={"table table-auto w-full"}>
+      <thead className={"bg-gray-200 text-red-600"}>
         <tr>
           {cols.map((col) => (
             <th key={col.key} className={cell()}>
