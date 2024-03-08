@@ -1,14 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import BaseTable from "./base";
+import Table from "./base";
 
 const meta = {
   title: "Table/BaseTable",
-  component: BaseTable,
+  component: Table,
   parameters: {
     layout: "centered",
   },
   tags: ["autodocs"],
-} as Meta<typeof BaseTable>;
+} as Meta<typeof Table>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -28,7 +28,7 @@ export const Default: Story = {
   },
   render: (props) => (
     <div className="w-96">
-      <BaseTable {...props} />
+      <Table {...props} />
     </div>
   ),
 };

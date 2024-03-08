@@ -72,14 +72,14 @@ function useTable<T extends DataObject>(props: TPropsTable<T>) {
   };
 }
 
-export default function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
+export default function Table<T extends DataObject>(props: TPropsTable<T>) {
   const { cols, rows, sortKey, sortOrder } = useTable(props);
   const { frame, cell, row, header } = tvTableDesign({
     hover: !!rows[0]?.onClick,
   });
   return (
-    <table className={"table table-auto w-full"}>
-      <thead className={"bg-gray-200 text-red-600"}>
+    <table className={frame()}>
+      <thead className={header()}>
         <tr>
           {cols.map((col) => (
             <th key={col.key} className={cell()}>

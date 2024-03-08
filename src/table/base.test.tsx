@@ -1,12 +1,12 @@
 import { cleanup, render, within } from "@testing-library/react";
-import BaseTable from "./base";
+import Table from "./base";
 
 afterEach(cleanup);
 
 describe("SmartRating", () => {
   test("renders the Rating component", () => {
     const { getByTestId, getByRole } = render(
-      <BaseTable
+      <Table
         rows={[
           { id: "1", name: "a" },
           { id: "2", name: "b" },
