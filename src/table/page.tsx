@@ -1,4 +1,4 @@
-import { useCallback, useReducer } from "react";
+import { memo, useCallback, useReducer } from "react";
 
 type TPage = {
   perPage: number;
@@ -108,9 +108,11 @@ type TPropsPagenation = {
   prev: () => void;
 };
 
-export function Pagenation(props: TPropsPagenation) {
+export const Pagenation = memo(function TablePagenation(
+  props: TPropsPagenation
+) {
   return (
-    <div className="flex justify-center gap-2 mt-2">
+    <div className="flex justify-center gap-2">
       <button
         className="text-sm"
         onClick={() => props.jump(1)}
@@ -152,4 +154,4 @@ export function Pagenation(props: TPropsPagenation) {
       </button>
     </div>
   );
-}
+});

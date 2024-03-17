@@ -59,15 +59,18 @@ export default function Table<T extends DataObject>(props: TPropsTable<T>) {
       </div>
       <div className="mt-1">
         <p className="text-center text-sm text-gray-600">
-          {from + 1} - {to} of {props.rows.length}
+          {from + 1} - {to < props.rows.length ? to : props.rows.length} of{" "}
+          {props.rows.length}
         </p>
-        <Pagenation
-          count={count}
-          current={current}
-          jump={jump}
-          next={next}
-          prev={prev}
-        />
+        <div className="mt-2">
+          <Pagenation
+            count={count}
+            current={current}
+            jump={jump}
+            next={next}
+            prev={prev}
+          />
+        </div>
       </div>
     </>
   );
