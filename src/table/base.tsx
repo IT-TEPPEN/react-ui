@@ -10,10 +10,10 @@ export default function Table<T extends DataObject>(props: TPropsTable<T>) {
   const { cols, rows, sortKey, sortOrder } = useTable(props);
 
   return (
-    <div className="w-full border border-gray-200 rounded-md overflow-hidden">
+    <div className="relative w-full h-full max-h-[90vh] border border-gray-200 rounded-md overflow-auto">
       <table className={`table table-auto w-full`}>
         <thead>
-          <tr className="border border-gray-200">
+          <tr className="sticky top-0 border-gray-200">
             {cols.map((col) => (
               <TableHeaderElement
                 key={col.key}
