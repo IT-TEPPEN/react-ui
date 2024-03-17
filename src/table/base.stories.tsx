@@ -16,7 +16,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     rows: [
-      ...Array.from({ length: 100 }, (_, i) => ({
+      ...Array.from({ length: 10000 }, (_, i) => ({
         id: i + 1,
         name: `name${1000 - i}`,
       })),
