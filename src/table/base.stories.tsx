@@ -16,14 +16,16 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     rows: [
-      ...Array.from({ length: 10000 }, (_, i) => ({
+      ...Array.from({ length: 1000 }, (_, i) => ({
         id: i + 1,
         name: `name${1000 - i}`,
+        age: 20 + (i % 10),
       })),
     ],
     cols: [
       { key: "id", label: "ID" },
       { key: "name", label: "名前" },
+      { key: "age", label: "年齢" },
     ],
   },
   render: (props) => (

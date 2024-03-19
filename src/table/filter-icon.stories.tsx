@@ -1,23 +1,22 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { SortIcon } from "./sort-icon";
+import { FIlterIcon } from "./filter-icon";
 
 const meta = {
-  title: "Table/Icon/Sort",
-  component: SortIcon,
+  title: "Table/Icon/Filter",
+  component: FIlterIcon,
   parameters: {
     layout: "centered",
   },
   tags: ["autodocs"],
-} as Meta<typeof SortIcon>;
+} as Meta<typeof FIlterIcon>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    sortOrder: "ASC",
-    isSortActive: true,
     size: 10,
+    isFilterActive: true,
   },
-  render: (props) => <SortIcon {...props} />,
+  render: (props) => <FIlterIcon {...props} />,
 };

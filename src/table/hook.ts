@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DataObject, TPropsTable } from "./type";
 import { usePageReducer } from "./page";
+import { useTableFilterContext } from "./filter";
 
 type State = {
   key: string;
@@ -9,19 +10,26 @@ type State = {
 
 export function useTable<T extends DataObject>(props: TPropsTable<T>) {
   const [key, changeKey] = useState<State>({ key: "id", order: "ASC" });
-  const { currentPage, pageCount, from, to, next, prev, jump } = usePageReducer(
-    {
+  const { filter, addFilter, removeFilter, clearFilter, filterConditions } =
+    useTableFilterContext();
+  const { currentPage, pageCount, from, to, next, prev, jump, setRowCount } =
+    usePageReducer({
       perPage: 50,
       currentPage: 1,
       rowCount: props.rows.length,
-    }
-  );
+    });
 
-  const { cols, rows } = props;
+  const { cols } = props;
+
+  const filteredRows = useMemo(() => filter(props.rows), [filter, props.rows]);
+
+  useEffect(() => {
+    setRowCount(filteredRows.length);
+  }, [filteredRows.length]);
 
   const sortedRows = useMemo(
     () =>
-      [...rows].sort((a, b) => {
+      [...filteredRows].sort((a, b) => {
         if (a[key.key] < b[key.key]) {
           return key.order === "ASC" ? -1 : 1;
         }
@@ -30,7 +38,7 @@ export function useTable<T extends DataObject>(props: TPropsTable<T>) {
         }
         return 0;
       }),
-    [rows, key.key, key.order]
+    [filteredRows, key.key, key.order]
   );
 
   const pagedRows = useMemo(
@@ -56,6 +64,7 @@ export function useTable<T extends DataObject>(props: TPropsTable<T>) {
   return {
     cols: colsWithSort,
     rows: pagedRows,
+    rowCount: filteredRows.length,
     sortKey: key.key,
     sortOrder: key.order,
     page: {
@@ -66,6 +75,12 @@ export function useTable<T extends DataObject>(props: TPropsTable<T>) {
       next,
       prev,
       jump,
+    },
+    filter: {
+      add: addFilter,
+      remove: removeFilter,
+      clear: clearFilter,
+      conditions: filterConditions,
     },
   };
 }
