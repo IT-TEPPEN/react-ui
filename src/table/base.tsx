@@ -47,6 +47,7 @@ function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
                 <TableHeaderElement
                   key={col.key}
                   label={col.label}
+                  columnType={col.type}
                   sortConponent={
                     <Sort
                       onClick={col.onClick}
@@ -59,7 +60,7 @@ function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
                       keyName={col.key}
                       onClick={(e) => {
                         e.preventDefault();
-                        setIsOpenFilterForm(true);
+                        setIsOpenFilterForm((curr) => !curr);
                       }}
                     />
                   }
@@ -109,9 +110,7 @@ function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
                 data-testid={r.id}
               >
                 {cols.map((col) => (
-                  <td key={col.key}>
-                    <TableCell key={col.key}>{r[col.key]}</TableCell>
-                  </td>
+                  <TableCell key={col.key}>{r[col.key]}</TableCell>
                 ))}
               </tr>
             ))}

@@ -1,12 +1,13 @@
 import { useState } from "react";
 import {
   FILTER_OPERATOR,
+  NUMBER_FILTER_OPERATOR,
   STRING_FILTER_OPERATOR,
   TStringFilterOperator,
   TableFilterRemoveButton,
   useTableFilterContext,
 } from "./filter";
-import { TTableColumn } from "./type";
+import { TColumnType, TTableColumn } from "./type";
 
 type TPropsFilterForm = {
   cols: TTableColumn[];
@@ -17,22 +18,27 @@ export function TableFilterForm(props: TPropsFilterForm) {
   const [selectingKey, setSelectingKey] = useState<string>("");
   const [selectingOperator, setSelectingOperator] = useState<string>("");
   const [value, setValue] = useState<string>("");
+  const [filterType, setFilterType] = useState<TColumnType>("string");
 
   return (
     <>
       <div className="flex flex-col gap-2">
         <p className="font-bold text-lg">フィルタ追加</p>
-        <div className="flex gap-1">
+        <div className="flex flex-wrap gap-1">
           <select
             value={selectingKey}
             onChange={(e) => {
               e.preventDefault();
               setSelectingKey(e.target.value);
+              const columnType = props.cols.find(
+                (col) => col.key === e.target.value
+              )?.type as TColumnType;
+              setFilterType(columnType);
             }}
           >
-            <option value="">列を選択</option>
+            <option value="">-- 列を選択 --</option>
             {props.cols
-              .filter((col) => !!col.label)
+              .filter((col) => !!col.label && !!col.type)
               .map((col) => (
                 <option value={col.key}>{col.label}</option>
               ))}
@@ -43,11 +49,19 @@ export function TableFilterForm(props: TPropsFilterForm) {
               e.preventDefault();
               setSelectingOperator(e.target.value);
             }}
+            disabled={!selectingKey}
           >
-            <option value="">条件を選択</option>
-            {STRING_FILTER_OPERATOR.map((op) => (
-              <option value={op.key}>{op.label}</option>
-            ))}
+            <option value="">
+              {selectingKey ? "-- 条件を選択 --" : "-- 列を選択してください --"}
+            </option>
+            {filterType === "string" &&
+              STRING_FILTER_OPERATOR.map((op) => (
+                <option value={op.key}>{op.label}</option>
+              ))}
+            {filterType === "number" &&
+              NUMBER_FILTER_OPERATOR.map((op) => (
+                <option value={op.key}>{op.label}</option>
+              ))}
           </select>
           <input
             type="text"
@@ -56,7 +70,7 @@ export function TableFilterForm(props: TPropsFilterForm) {
               e.preventDefault();
               setValue(e.target.value);
             }}
-            placeholder="値を入力"
+            placeholder="-- 値を入力 --"
           />
         </div>
         <div className="flex justify-end">

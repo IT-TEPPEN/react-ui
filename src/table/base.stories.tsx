@@ -23,9 +23,9 @@ export const Default: Story = {
       })),
     ],
     cols: [
-      { key: "id", label: "ID" },
-      { key: "name", label: "名前" },
-      { key: "age", label: "年齢" },
+      { key: "id", label: "ID", type: "number" },
+      { key: "name", label: "名前", type: "string" },
+      { key: "age", label: "年齢", type: "number" },
     ],
   },
   render: (props) => (
