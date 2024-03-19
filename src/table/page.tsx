@@ -86,6 +86,11 @@ export function usePageReducer(initialState?: TPage) {
     (pageNumber: number) => dispatch({ type: "jump", payload: { pageNumber } }),
     [dispatch]
   );
+  const setRowCount = useCallback(
+    (rouCount: number) =>
+      dispatch({ type: "setRowCount", payload: { rouCount } }),
+    [dispatch]
+  );
 
   return {
     perPage: state.perPage,
@@ -97,6 +102,7 @@ export function usePageReducer(initialState?: TPage) {
     next,
     prev,
     jump,
+    setRowCount,
   };
 }
 

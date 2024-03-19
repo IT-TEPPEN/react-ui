@@ -4,7 +4,11 @@ export type DataObject = {
   onClick?: React.MouseEventHandler<HTMLTableRowElement>;
 };
 
+export type TColumnType = "string" | "number";
+
+export type TTableColumn = { key: string; label?: string; type?: TColumnType };
+
 export type TPropsTable<T extends DataObject> = {
-  cols: { key: string; label?: string }[];
+  cols: TTableColumn[];
   rows: T[];
 };

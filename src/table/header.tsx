@@ -1,6 +1,8 @@
 type TPropsTableHeader = {
   label?: string;
+  columnType?: string;
   sortConponent?: JSX.Element;
+  filterComponent?: JSX.Element;
 };
 
 export function TableHeaderElement(props: TPropsTableHeader) {
@@ -12,9 +14,10 @@ export function TableHeaderElement(props: TPropsTableHeader) {
         </p>
       </div>
 
-      {props.sortConponent && (
-        <div className="absolute top-1/2 right-1 -translate-y-1/2">
-          {props.sortConponent}
+      {props.label && props.columnType && (
+        <div className="absolute flex items-center gap-1 top-1/2 right-1 -translate-y-1/2">
+          {props.filterComponent && props.filterComponent}
+          {props.sortConponent && props.sortConponent}
         </div>
       )}
     </th>

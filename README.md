@@ -47,7 +47,7 @@ module.exports = {
 
 To use this library, you need to import the components you want to use and render them in your React application.
 
-For example, to use the Button component, you can do something like this:
+For example, to use the Table component, you can do something like this:
 
 ```tsx
 import React from "react";
@@ -58,14 +58,15 @@ const App = () => {
     <div>
       <Table
         rows={[
-          { id: "1", name: "Taro" },
-          { id: "2", name: "Yoshiko" },
-          { id: "3", name: "Koki" },
-          { id: "4", name: "Chisato" },
+          { id: "1", name: "Taro", age: 30 },
+          { id: "2", name: "Yoshiko", age: 60 },
+          { id: "3", name: "Koki", age: 13 },
+          { id: "4", name: "Chisato", age: 34 },
         ]}
         cols={[
-          { key: "id", label: "ID" },
-          { key: "name", label: "名前" },
+          { key: "id", label: "ID", type: "数値" },
+          { key: "name", label: "名前", type: "文字列" },
+          { key: "age", label: "年齢", type: "数値" },
         ]}
       />
     </div>
@@ -75,6 +76,44 @@ const App = () => {
 export default App;
 ```
 
+### Table Component
+
+A component that displays a table based on the row and column information passed as arguments. The table component has the following features:
+
+- Pagination function
+- Filtering function (only when `label` and `type` are set in the column information)
+- Sorting function (only when `label` and `type` are set in the column information)
+
+#### Arguments
+
+The table component only accepts the arguments `rows` and `cols`. Details for each argument are described below.
+
+##### rows
+
+`rows` is an array of the following associative array (`DataObject`). Only id is required and it must be unique within the array. If onClick is set, it is possible to define the behavior when a row is clicked.
+
+```ts
+export type DataObject = {
+  [key: string]: any;
+  id: number | string;
+  onClick?: React.MouseEventHandler<HTMLTableRowElement>;
+};
+```
+
+##### cols
+
+In `cols`, you specify the data to be displayed in the table from left to right. The `key` here needs to match the key name in each element of rows. However, it is not necessary to always include the key `id`. `label` and `type` are optional, but they are required for some functions, so it is recommended to set them.
+
+```ts
+export type TColumnType = "string" | "number";
+
+export type TTableColumn = { key: string; label?: string; type?: TColumnType };
+```
+
 ## License
 
 This library is licensed under MIT license. See LICENSE file for more information.
+
+```
+
+```
