@@ -8,9 +8,9 @@ export type TStringCellEditingCondition = {
   type: "string";
   editable?: boolean;
   onCellBlur?: (
-    id: string | number,
+    key: string,
     value: string,
-    current: string,
+    current: DataObject,
     completeEditing: () => void
   ) => void;
   constraints?: {
@@ -24,9 +24,9 @@ export type TNumberCellEditingCondition = {
   type: "number";
   editable?: boolean;
   onCellBlur?: (
-    id: string | number,
+    key: string,
     value: number,
-    current: number,
+    current: DataObject,
     completeEditing: () => void
   ) => void;
   constraints?: {

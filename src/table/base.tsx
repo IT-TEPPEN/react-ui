@@ -110,7 +110,7 @@ function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
                 data-testid={r.id}
               >
                 {cols.map((col) => (
-                  <TableCell {...col} id={r.id}>
+                  <TableCell {...col} columnKey={col.key} currentRecord={r}>
                     {r[col.key]}
                   </TableCell>
                 ))}

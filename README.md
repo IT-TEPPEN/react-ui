@@ -135,9 +135,9 @@ export type TTableColumn = {
     min?: number; // Only when "type" is "number"
   };
   onCellBlur?: (
-    id: string | number, // Row ID
-    value: number, // Value in cell after change
-    current: number, // Value in cell before change
+    key: string,
+    value: number | string, // Value in cell after change
+    current: DataObject, // Row data before change
     completeEditing: () => void // Function to exit cell edit mode
   ) => void;
 };
