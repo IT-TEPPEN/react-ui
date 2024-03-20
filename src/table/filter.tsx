@@ -34,7 +34,7 @@ type TStringFilter = {
 
 type TNumberFilter = {
   key: string;
-  operator: (typeof NUMBER_FILTER_OPERATOR)[number]["key"];
+  operator: TNumberFilterOperator;
   value: number;
 };
 

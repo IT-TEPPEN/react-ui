@@ -52,7 +52,7 @@ export const Default: Story = {
     ],
   },
   render: (props) => (
-    <div className="w-96">
+    <div className=" w-screen px-5">
       <Table {...props} />
     </div>
   ),

@@ -3,6 +3,7 @@ import {
   FILTER_OPERATOR,
   NUMBER_FILTER_OPERATOR,
   STRING_FILTER_OPERATOR,
+  TNumberFilterOperator,
   TStringFilterOperator,
   TableFilterRemoveButton,
   useTableFilterContext,
@@ -23,7 +24,7 @@ export function TableFilterForm(props: TPropsFilterForm) {
 
   return (
     <>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 mb-5">
         <p className="font-bold text-lg">フィルタ追加</p>
         <div className="flex flex-wrap gap-1">
           <select
@@ -89,11 +90,19 @@ export function TableFilterForm(props: TPropsFilterForm) {
                 alert("全ての項目を入力してください");
                 return;
               }
-              addFilter({
-                key: selectingKey,
-                operator: selectingOperator as TStringFilterOperator,
-                value: [value],
-              });
+              addFilter(
+                filterType === "string"
+                  ? {
+                      key: selectingKey,
+                      operator: selectingOperator as TStringFilterOperator,
+                      value: [value],
+                    }
+                  : {
+                      key: selectingKey,
+                      operator: selectingOperator as TNumberFilterOperator,
+                      value: Number(value),
+                    }
+              );
             }}
           >
             追加
@@ -130,7 +139,11 @@ export function TableFilterForm(props: TPropsFilterForm) {
           ))}
         </ul>
         <div className="flex justify-center">
-          <TableFilterRemoveButton>remove all filter</TableFilterRemoveButton>
+          <TableFilterRemoveButton>
+            <p className="text-gray-600 underline hover:text-gray-800">
+              remove all filters
+            </p>
+          </TableFilterRemoveButton>
         </div>
       </div>
     </>

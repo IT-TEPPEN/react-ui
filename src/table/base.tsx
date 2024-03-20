@@ -34,9 +34,9 @@ function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
   const [isOpenFilterForm, setIsOpenFilterForm] = useState(false);
 
   return (
-    <>
+    <div className="w-full">
       <div className="flex justify-end">
-        <TableFilterRemoveButton>remove all filter</TableFilterRemoveButton>
+        <TableFilterRemoveButton>remove all filters</TableFilterRemoveButton>
       </div>
 
       <div className="relative w-full h-full max-h-[80vh] border border-gray-200 rounded-md overflow-auto">
@@ -73,21 +73,23 @@ function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
               <tr>
                 <td
                   colSpan={cols.length}
-                  className="sticky top-8 left-0 bg-gray-300 w-full shadow-lg rounded-b-2xl p-2 z-20"
+                  className="sticky top-8 left-0 bg-gray-300 w-full shadow-lg rounded-b-2xl py-5 px-2 z-20"
                 >
-                  <div className="relative">
-                    <div className="absolute top-0 right-0">
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setIsOpenFilterForm(false);
-                        }}
-                      >
-                        close
-                      </button>
-                    </div>
-                    <div>
-                      <TableFilterForm cols={cols} />
+                  <div className="container max-w-[768px] mx-auto">
+                    <div className="relative">
+                      <div className="absolute top-0 right-0">
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setIsOpenFilterForm(false);
+                          }}
+                        >
+                          close
+                        </button>
+                      </div>
+                      <div>
+                        <TableFilterForm cols={cols} />
+                      </div>
                     </div>
                   </div>
                 </td>
@@ -133,6 +135,6 @@ function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
           />
         </div>
       </div>
-    </>
+    </div>
   );
 }
