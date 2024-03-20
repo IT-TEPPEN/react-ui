@@ -66,5 +66,12 @@
   ],
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
-  }
+  },
+  "keywords": [
+    "react",
+    "tailwindcss",
+    "front-end",
+    "ui",
+    "table"
+  ]
 }

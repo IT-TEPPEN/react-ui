@@ -11,7 +11,10 @@ describe("SmartRating", () => {
           { id: "1", name: "a" },
           { id: "2", name: "b" },
         ]}
-        cols={[{ key: "id" }, { key: "name", label: "名前" }]}
+        cols={[
+          { key: "id", type: "string" },
+          { key: "name", type: "string", label: "名前" },
+        ]}
       />
     );
 

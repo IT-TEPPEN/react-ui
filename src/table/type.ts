@@ -21,7 +21,7 @@ export type TStringCellEditingCondition = {
 };
 
 export type TNumberCellEditingCondition = {
-  type?: "number";
+  type: "number";
   editable?: boolean;
   onCellBlur?: (
     id: string | number,
