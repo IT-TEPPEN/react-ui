@@ -8,6 +8,7 @@ import {
   useTableFilterContext,
 } from "./filter";
 import { TColumnType, TTableColumn } from "./type";
+import { CancelIcon } from "./cancel-icon";
 
 type TPropsFilterForm = {
   cols: TTableColumn[];
@@ -40,7 +41,9 @@ export function TableFilterForm(props: TPropsFilterForm) {
             {props.cols
               .filter((col) => !!col.label && !!col.type)
               .map((col) => (
-                <option value={col.key}>{col.label}</option>
+                <option key={col.key} value={col.key}>
+                  {col.label}
+                </option>
               ))}
           </select>
           <select
@@ -56,11 +59,15 @@ export function TableFilterForm(props: TPropsFilterForm) {
             </option>
             {filterType === "string" &&
               STRING_FILTER_OPERATOR.map((op) => (
-                <option value={op.key}>{op.label}</option>
+                <option key={op.key} value={op.key}>
+                  {op.label}
+                </option>
               ))}
             {filterType === "number" &&
               NUMBER_FILTER_OPERATOR.map((op) => (
-                <option value={op.key}>{op.label}</option>
+                <option key={op.key} value={op.key}>
+                  {op.label}
+                </option>
               ))}
           </select>
           <input
@@ -117,7 +124,7 @@ export function TableFilterForm(props: TPropsFilterForm) {
                   removeFilter(f.id);
                 }}
               >
-                ×
+                <CancelIcon size={16} />
               </button>
             </li>
           ))}

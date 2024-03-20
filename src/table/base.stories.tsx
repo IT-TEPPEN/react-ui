@@ -20,11 +20,34 @@ export const Default: Story = {
         id: i + 1,
         name: `name${1000 - i}`,
         age: 20 + (i % 10),
+        onClick: () => {
+          alert(i + 1);
+        },
       })),
     ],
     cols: [
-      { key: "id", label: "ID", type: "number" },
-      { key: "name", label: "名前", type: "string" },
+      {
+        key: "id",
+        label: "ID",
+        type: "number",
+        editable: true,
+        constraints: { min: 1 },
+        onCellBlur: (id, value, current, completeEditing) => {
+          console.log(id, value, current);
+          completeEditing();
+        },
+      },
+      {
+        key: "name",
+        label: "名前",
+        type: "string",
+        editable: true,
+        constraints: { maxLength: 10, minLength: 1, pattern: "^[a-zA-Z0-9]+$" },
+        onCellBlur: (id, value, current, completeEditing) => {
+          console.log(id, value, current);
+          completeEditing();
+        },
+      },
       { key: "age", label: "年齢", type: "number" },
     ],
   },

@@ -50,7 +50,7 @@ export function FIlterIcon(props: TPropsFIlterIcon) {
                 opacity: 1,
               }}
               transform=" matrix(1 0 0 1 0 0) "
-              stroke-linecap="round"
+              strokeLinecap="round"
             />
           </g>
         ) : (
@@ -82,7 +82,7 @@ export function FIlterIcon(props: TPropsFIlterIcon) {
                 opacity: 1,
               }}
               transform=" matrix(1 0 0 1 0 0) "
-              stroke-linecap="round"
+              strokeLinecap="round"
             />
           </g>
         )}

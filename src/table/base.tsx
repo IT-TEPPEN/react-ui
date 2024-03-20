@@ -42,7 +42,7 @@ function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
       <div className="relative w-full h-full max-h-[80vh] border border-gray-200 rounded-md overflow-auto">
         <table className={`table table-auto w-full`}>
           <thead>
-            <tr className="sticky top-0 border-gray-200">
+            <tr className="sticky top-0 border-gray-200 z-20">
               {cols.map((col) => (
                 <TableHeaderElement
                   key={col.key}
@@ -73,7 +73,7 @@ function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
               <tr>
                 <td
                   colSpan={cols.length}
-                  className="sticky top-8 left-0 bg-gray-300 w-full shadow-lg rounded-b-2xl p-2"
+                  className="sticky top-8 left-0 bg-gray-300 w-full shadow-lg rounded-b-2xl p-2 z-20"
                 >
                   <div className="relative">
                     <div className="absolute top-0 right-0">
@@ -110,7 +110,9 @@ function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
                 data-testid={r.id}
               >
                 {cols.map((col) => (
-                  <TableCell key={col.key}>{r[col.key]}</TableCell>
+                  <TableCell {...col} id={r.id}>
+                    {r[col.key]}
+                  </TableCell>
                 ))}
               </tr>
             ))}
