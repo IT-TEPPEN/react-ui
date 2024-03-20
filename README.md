@@ -75,8 +75,8 @@ const App = () => {
               minLength: 1,
               pattern: "^[a-zA-Z0-9]+$",
             },
-            onCellBlur: (id, value, current, completeEditing) => {
-              console.log(id, value, current);
+            onCellBlur: (key, value, current, completeEditing) => {
+              console.log(key, value, current);
               completeEditing();
             },
           },
