@@ -64,9 +64,23 @@ const App = () => {
           { id: "4", name: "Chisato", age: 34 },
         ]}
         cols={[
-          { key: "id", label: "ID", type: "数値" },
-          { key: "name", label: "名前", type: "文字列" },
-          { key: "age", label: "年齢", type: "数値" },
+          { key: "id", label: "ID", type: "number" },
+          {
+            key: "name",
+            label: "名前",
+            type: "string",
+            editable: true,
+            constraints: {
+              maxLength: 10,
+              minLength: 1,
+              pattern: "^[a-zA-Z0-9]+$",
+            },
+            onCellBlur: (key, value, current, completeEditing) => {
+              console.log(key, value, current);
+              completeEditing();
+            },
+          },
+          { key: "age", label: "年齢", type: "number" },
         ]}
       />
     </div>
@@ -83,6 +97,7 @@ A component that displays a table based on the row and column information passed
 - Pagination function
 - Filtering function (only when `label` and `type` are set in the column information)
 - Sorting function (only when `label` and `type` are set in the column information)
+- Editing function (only when `editable` is true and `onCellBlur` is set in the column information)
 
 #### Arguments
 
@@ -102,18 +117,32 @@ export type DataObject = {
 
 ##### cols
 
-In `cols`, you specify the data to be displayed in the table from left to right. The `key` here needs to match the key name in each element of rows. However, it is not necessary to always include the key `id`. `label` and `type` are optional, but they are required for some functions, so it is recommended to set them.
+In `cols`, you specify the data to be displayed in the table from left to right. The `key` here needs to match the key name in each element of rows. However, it is not necessary to always include the key `id`. `label` is optional, but it is required for some functions, so it is recommended to set it.
 
 ```ts
 export type TColumnType = "string" | "number";
 
-export type TTableColumn = { key: string; label?: string; type?: TColumnType };
+export type TTableColumn = {
+  key: string;
+  type: TColumnType;
+  label?: string;
+  editable?: boolean;
+  constraints?: {
+    maxLength?: number; // Only when "type" is "string"
+    minLength?: number; // Only when "type" is "string"
+    pattern?: string; // Only when "type" is "string"
+    max?: number; // Only when "type" is "number"
+    min?: number; // Only when "type" is "number"
+  };
+  onCellBlur?: (
+    key: string,
+    value: number | string, // Value in cell after change
+    current: DataObject, // Row data before change
+    completeEditing: () => void // Function to exit cell edit mode
+  ) => void;
+};
 ```
 
 ## License
 
 This library is licensed under MIT license. See LICENSE file for more information.
-
-```
-
-```
