@@ -78,19 +78,23 @@ const StringCellInput = forwardRef(function SI(
   const validate = () => {
     if (props.constraints?.maxLength) {
       if (value.length > props.constraints.maxLength) {
-        alert("over max length");
+        alert(
+          `最大文字数(${props.constraints.maxLength})を超過しています。(現在${value.length}文字)`
+        );
         return false;
       }
     }
     if (props.constraints?.minLength) {
       if (value.length < props.constraints.minLength) {
-        alert("under min length");
+        alert(
+          `最小文字数(${props.constraints.minLength})を下回っています。(現在${value.length}文字)`
+        );
         return false;
       }
     }
     if (props.constraints?.pattern) {
       if (!new RegExp(props.constraints.pattern).test(value)) {
-        alert("not match pattern");
+        alert(`パターンに一致しません。(パターン${props.constraints.pattern})`);
         return false;
       }
     }
@@ -155,14 +159,18 @@ const NumberCellInput = forwardRef(function SI(
 
     if (props.constraints?.max) {
       if (v > props.constraints.max) {
-        alert("over max");
+        alert(
+          `最大値(${props.constraints.max})を超過しています。(入力値:${v})`
+        );
         return false;
       }
     }
 
     if (props.constraints?.min) {
       if (v < props.constraints.min) {
-        alert("under min");
+        alert(
+          `最小値(${props.constraints.min})を下回っています。(入力値:${v})`
+        );
         return false;
       }
     }
@@ -182,7 +190,7 @@ const NumberCellInput = forwardRef(function SI(
           return;
         }
 
-        if (e.target.value === "-") {
+        if (e.target.value === "-" || e.target.value === "0-") {
           setValue("-0");
           return;
         }
@@ -196,7 +204,7 @@ const NumberCellInput = forwardRef(function SI(
           return;
         }
 
-        setValue(e.target.value);
+        setValue(Number(e.target.value).toString());
       }}
       onBlur={(e) => {
         e.preventDefault();
