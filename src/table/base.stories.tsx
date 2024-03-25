@@ -31,7 +31,7 @@ export const Default: Story = {
         label: "ID",
         type: "number",
         editable: true,
-        constraints: { min: 1 },
+        constraints: { min: 1, max: 1000 },
         onCellBlur: (id, value, current, completeEditing) => {
           console.log(id, value, current);
           completeEditing();
