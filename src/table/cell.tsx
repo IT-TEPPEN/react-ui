@@ -358,20 +358,26 @@ export const TableCell = memo(function TC(props: TPropsCell) {
             e.stopPropagation();
           }}
         >
-          <div
-            onDoubleClick={(e) => {
-              e.preventDefault();
-              if (props.editable) {
-                setIsEditing(true);
-              }
-            }}
-          >
-            <p className="text-left">
-              {props.type === "select"
-                ? props.options.find((op) => op.value === props.children)?.label
-                : props.children}
-            </p>
-          </div>
+          {props.type === "component" ? (
+            props.children
+          ) : (
+            <div
+              onDoubleClick={(e) => {
+                e.preventDefault();
+                if (props.editable) {
+                  setIsEditing(true);
+                }
+              }}
+            >
+              <p className="text-left">
+                {props.type === "select"
+                  ? props.options.find((op) => op.value === props.children)
+                      ?.label
+                  : props.children}
+              </p>
+            </div>
+          )}
+
           {props.editable && (
             <button
               className="w-fit h-fit p-1 rounded-full text-gray-500 hover:bg-gray-200"
