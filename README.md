@@ -58,10 +58,34 @@ const App = () => {
     <div>
       <Table
         rows={[
-          { id: "1", name: "Taro", age: 30, role: "" },
-          { id: "2", name: "Yoshiko", age: 60, role: "1" },
-          { id: "3", name: "Koki", age: 13, role: "2" },
-          { id: "4", name: "Chisato", age: 34, role: "2" },
+          {
+            id: "1",
+            name: "Taro",
+            age: 30,
+            role: "",
+            button: <button>Click</button>,
+          },
+          {
+            id: "2",
+            name: "Yoshiko",
+            age: 60,
+            role: "1",
+            button: <button>Click</button>,
+          },
+          {
+            id: "3",
+            name: "Koki",
+            age: 13,
+            role: "2",
+            button: <button>Click</button>,
+          },
+          {
+            id: "4",
+            name: "Chisato",
+            age: 34,
+            role: "2",
+            button: <button>Click</button>,
+          },
         ]}
         cols={[
           { key: "id", label: "ID", type: "number" },
@@ -96,6 +120,7 @@ const App = () => {
               completeEditing();
             },
           },
+          { key: "button", type: "component" },
         ]}
       />
     </div>
@@ -132,10 +157,12 @@ export type DataObject = {
 
 ##### cols
 
-In `cols`, you specify the data to be displayed in the table from left to right. The `key` here needs to match the key name in each element of rows. However, it is not necessary to always include the key `id` and `type`. `label` is optional, but it is required for some functions, so it is recommended to set it.
+In `cols`, you specify the data to be displayed in the table from left to right. The `key` here needs to match the key name in each element of rows. However, it is not necessary to always include the key `id`. `label` is optional, but it is required for some functions, so it is recommended to set it.
+
+When the `type` set `component`, editing, filtering, and sorting functions are not available. However, it is possible to embed a React Component created by the user into a cell.
 
 ```ts
-export type TColumnType = "string" | "number" | "select";
+export type TColumnType = "string" | "number" | "select" | "component";
 
 export type TTableColumn = {
   key: string;

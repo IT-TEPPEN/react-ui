@@ -49,20 +49,24 @@ function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
                   label={col.label}
                   columnType={col.type}
                   sortConponent={
-                    <Sort
-                      onClick={col.onClick}
-                      isSortedByThis={sortKey === col.key}
-                      sortOrder={sortOrder}
-                    />
+                    col.type !== "component" ? (
+                      <Sort
+                        onClick={col.onClick}
+                        isSortedByThis={sortKey === col.key}
+                        sortOrder={sortOrder}
+                      />
+                    ) : undefined
                   }
                   filterComponent={
-                    <TableFilter
-                      keyName={col.key}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setIsOpenFilterForm((curr) => !curr);
-                      }}
-                    />
+                    col.type !== "component" ? (
+                      <TableFilter
+                        keyName={col.key}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setIsOpenFilterForm((curr) => !curr);
+                        }}
+                      />
+                    ) : undefined
                   }
                 />
               ))}

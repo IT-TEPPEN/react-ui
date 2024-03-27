@@ -67,10 +67,16 @@ export type TSelectCellEditingCondition =
         }
     );
 
+export type TComponentCellEditingCondition = {
+  type: "component";
+  editable?: false;
+};
+
 export type TCellEditingCondition =
   | TStringCellEditingCondition
   | TNumberCellEditingCondition
-  | TSelectCellEditingCondition;
+  | TSelectCellEditingCondition
+  | TComponentCellEditingCondition;
 
 export type TTableColumn = {
   key: string;

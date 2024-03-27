@@ -24,6 +24,17 @@ export const Default: Story = {
           alert(i + 1);
         },
         role: i % 2 === 0 ? "admin" : i % 4 === 1 ? "user" : "",
+        button: (
+          <button
+            className="px-2 py-1 text-white bg-blue-500 rounded-md"
+            onClick={(e) => {
+              e.preventDefault();
+              alert(`Clicked! (id: ${i + 1})`);
+            }}
+          >
+            click
+          </button>
+        ),
       })),
     ],
     cols: [
@@ -65,6 +76,7 @@ export const Default: Story = {
           completeEditing();
         },
       },
+      { key: "button", type: "component" },
     ],
   },
   render: (props) => (
