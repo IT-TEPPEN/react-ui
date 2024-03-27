@@ -250,9 +250,95 @@ const NumberCellInput = forwardRef(function SI(
   );
 });
 
+const SelectCellInput = forwardRef(function SI(
+  props: {
+    columnKey: string;
+    currentRecord: DataObject;
+    compEditing: () => void;
+    options: { value: string; label: string }[];
+    allowEmpty?: boolean;
+    onCellBlur: (
+      key: string,
+      value: string,
+      current: DataObject,
+      completeEditing: () => void
+    ) => void;
+  },
+  ref: React.ForwardedRef<HTMLSelectElement>
+) {
+  const [value, setValue] = useState(
+    props.currentRecord[props.columnKey] as string
+  );
+
+  return (
+    <div className="flex justify-between gap-1 w-full items-center">
+      <select
+        ref={ref}
+        className="w-full py-1 px-2"
+        value={value}
+        onChange={(e) => {
+          e.preventDefault();
+          setValue(e.target.value);
+        }}
+        onBlur={(e) => {
+          e.preventDefault();
+
+          if (props.onCellBlur) {
+            props.onCellBlur(
+              props.columnKey,
+              value,
+              props.currentRecord,
+              props.compEditing
+            );
+          } else {
+            setValue(props.currentRecord[props.columnKey] as string);
+            props.compEditing();
+          }
+        }}
+        onKeyDown={(e: React.KeyboardEvent<HTMLSelectElement>) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+          }
+        }}
+        onKeyUp={(e: React.KeyboardEvent<HTMLSelectElement>) => {
+          e.preventDefault();
+          if (e.key === "Enter") {
+            (e.target as HTMLSelectElement).blur();
+          } else if (e.key === "Escape") {
+            setValue(props.currentRecord[props.columnKey] as string);
+            props.compEditing();
+          }
+        }}
+      >
+        {props.allowEmpty && (
+          <option key="TEPPEN/ReactUI Empty Option" value="">
+            {props.currentRecord[props.columnKey] == ""
+              ? "-- 未選択 --"
+              : "-- 選択解除 --"}
+          </option>
+        )}
+        {props.options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <button
+        onMouseDown={(e) => {
+          e.preventDefault();
+          setValue(props.currentRecord[props.columnKey] as string);
+          props.compEditing();
+        }}
+      >
+        <CancelIcon size={16} />
+      </button>
+    </div>
+  );
+});
+
 export const TableCell = memo(function TC(props: TPropsCell) {
   const [isEditing, setIsEditing] = useState(false);
-  const ref = useRef<HTMLInputElement>(null);
+  const ref = useRef<HTMLElement>(null);
 
   const compEditing = useCallback(() => {
     setIsEditing(false);
@@ -284,7 +370,11 @@ export const TableCell = memo(function TC(props: TPropsCell) {
               }
             }}
           >
-            <p className="text-left">{props.children}</p>
+            <p className="text-left">
+              {props.type === "select"
+                ? props.options.find((op) => op.value === props.children)?.label
+                : props.children}
+            </p>
           </div>
           {props.editable && (
             <button
@@ -310,7 +400,7 @@ export const TableCell = memo(function TC(props: TPropsCell) {
           >
             {props.type === "string" && (
               <StringCellInput
-                ref={ref}
+                ref={ref as React.RefObject<HTMLInputElement>}
                 columnKey={props.columnKey}
                 currentRecord={props.currentRecord}
                 compEditing={compEditing}
@@ -320,12 +410,23 @@ export const TableCell = memo(function TC(props: TPropsCell) {
             )}
             {props.type === "number" && (
               <NumberCellInput
-                ref={ref}
+                ref={ref as React.RefObject<HTMLInputElement>}
                 columnKey={props.columnKey}
                 currentRecord={props.currentRecord}
                 compEditing={compEditing}
                 onCellBlur={props.onCellBlur}
                 constraints={props.constraints}
+              />
+            )}
+            {props.type === "select" && (
+              <SelectCellInput
+                ref={ref as React.RefObject<HTMLSelectElement>}
+                columnKey={props.columnKey}
+                currentRecord={props.currentRecord}
+                compEditing={compEditing}
+                options={props.options}
+                allowEmpty={props.allowEmpty}
+                onCellBlur={props.onCellBlur}
               />
             )}
           </div>
