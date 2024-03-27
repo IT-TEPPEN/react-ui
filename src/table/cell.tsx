@@ -6,12 +6,7 @@ import {
   forwardRef,
   useCallback,
 } from "react";
-import {
-  DataObject,
-  TCellEditingCondition,
-  TNumberCellEditingCondition,
-  TStringCellEditingCondition,
-} from "./type";
+import { DataObject, TCellEditingCondition } from "./type";
 import { EditIcon } from "./edit-icon";
 import { CancelIcon } from "./cancel-icon";
 
@@ -68,7 +63,15 @@ const StringCellInput = forwardRef(function SI(
     columnKey: string;
     currentRecord: DataObject;
     compEditing: () => void;
-  } & TStringCellEditingCondition,
+    onCellBlur: (
+      key: string,
+      value: string,
+      current: DataObject,
+      completeEditing: () => void
+    ) => void;
+    constraints?: { maxLength?: number; minLength?: number; pattern?: string };
+    setOccurredOnCellBlur: () => void;
+  },
   ref: React.ForwardedRef<HTMLInputElement>
 ) {
   const [value, setValue] = useState(
@@ -117,24 +120,21 @@ const StringCellInput = forwardRef(function SI(
           return;
         }
 
-        if (props.onCellBlur) {
-          if (!validate()) {
-            setTimeout(() => {
-              e.target.focus();
-            }, 100);
-            return;
-          }
-
-          props.onCellBlur(
-            props.columnKey,
-            value,
-            props.currentRecord,
-            props.compEditing
-          );
-        } else {
-          setValue(props.currentRecord[props.columnKey]);
-          props.compEditing();
+        if (!validate()) {
+          setTimeout(() => {
+            e.target.focus();
+          }, 100);
+          return;
         }
+
+        props.onCellBlur(
+          props.columnKey,
+          value,
+          props.currentRecord,
+          props.compEditing
+        );
+
+        props.setOccurredOnCellBlur();
       }}
       reset={() => setValue(props.currentRecord[props.columnKey])}
       endEditing={props.compEditing}
@@ -147,7 +147,15 @@ const NumberCellInput = forwardRef(function SI(
     columnKey: string;
     currentRecord: DataObject;
     compEditing: () => void;
-  } & TNumberCellEditingCondition,
+    onCellBlur: (
+      key: string,
+      value: number,
+      current: DataObject,
+      completeEditing: () => void
+    ) => void;
+    constraints?: { max?: number; min?: number };
+    setOccurredOnCellBlur: () => void;
+  },
   ref: React.ForwardedRef<HTMLInputElement>
 ) {
   const [value, setValue] = useState(
@@ -214,24 +222,21 @@ const NumberCellInput = forwardRef(function SI(
           return;
         }
 
-        if (props.onCellBlur) {
-          if (!validate()) {
-            setTimeout(() => {
-              e.target.focus();
-            }, 100);
-            return;
-          }
-
-          props.onCellBlur(
-            props.columnKey,
-            Number(value),
-            props.currentRecord,
-            props.compEditing
-          );
-        } else {
-          setValue((props.currentRecord[props.columnKey] as number).toString());
-          props.compEditing();
+        if (!validate()) {
+          setTimeout(() => {
+            e.target.focus();
+          }, 100);
+          return;
         }
+
+        props.onCellBlur(
+          props.columnKey,
+          Number(value),
+          props.currentRecord,
+          props.compEditing
+        );
+
+        props.setOccurredOnCellBlur();
       }}
       reset={() =>
         setValue((props.currentRecord[props.columnKey] as number).toString())
@@ -241,9 +246,94 @@ const NumberCellInput = forwardRef(function SI(
   );
 });
 
+const SelectCellInput = forwardRef(function SI(
+  props: {
+    columnKey: string;
+    currentRecord: DataObject;
+    compEditing: () => void;
+    options: { value: string; label: string }[];
+    allowEmpty?: boolean;
+    onCellBlur: (
+      key: string,
+      value: string,
+      current: DataObject,
+      completeEditing: () => void
+    ) => void;
+    setOccurredOnCellBlur: () => void;
+  },
+  ref: React.ForwardedRef<HTMLSelectElement>
+) {
+  const [value, setValue] = useState(
+    props.currentRecord[props.columnKey] as string
+  );
+
+  return (
+    <div className="flex justify-between gap-1 w-full items-center">
+      <select
+        ref={ref}
+        className="w-full py-1 px-2"
+        value={value}
+        onChange={(e) => {
+          e.preventDefault();
+          setValue(e.target.value);
+        }}
+        onBlur={(e) => {
+          e.preventDefault();
+
+          props.onCellBlur(
+            props.columnKey,
+            value,
+            props.currentRecord,
+            props.compEditing
+          );
+
+          props.setOccurredOnCellBlur();
+        }}
+        onKeyDown={(e: React.KeyboardEvent<HTMLSelectElement>) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+          }
+        }}
+        onKeyUp={(e: React.KeyboardEvent<HTMLSelectElement>) => {
+          e.preventDefault();
+          if (e.key === "Enter") {
+            (e.target as HTMLSelectElement).blur();
+          } else if (e.key === "Escape") {
+            setValue(props.currentRecord[props.columnKey] as string);
+            props.compEditing();
+          }
+        }}
+      >
+        {props.allowEmpty && (
+          <option key="TEPPEN/ReactUI Empty Option" value="">
+            {props.currentRecord[props.columnKey] == ""
+              ? "-- 未選択 --"
+              : "-- 選択解除 --"}
+          </option>
+        )}
+        {props.options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <button
+        onMouseDown={(e) => {
+          e.preventDefault();
+          setValue(props.currentRecord[props.columnKey] as string);
+          props.compEditing();
+        }}
+      >
+        <CancelIcon size={16} />
+      </button>
+    </div>
+  );
+});
+
 export const TableCell = memo(function TC(props: TPropsCell) {
   const [isEditing, setIsEditing] = useState(false);
-  const ref = useRef<HTMLInputElement>(null);
+  const ref = useRef<HTMLElement>(null);
+  const [occurredOnCellBlur, setOccurredOnCellBlur] = useState(false);
 
   const compEditing = useCallback(() => {
     setIsEditing(false);
@@ -253,7 +343,8 @@ export const TableCell = memo(function TC(props: TPropsCell) {
     if (isEditing) {
       ref.current?.focus();
     }
-  }, [isEditing]);
+    setOccurredOnCellBlur(false);
+  }, [isEditing, occurredOnCellBlur]);
 
   return (
     <td>
@@ -275,7 +366,11 @@ export const TableCell = memo(function TC(props: TPropsCell) {
               }
             }}
           >
-            <p className="text-left">{props.children}</p>
+            <p className="text-left">
+              {props.type === "select"
+                ? props.options.find((op) => op.value === props.children)?.label
+                : props.children}
+            </p>
           </div>
           {props.editable && (
             <button
@@ -291,7 +386,7 @@ export const TableCell = memo(function TC(props: TPropsCell) {
             </button>
           )}
         </div>
-        {isEditing && (
+        {props.editable && isEditing && (
           <div
             className="absolute top-0 left-0 w-full h-full grid place-items-center z-10 pr-2"
             onClick={(e) => {
@@ -301,24 +396,42 @@ export const TableCell = memo(function TC(props: TPropsCell) {
           >
             {props.type === "string" && (
               <StringCellInput
-                ref={ref}
+                ref={ref as React.RefObject<HTMLInputElement>}
                 columnKey={props.columnKey}
                 currentRecord={props.currentRecord}
                 compEditing={compEditing}
-                type={"string"}
                 onCellBlur={props.onCellBlur}
                 constraints={props.constraints}
+                setOccurredOnCellBlur={() => {
+                  setOccurredOnCellBlur(true);
+                }}
               />
             )}
             {props.type === "number" && (
               <NumberCellInput
-                ref={ref}
+                ref={ref as React.RefObject<HTMLInputElement>}
                 columnKey={props.columnKey}
                 currentRecord={props.currentRecord}
                 compEditing={compEditing}
-                type={"number"}
                 onCellBlur={props.onCellBlur}
                 constraints={props.constraints}
+                setOccurredOnCellBlur={() => {
+                  setOccurredOnCellBlur(true);
+                }}
+              />
+            )}
+            {props.type === "select" && (
+              <SelectCellInput
+                ref={ref as React.RefObject<HTMLSelectElement>}
+                columnKey={props.columnKey}
+                currentRecord={props.currentRecord}
+                compEditing={compEditing}
+                options={props.options}
+                allowEmpty={props.allowEmpty}
+                onCellBlur={props.onCellBlur}
+                setOccurredOnCellBlur={() => {
+                  setOccurredOnCellBlur(true);
+                }}
               />
             )}
           </div>

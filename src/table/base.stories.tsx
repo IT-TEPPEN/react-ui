@@ -23,6 +23,7 @@ export const Default: Story = {
         onClick: () => {
           alert(i + 1);
         },
+        role: i % 2 === 0 ? "admin" : i % 4 === 1 ? "user" : "",
       })),
     ],
     cols: [
@@ -49,6 +50,21 @@ export const Default: Story = {
         },
       },
       { key: "age", label: "年齢", type: "number" },
+      {
+        key: "role",
+        label: "役割",
+        type: "select",
+        editable: true,
+        options: [
+          { value: "admin", label: "管理者" },
+          { value: "user", label: "ユーザー" },
+        ],
+        allowEmpty: true,
+        onCellBlur: (id, value, current, completeEditing) => {
+          console.log(id, value, current);
+          completeEditing();
+        },
+      },
     ],
   },
   render: (props) => (
