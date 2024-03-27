@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FILTER_OPERATOR,
   NUMBER_FILTER_OPERATOR,
+  SELECT_FILTER_OPERATOR,
   STRING_FILTER_OPERATOR,
   TNumberFilterOperator,
+  TSelectFilterOperator,
   TStringFilterOperator,
   TableFilterRemoveButton,
   useTableFilterContext,
@@ -23,6 +25,13 @@ export function TableFilterForm<T extends DataObject>(
   const [selectingOperator, setSelectingOperator] = useState<string>("");
   const [value, setValue] = useState<string>("");
   const [filterType, setFilterType] = useState<TColumnType>("string");
+
+  const filterColumn = props.cols.find((col) => col.key === selectingKey)!;
+
+  useEffect(() => {
+    setValue("");
+    setSelectingOperator("");
+  }, [selectingKey]);
 
   return (
     <>
@@ -72,32 +81,77 @@ export function TableFilterForm<T extends DataObject>(
                   {op.label}
                 </option>
               ))}
+            {filterType === "select" &&
+              SELECT_FILTER_OPERATOR.map((op) => (
+                <option key={op.key} value={op.key}>
+                  {op.label}
+                </option>
+              ))}
           </select>
-          <input
-            type="text"
-            value={value}
-            onChange={(e) => {
-              e.preventDefault();
-              setValue(e.target.value);
-            }}
-            placeholder="-- 値を入力 --"
-          />
+          {filterType === "select" ? (
+            <select
+              value={value}
+              onChange={(e) => {
+                e.preventDefault();
+                setValue(e.target.value);
+              }}
+            >
+              <option value="">-- 未選択 --</option>
+              {filterColumn.type === "select" &&
+                filterColumn.options.map((op) => (
+                  <option key={op.value} value={op.value}>
+                    {op.label}
+                  </option>
+                ))}
+            </select>
+          ) : (
+            <input
+              type="text"
+              value={value}
+              onChange={(e) => {
+                e.preventDefault();
+                setValue(e.target.value);
+              }}
+              placeholder="-- 値を入力 --"
+            />
+          )}
         </div>
         <div className="flex justify-end">
           <button
             className="bg-gray-900 text-white py-1 px-2 rounded-md"
             onClick={(e) => {
               e.preventDefault();
-              if (!selectingKey || !selectingOperator || !value) {
+              if (
+                !selectingKey ||
+                !selectingOperator ||
+                (filterColumn.type !== "select" && !value)
+              ) {
                 alert("全ての項目を入力してください");
                 return;
               }
+
+              const addFilterColumn = props.cols.find(
+                (col) => col.key === selectingKey
+              )!;
+
               addFilter(
                 filterType === "string"
                   ? {
                       key: selectingKey,
                       operator: selectingOperator as TStringFilterOperator,
                       value: [value],
+                    }
+                  : filterType === "select"
+                  ? {
+                      key: selectingKey,
+                      operator: selectingOperator as TSelectFilterOperator,
+                      value: value,
+                      label:
+                        addFilterColumn.type === "select"
+                          ? addFilterColumn.options.find(
+                              (op) => op.value === value
+                            )?.label
+                          : undefined,
                     }
                   : {
                       key: selectingKey,
@@ -127,7 +181,7 @@ export function TableFilterForm<T extends DataObject>(
                 <span>
                   {FILTER_OPERATOR.find((op) => op.key === f.operator)?.label}
                 </span>
-                ：<span>{f.value}</span>
+                ：<span>{f.label ? f.label : f.value}</span>
               </p>
               <button
                 onClick={(e) => {

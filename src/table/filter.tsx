@@ -15,30 +15,50 @@ export const NUMBER_FILTER_OPERATOR = [
   { key: "lte", label: "次の値以下" },
 ] as const;
 
+export const SELECT_FILTER_OPERATOR = [
+  { key: "selected", label: "次の値と等しい" },
+  { key: "notSelected", label: "次の値と等しくない" },
+] as const;
+
 export const FILTER_OPERATOR = [
   ...STRING_FILTER_OPERATOR,
   ...NUMBER_FILTER_OPERATOR,
+  ...SELECT_FILTER_OPERATOR,
 ] as const;
 
 export type TStringFilterOperator =
   (typeof STRING_FILTER_OPERATOR)[number]["key"];
 export type TNumberFilterOperator =
   (typeof NUMBER_FILTER_OPERATOR)[number]["key"];
-export type TFilterOperator = TStringFilterOperator | TNumberFilterOperator;
+export type TSelectFilterOperator =
+  (typeof SELECT_FILTER_OPERATOR)[number]["key"];
+export type TFilterOperator =
+  | TStringFilterOperator
+  | TNumberFilterOperator
+  | TSelectFilterOperator;
 
 type TStringFilter = {
   key: string;
   operator: TStringFilterOperator;
   value: string[];
+  label?: string;
 };
 
 type TNumberFilter = {
   key: string;
   operator: TNumberFilterOperator;
   value: number;
+  label?: string;
 };
 
-type TFilter = TStringFilter | TNumberFilter;
+type TSelectFilter = {
+  key: string;
+  operator: TSelectFilterOperator;
+  value: string;
+  label?: string;
+};
+
+type TFilter = TStringFilter | TNumberFilter | TSelectFilter;
 
 type TFilterState = {
   filters: ({ id: number } & TFilter)[];
@@ -110,6 +130,10 @@ function useFilterReducer() {
             return acc.filter((row) => row[filter.key] >= filter.value);
           case "lte":
             return acc.filter((row) => row[filter.key] <= filter.value);
+          case "selected":
+            return acc.filter((row) => row[filter.key] === filter.value);
+          case "notSelected":
+            return acc.filter((row) => row[filter.key] !== filter.value);
         }
       }, rows);
     },
