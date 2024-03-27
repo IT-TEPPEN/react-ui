@@ -8,14 +8,16 @@ import {
   TableFilterRemoveButton,
   useTableFilterContext,
 } from "./filter";
-import { TColumnType, TTableColumn } from "./type";
+import { DataObject, TColumnType, TTableColumn } from "./type";
 import { CancelIcon } from "./cancel-icon";
 
-type TPropsFilterForm = {
-  cols: TTableColumn[];
+type TPropsFilterForm<T extends DataObject> = {
+  cols: TTableColumn<T>[];
 };
 
-export function TableFilterForm(props: TPropsFilterForm) {
+export function TableFilterForm<T extends DataObject>(
+  props: TPropsFilterForm<T>
+) {
   const { addFilter, removeFilter, filterConditions } = useTableFilterContext();
   const [selectingKey, setSelectingKey] = useState<string>("");
   const [selectingOperator, setSelectingOperator] = useState<string>("");

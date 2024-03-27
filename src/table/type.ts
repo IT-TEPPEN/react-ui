@@ -4,7 +4,7 @@ export type DataObject = {
   onClick?: React.MouseEventHandler<HTMLTableRowElement>;
 };
 
-export type TStringCellEditingCondition =
+export type TStringCellEditingCondition<T extends DataObject> =
   | { type: "string" } & (
       | {
           editable?: false;
@@ -14,7 +14,7 @@ export type TStringCellEditingCondition =
           onCellBlur: (
             key: string,
             value: string,
-            current: DataObject,
+            current: T,
             completeEditing: () => void
           ) => void;
           constraints?: {
@@ -25,7 +25,7 @@ export type TStringCellEditingCondition =
         }
     );
 
-export type TNumberCellEditingCondition =
+export type TNumberCellEditingCondition<T extends DataObject> =
   | {
       type: "number";
     } & (
@@ -37,7 +37,7 @@ export type TNumberCellEditingCondition =
           onCellBlur: (
             key: string,
             value: number,
-            current: DataObject,
+            current: T,
             completeEditing: () => void
           ) => void;
           constraints?: {
@@ -47,7 +47,7 @@ export type TNumberCellEditingCondition =
         }
     );
 
-export type TSelectCellEditingCondition =
+export type TSelectCellEditingCondition<T extends DataObject> =
   | {
       type: "select";
       options: { value: string; label: string }[];
@@ -61,7 +61,7 @@ export type TSelectCellEditingCondition =
           onCellBlur: (
             key: string,
             value: string,
-            current: DataObject,
+            current: T,
             completeEditing: () => void
           ) => void;
         }
@@ -72,20 +72,20 @@ export type TComponentCellEditingCondition = {
   editable?: false;
 };
 
-export type TCellEditingCondition =
-  | TStringCellEditingCondition
-  | TNumberCellEditingCondition
-  | TSelectCellEditingCondition
+export type TCellEditingCondition<T extends DataObject> =
+  | TStringCellEditingCondition<T>
+  | TNumberCellEditingCondition<T>
+  | TSelectCellEditingCondition<T>
   | TComponentCellEditingCondition;
 
-export type TTableColumn = {
+export type TTableColumn<T extends DataObject> = {
   key: string;
   label?: string;
-} & TCellEditingCondition;
+} & TCellEditingCondition<T>;
 
-export type TColumnType = Exclude<TTableColumn["type"], undefined>;
+export type TColumnType = Exclude<TTableColumn<DataObject>["type"], undefined>;
 
 export type TPropsTable<T extends DataObject> = {
-  cols: TTableColumn[];
+  cols: TTableColumn<T>[];
   rows: T[];
 };
