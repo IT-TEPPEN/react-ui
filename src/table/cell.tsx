@@ -10,11 +10,11 @@ import { DataObject, TCellEditingCondition } from "./type";
 import { EditIcon } from "./edit-icon";
 import { CancelIcon } from "./cancel-icon";
 
-type TPropsCell = {
-  currentRecord: DataObject;
+type TPropsCell<T extends DataObject> = {
+  currentRecord: T;
   columnKey: string;
   children: string | number;
-} & TCellEditingCondition;
+} & TCellEditingCondition<T>;
 
 const CellInput = forwardRef(function CI<T extends string | number>(
   props: {
@@ -58,22 +58,20 @@ const CellInput = forwardRef(function CI<T extends string | number>(
   );
 });
 
-const StringCellInput = forwardRef(function SI(
-  props: {
-    columnKey: string;
-    currentRecord: DataObject;
-    compEditing: () => void;
-    onCellBlur: (
-      key: string,
-      value: string,
-      current: DataObject,
-      completeEditing: () => void
-    ) => void;
-    constraints?: { maxLength?: number; minLength?: number; pattern?: string };
-    setOccurredOnCellBlur: () => void;
-  },
-  ref: React.ForwardedRef<HTMLInputElement>
-) {
+function StringCellInput<T extends DataObject>(props: {
+  currentRef: React.ForwardedRef<HTMLInputElement>;
+  columnKey: string;
+  currentRecord: T;
+  compEditing: () => void;
+  onCellBlur: (
+    key: string,
+    value: string,
+    current: T,
+    completeEditing: () => void
+  ) => void;
+  constraints?: { maxLength?: number; minLength?: number; pattern?: string };
+  setOccurredOnCellBlur: () => void;
+}) {
   const [value, setValue] = useState(
     props.currentRecord[props.columnKey] as string
   );
@@ -106,7 +104,7 @@ const StringCellInput = forwardRef(function SI(
 
   return (
     <CellInput
-      ref={ref}
+      ref={props.currentRef}
       value={value}
       onChange={(e) => {
         e.preventDefault();
@@ -140,24 +138,22 @@ const StringCellInput = forwardRef(function SI(
       endEditing={props.compEditing}
     />
   );
-});
+}
 
-const NumberCellInput = forwardRef(function SI(
-  props: {
-    columnKey: string;
-    currentRecord: DataObject;
-    compEditing: () => void;
-    onCellBlur: (
-      key: string,
-      value: number,
-      current: DataObject,
-      completeEditing: () => void
-    ) => void;
-    constraints?: { max?: number; min?: number };
-    setOccurredOnCellBlur: () => void;
-  },
-  ref: React.ForwardedRef<HTMLInputElement>
-) {
+function NumberCellInput<T extends DataObject>(props: {
+  currentRef: React.ForwardedRef<HTMLInputElement>;
+  columnKey: string;
+  currentRecord: T;
+  compEditing: () => void;
+  onCellBlur: (
+    key: string,
+    value: number,
+    current: T,
+    completeEditing: () => void
+  ) => void;
+  constraints?: { max?: number; min?: number };
+  setOccurredOnCellBlur: () => void;
+}) {
   const [value, setValue] = useState(
     (props.currentRecord[props.columnKey] as number).toString()
   );
@@ -188,7 +184,7 @@ const NumberCellInput = forwardRef(function SI(
 
   return (
     <CellInput
-      ref={ref}
+      ref={props.currentRef}
       value={value}
       onChange={(e) => {
         e.preventDefault();
@@ -244,25 +240,23 @@ const NumberCellInput = forwardRef(function SI(
       endEditing={props.compEditing}
     />
   );
-});
+}
 
-const SelectCellInput = forwardRef(function SI(
-  props: {
-    columnKey: string;
-    currentRecord: DataObject;
-    compEditing: () => void;
-    options: { value: string; label: string }[];
-    allowEmpty?: boolean;
-    onCellBlur: (
-      key: string,
-      value: string,
-      current: DataObject,
-      completeEditing: () => void
-    ) => void;
-    setOccurredOnCellBlur: () => void;
-  },
-  ref: React.ForwardedRef<HTMLSelectElement>
-) {
+function SelectCellInput<T extends DataObject>(props: {
+  currentRef: React.ForwardedRef<HTMLSelectElement>;
+  columnKey: string;
+  currentRecord: T;
+  compEditing: () => void;
+  options: { value: string; label: string }[];
+  allowEmpty?: boolean;
+  onCellBlur: (
+    key: string,
+    value: string,
+    current: T,
+    completeEditing: () => void
+  ) => void;
+  setOccurredOnCellBlur: () => void;
+}) {
   const [value, setValue] = useState(
     props.currentRecord[props.columnKey] as string
   );
@@ -270,7 +264,7 @@ const SelectCellInput = forwardRef(function SI(
   return (
     <div className="flex justify-between gap-1 w-full items-center">
       <select
-        ref={ref}
+        ref={props.currentRef}
         className="w-full py-1 px-2"
         value={value}
         onChange={(e) => {
@@ -328,9 +322,9 @@ const SelectCellInput = forwardRef(function SI(
       </button>
     </div>
   );
-});
+}
 
-export const TableCell = memo(function TC(props: TPropsCell) {
+function _TableCell<T extends DataObject>(props: TPropsCell<T>) {
   const [isEditing, setIsEditing] = useState(false);
   const ref = useRef<HTMLElement>(null);
   const [occurredOnCellBlur, setOccurredOnCellBlur] = useState(false);
@@ -402,7 +396,7 @@ export const TableCell = memo(function TC(props: TPropsCell) {
           >
             {props.type === "string" && (
               <StringCellInput
-                ref={ref as React.RefObject<HTMLInputElement>}
+                currentRef={ref as React.RefObject<HTMLInputElement>}
                 columnKey={props.columnKey}
                 currentRecord={props.currentRecord}
                 compEditing={compEditing}
@@ -415,7 +409,7 @@ export const TableCell = memo(function TC(props: TPropsCell) {
             )}
             {props.type === "number" && (
               <NumberCellInput
-                ref={ref as React.RefObject<HTMLInputElement>}
+                currentRef={ref as React.RefObject<HTMLInputElement>}
                 columnKey={props.columnKey}
                 currentRecord={props.currentRecord}
                 compEditing={compEditing}
@@ -428,7 +422,7 @@ export const TableCell = memo(function TC(props: TPropsCell) {
             )}
             {props.type === "select" && (
               <SelectCellInput
-                ref={ref as React.RefObject<HTMLSelectElement>}
+                currentRef={ref as React.RefObject<HTMLSelectElement>}
                 columnKey={props.columnKey}
                 currentRecord={props.currentRecord}
                 compEditing={compEditing}
@@ -445,4 +439,5 @@ export const TableCell = memo(function TC(props: TPropsCell) {
       </div>
     </td>
   );
-});
+}
+export const TableCell = memo(_TableCell) as typeof _TableCell;

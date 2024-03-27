@@ -87,7 +87,7 @@ function useFilterReducer() {
   );
 
   const filter = useCallback(
-    (rows: DataObject[]): DataObject[] => {
+    <T extends DataObject>(rows: T[]): T[] => {
       return state.filters.reduce((acc, filter) => {
         switch (filter.operator) {
           case "includeText":
