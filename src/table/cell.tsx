@@ -6,12 +6,7 @@ import {
   forwardRef,
   useCallback,
 } from "react";
-import {
-  DataObject,
-  TCellEditingCondition,
-  TNumberCellEditingCondition,
-  TStringCellEditingCondition,
-} from "./type";
+import { DataObject, TCellEditingCondition } from "./type";
 import { EditIcon } from "./edit-icon";
 import { CancelIcon } from "./cancel-icon";
 
@@ -68,7 +63,14 @@ const StringCellInput = forwardRef(function SI(
     columnKey: string;
     currentRecord: DataObject;
     compEditing: () => void;
-  } & TStringCellEditingCondition,
+    onCellBlur: (
+      key: string,
+      value: string,
+      current: DataObject,
+      completeEditing: () => void
+    ) => void;
+    constraints?: { maxLength?: number; minLength?: number; pattern?: string };
+  },
   ref: React.ForwardedRef<HTMLInputElement>
 ) {
   const [value, setValue] = useState(
@@ -147,7 +149,14 @@ const NumberCellInput = forwardRef(function SI(
     columnKey: string;
     currentRecord: DataObject;
     compEditing: () => void;
-  } & TNumberCellEditingCondition,
+    onCellBlur: (
+      key: string,
+      value: number,
+      current: DataObject,
+      completeEditing: () => void
+    ) => void;
+    constraints?: { max?: number; min?: number };
+  },
   ref: React.ForwardedRef<HTMLInputElement>
 ) {
   const [value, setValue] = useState(
@@ -291,7 +300,7 @@ export const TableCell = memo(function TC(props: TPropsCell) {
             </button>
           )}
         </div>
-        {isEditing && (
+        {props.editable && isEditing && (
           <div
             className="absolute top-0 left-0 w-full h-full grid place-items-center z-10 pr-2"
             onClick={(e) => {
@@ -305,7 +314,6 @@ export const TableCell = memo(function TC(props: TPropsCell) {
                 columnKey={props.columnKey}
                 currentRecord={props.currentRecord}
                 compEditing={compEditing}
-                type={"string"}
                 onCellBlur={props.onCellBlur}
                 constraints={props.constraints}
               />
@@ -316,7 +324,6 @@ export const TableCell = memo(function TC(props: TPropsCell) {
                 columnKey={props.columnKey}
                 currentRecord={props.currentRecord}
                 compEditing={compEditing}
-                type={"number"}
                 onCellBlur={props.onCellBlur}
                 constraints={props.constraints}
               />
