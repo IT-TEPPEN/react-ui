@@ -47,7 +47,6 @@ function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
                 <TableHeaderElement
                   key={col.key}
                   label={col.label}
-                  columnType={col.type}
                   sortConponent={
                     col.type !== "component" ? (
                       <Sort
