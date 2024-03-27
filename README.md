@@ -27,7 +27,7 @@ Please follow the installation procedure described in the following tailwindcss 
 
 - URL: https://tailwindcss.com/docs/installation/framework-guides
 
-To use the React-UI library, add a `content` in `tailwind.config.js` to `". /node_modules/@teppen/react-ui/dist/**/*.js"`.
+To use the React-UI library, add a `content` in `tailwind.config.js` to `"./node_modules/@teppen/react-ui/dist/**/*.js"`.
 
 ```js
 /** @type {import('tailwindcss').Config} */
@@ -58,10 +58,10 @@ const App = () => {
     <div>
       <Table
         rows={[
-          { id: "1", name: "Taro", age: 30 },
-          { id: "2", name: "Yoshiko", age: 60 },
-          { id: "3", name: "Koki", age: 13 },
-          { id: "4", name: "Chisato", age: 34 },
+          { id: "1", name: "Taro", age: 30, role: "" },
+          { id: "2", name: "Yoshiko", age: 60, role: "1" },
+          { id: "3", name: "Koki", age: 13, role: "2" },
+          { id: "4", name: "Chisato", age: 34, role: "2" },
         ]}
         cols={[
           { key: "id", label: "ID", type: "number" },
@@ -81,6 +81,21 @@ const App = () => {
             },
           },
           { key: "age", label: "年齢", type: "number" },
+          {
+            key: "role",
+            label: "役割",
+            type: "select",
+            editable: true,
+            options: [
+              { value: "1", label: "管理者" },
+              { value: "2", label: "オペレーター" },
+            ],
+            allowEnpty: true,
+            onCellBlur: (key, value, current, completeEditing) => {
+              console.log(key, value, current);
+              completeEditing();
+            },
+          },
         ]}
       />
     </div>
@@ -95,8 +110,8 @@ export default App;
 A component that displays a table based on the row and column information passed as arguments. The table component has the following features:
 
 - Pagination function
-- Filtering function (only when `label` and `type` are set in the column information)
-- Sorting function (only when `label` and `type` are set in the column information)
+- Filtering function (only when `label` is set in the column information)
+- Sorting function (only when `label` is set in the column information)
 - Editing function (only when `editable` is true and `onCellBlur` is set in the column information)
 
 #### Arguments
@@ -117,16 +132,18 @@ export type DataObject = {
 
 ##### cols
 
-In `cols`, you specify the data to be displayed in the table from left to right. The `key` here needs to match the key name in each element of rows. However, it is not necessary to always include the key `id`. `label` is optional, but it is required for some functions, so it is recommended to set it.
+In `cols`, you specify the data to be displayed in the table from left to right. The `key` here needs to match the key name in each element of rows. However, it is not necessary to always include the key `id` and `type`. `label` is optional, but it is required for some functions, so it is recommended to set it.
 
 ```ts
-export type TColumnType = "string" | "number";
+export type TColumnType = "string" | "number" | "select";
 
 export type TTableColumn = {
   key: string;
   type: TColumnType;
+  options: { value: string; label: string }[]; // Only When "type" is "select"
   label?: string;
   editable?: boolean;
+  allowEmpty?: boolean; // Only When "type" is "select"
   constraints?: {
     maxLength?: number; // Only when "type" is "string"
     minLength?: number; // Only when "type" is "string"
