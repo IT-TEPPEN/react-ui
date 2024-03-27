@@ -70,6 +70,7 @@ const StringCellInput = forwardRef(function SI(
       completeEditing: () => void
     ) => void;
     constraints?: { maxLength?: number; minLength?: number; pattern?: string };
+    setOccurredOnCellBlur: () => void;
   },
   ref: React.ForwardedRef<HTMLInputElement>
 ) {
@@ -119,24 +120,21 @@ const StringCellInput = forwardRef(function SI(
           return;
         }
 
-        if (props.onCellBlur) {
-          if (!validate()) {
-            setTimeout(() => {
-              e.target.focus();
-            }, 100);
-            return;
-          }
-
-          props.onCellBlur(
-            props.columnKey,
-            value,
-            props.currentRecord,
-            props.compEditing
-          );
-        } else {
-          setValue(props.currentRecord[props.columnKey]);
-          props.compEditing();
+        if (!validate()) {
+          setTimeout(() => {
+            e.target.focus();
+          }, 100);
+          return;
         }
+
+        props.onCellBlur(
+          props.columnKey,
+          value,
+          props.currentRecord,
+          props.compEditing
+        );
+
+        props.setOccurredOnCellBlur();
       }}
       reset={() => setValue(props.currentRecord[props.columnKey])}
       endEditing={props.compEditing}
@@ -156,6 +154,7 @@ const NumberCellInput = forwardRef(function SI(
       completeEditing: () => void
     ) => void;
     constraints?: { max?: number; min?: number };
+    setOccurredOnCellBlur: () => void;
   },
   ref: React.ForwardedRef<HTMLInputElement>
 ) {
@@ -223,24 +222,21 @@ const NumberCellInput = forwardRef(function SI(
           return;
         }
 
-        if (props.onCellBlur) {
-          if (!validate()) {
-            setTimeout(() => {
-              e.target.focus();
-            }, 100);
-            return;
-          }
-
-          props.onCellBlur(
-            props.columnKey,
-            Number(value),
-            props.currentRecord,
-            props.compEditing
-          );
-        } else {
-          setValue((props.currentRecord[props.columnKey] as number).toString());
-          props.compEditing();
+        if (!validate()) {
+          setTimeout(() => {
+            e.target.focus();
+          }, 100);
+          return;
         }
+
+        props.onCellBlur(
+          props.columnKey,
+          Number(value),
+          props.currentRecord,
+          props.compEditing
+        );
+
+        props.setOccurredOnCellBlur();
       }}
       reset={() =>
         setValue((props.currentRecord[props.columnKey] as number).toString())
@@ -263,6 +259,7 @@ const SelectCellInput = forwardRef(function SI(
       current: DataObject,
       completeEditing: () => void
     ) => void;
+    setOccurredOnCellBlur: () => void;
   },
   ref: React.ForwardedRef<HTMLSelectElement>
 ) {
@@ -283,17 +280,14 @@ const SelectCellInput = forwardRef(function SI(
         onBlur={(e) => {
           e.preventDefault();
 
-          if (props.onCellBlur) {
-            props.onCellBlur(
-              props.columnKey,
-              value,
-              props.currentRecord,
-              props.compEditing
-            );
-          } else {
-            setValue(props.currentRecord[props.columnKey] as string);
-            props.compEditing();
-          }
+          props.onCellBlur(
+            props.columnKey,
+            value,
+            props.currentRecord,
+            props.compEditing
+          );
+
+          props.setOccurredOnCellBlur();
         }}
         onKeyDown={(e: React.KeyboardEvent<HTMLSelectElement>) => {
           if (e.key === "Enter") {
@@ -339,6 +333,7 @@ const SelectCellInput = forwardRef(function SI(
 export const TableCell = memo(function TC(props: TPropsCell) {
   const [isEditing, setIsEditing] = useState(false);
   const ref = useRef<HTMLElement>(null);
+  const [occurredOnCellBlur, setOccurredOnCellBlur] = useState(false);
 
   const compEditing = useCallback(() => {
     setIsEditing(false);
@@ -348,7 +343,8 @@ export const TableCell = memo(function TC(props: TPropsCell) {
     if (isEditing) {
       ref.current?.focus();
     }
-  }, [isEditing]);
+    setOccurredOnCellBlur(false);
+  }, [isEditing, occurredOnCellBlur]);
 
   return (
     <td>
@@ -406,6 +402,9 @@ export const TableCell = memo(function TC(props: TPropsCell) {
                 compEditing={compEditing}
                 onCellBlur={props.onCellBlur}
                 constraints={props.constraints}
+                setOccurredOnCellBlur={() => {
+                  setOccurredOnCellBlur(true);
+                }}
               />
             )}
             {props.type === "number" && (
@@ -416,6 +415,9 @@ export const TableCell = memo(function TC(props: TPropsCell) {
                 compEditing={compEditing}
                 onCellBlur={props.onCellBlur}
                 constraints={props.constraints}
+                setOccurredOnCellBlur={() => {
+                  setOccurredOnCellBlur(true);
+                }}
               />
             )}
             {props.type === "select" && (
@@ -427,6 +429,9 @@ export const TableCell = memo(function TC(props: TPropsCell) {
                 options={props.options}
                 allowEmpty={props.allowEmpty}
                 onCellBlur={props.onCellBlur}
+                setOccurredOnCellBlur={() => {
+                  setOccurredOnCellBlur(true);
+                }}
               />
             )}
           </div>
