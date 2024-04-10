@@ -114,11 +114,19 @@ function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
                 onClick={r.onClick}
                 data-testid={r.id}
               >
-                {cols.map((col) => (
-                  <TableCell {...col} columnKey={col.key} currentRecord={r}>
-                    {r[col.key]}
-                  </TableCell>
-                ))}
+                {cols.map((col) => {
+                  const { key, ...colInfo } = col;
+                  return (
+                    <TableCell
+                      key={key}
+                      {...colInfo}
+                      columnKey={col?.key}
+                      currentRecord={r}
+                    >
+                      {r[col?.key]}
+                    </TableCell>
+                  );
+                })}
               </tr>
             ))}
           </tbody>
