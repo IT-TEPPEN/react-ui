@@ -59,28 +59,28 @@ const App = () => {
       <Table
         rows={[
           {
-            id: "1",
+            id: 1,
             name: "Taro",
             age: 30,
             role: "",
             button: <button>Click</button>,
           },
           {
-            id: "2",
+            id: 2,
             name: "Yoshiko",
             age: 60,
             role: "1",
             button: <button>Click</button>,
           },
           {
-            id: "3",
+            id: 3,
             name: "Koki",
             age: 13,
             role: "2",
             button: <button>Click</button>,
           },
           {
-            id: "4",
+            id: 4,
             name: "Chisato",
             age: 34,
             role: "2",
@@ -114,7 +114,7 @@ const App = () => {
               { value: "1", label: "管理者" },
               { value: "2", label: "オペレーター" },
             ],
-            allowEnpty: true,
+            allowEmpty: true,
             onCellBlur: (key, value, current, completeEditing) => {
               console.log(key, value, current);
               completeEditing();
