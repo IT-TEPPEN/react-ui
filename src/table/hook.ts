@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { DataObject, TPropsTable } from "./type";
-import { useTableFilterContext } from "./filter";
 import { usePageContext } from "./pagenation/providers";
+import { useFilterContext } from "./filter";
 type State = {
   key: string;
   order: "ASC" | "DESC";
@@ -10,7 +10,7 @@ type State = {
 export function useTable<T extends DataObject>(props: TPropsTable<T>) {
   const [key, changeKey] = useState<State>({ key: "id", order: "ASC" });
   const { filter, addFilter, removeFilter, clearFilter, filterConditions } =
-    useTableFilterContext();
+    useFilterContext();
   const { setRowCount, pageFilter } = usePageContext();
 
   const { cols } = props;

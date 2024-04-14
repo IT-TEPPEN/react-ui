@@ -1,17 +1,63 @@
+"use client";
+
+import { FIlterIcon } from "./filter-icon";
+import { useFilterContext } from "./provider";
 import { useEffect, useState } from "react";
+import { DataObject, TColumnType, TTableColumn } from "../type";
+import { CancelIcon } from "../cancel-icon";
 import {
   FILTER_OPERATOR,
   NUMBER_FILTER_OPERATOR,
   SELECT_FILTER_OPERATOR,
   STRING_FILTER_OPERATOR,
+} from "./constants";
+import {
   TNumberFilterOperator,
   TSelectFilterOperator,
   TStringFilterOperator,
-  TableFilterRemoveButton,
-  useTableFilterContext,
-} from "./filter";
-import { DataObject, TColumnType, TTableColumn } from "./type";
-import { CancelIcon } from "./cancel-icon";
+} from "./types";
+
+type TPropsTableFilter = {
+  keyName: string;
+  onClick: React.MouseEventHandler<HTMLDivElement>;
+};
+
+export function TableFilter(props: TPropsTableFilter) {
+  const { filterConditions } = useFilterContext();
+
+  return (
+    <div className="relative cursor-pointer" onClick={props.onClick}>
+      <FIlterIcon
+        isFilterActive={
+          filterConditions.filter((f) => f.key === props.keyName).length > 0
+        }
+      />
+    </div>
+  );
+}
+
+export function TableFilterRemoveButton({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { clearFilter, filterConditions } = useFilterContext();
+
+  if (filterConditions.length === 0) {
+    return;
+  }
+
+  return (
+    <button
+      onClick={(e) => {
+        e.preventDefault();
+        clearFilter();
+      }}
+    >
+      {children}
+    </button>
+  );
+}
 
 type TPropsFilterForm<T extends DataObject> = {
   cols: TTableColumn<T>[];
@@ -20,7 +66,7 @@ type TPropsFilterForm<T extends DataObject> = {
 export function TableFilterForm<T extends DataObject>(
   props: TPropsFilterForm<T>
 ) {
-  const { addFilter, removeFilter, filterConditions } = useTableFilterContext();
+  const { addFilter, removeFilter, filterConditions } = useFilterContext();
   const [selectingKey, setSelectingKey] = useState<string>("");
   const [selectingOperator, setSelectingOperator] = useState<string>("");
   const [value, setValue] = useState<string>("");

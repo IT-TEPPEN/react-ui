@@ -6,22 +6,22 @@ import { Sort } from "./sort";
 import { TableHeaderElement } from "./header";
 import { DataObject, TPropsTable } from "./type";
 import { DisplayRange, Pagenation } from "./pagenation/components";
+import { useState } from "react";
+import { PagenationProvider } from "./pagenation/providers";
 import {
+  FilterProvider,
   TableFilter,
-  TableFilterProvider,
+  TableFilterForm,
   TableFilterRemoveButton,
 } from "./filter";
-import { useState } from "react";
-import { TableFilterForm } from "./filter-form";
-import { PagenationProvider } from "./pagenation/providers";
 
 export default function Table<T extends DataObject>(props: TPropsTable<T>) {
   return (
-    <PagenationProvider rowCount={props.rows.length}>
-      <TableFilterProvider>
+    <FilterProvider>
+      <PagenationProvider rowCount={props.rows.length}>
         <BaseTable {...props} />
-      </TableFilterProvider>
-    </PagenationProvider>
+      </PagenationProvider>
+    </FilterProvider>
   );
 }
 
