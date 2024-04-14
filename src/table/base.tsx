@@ -5,7 +5,7 @@ import { TableCell } from "./cell";
 import { Sort } from "./sort";
 import { TableHeaderElement } from "./header";
 import { DataObject, TPropsTable } from "./type";
-import { Pagenation } from "./page";
+import { DisplayRange, Pagenation } from "./pagenation/components";
 import {
   TableFilter,
   TableFilterProvider,
@@ -13,24 +13,20 @@ import {
 } from "./filter";
 import { useState } from "react";
 import { TableFilterForm } from "./filter-form";
+import { PagenationProvider } from "./pagenation/providers";
 
 export default function Table<T extends DataObject>(props: TPropsTable<T>) {
   return (
-    <TableFilterProvider>
-      <BaseTable {...props} />
-    </TableFilterProvider>
+    <PagenationProvider rowCount={props.rows.length}>
+      <TableFilterProvider>
+        <BaseTable {...props} />
+      </TableFilterProvider>
+    </PagenationProvider>
   );
 }
 
 function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
-  const {
-    cols,
-    rows,
-    rowCount,
-    sortKey,
-    sortOrder,
-    page: { count, current, from, to, next, prev, jump },
-  } = useTable(props);
+  const { cols, rows, sortKey, sortOrder } = useTable(props);
   const [isOpenFilterForm, setIsOpenFilterForm] = useState(false);
 
   return (
@@ -133,17 +129,9 @@ function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
         </table>
       </div>
       <div className="mt-1">
-        <p className="text-center text-sm text-gray-600">
-          {from + 1} - {to < rowCount ? to : rowCount} of {rowCount}
-        </p>
+        <DisplayRange />
         <div className="mt-2">
-          <Pagenation
-            count={count}
-            current={current}
-            jump={jump}
-            next={next}
-            prev={prev}
-          />
+          <Pagenation />
         </div>
       </div>
     </div>

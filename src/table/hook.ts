@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { DataObject, TPropsTable } from "./type";
-import { usePageReducer } from "./page";
 import { useTableFilterContext } from "./filter";
-
+import { usePageContext } from "./pagenation/providers";
 type State = {
   key: string;
   order: "ASC" | "DESC";
@@ -12,12 +11,7 @@ export function useTable<T extends DataObject>(props: TPropsTable<T>) {
   const [key, changeKey] = useState<State>({ key: "id", order: "ASC" });
   const { filter, addFilter, removeFilter, clearFilter, filterConditions } =
     useTableFilterContext();
-  const { currentPage, pageCount, from, to, next, prev, jump, setRowCount } =
-    usePageReducer({
-      perPage: 50,
-      currentPage: 1,
-      rowCount: props.rows.length,
-    });
+  const { setRowCount, pageFilter } = usePageContext();
 
   const { cols } = props;
 
@@ -41,11 +35,6 @@ export function useTable<T extends DataObject>(props: TPropsTable<T>) {
     [filteredRows, key.key, key.order]
   );
 
-  const pagedRows = useMemo(
-    () => sortedRows.slice(from, to),
-    [from, to, sortedRows]
-  );
-
   const colsWithSort = cols.map((col) => ({
     ...col,
     onClick: (e: React.MouseEvent<HTMLElement>) => {
@@ -61,21 +50,17 @@ export function useTable<T extends DataObject>(props: TPropsTable<T>) {
     },
   }));
 
+  const pageRows = useMemo(
+    () => pageFilter(sortedRows),
+    [pageFilter, sortedRows]
+  );
+
   return {
     cols: colsWithSort,
-    rows: pagedRows,
+    rows: pageRows,
     rowCount: filteredRows.length,
     sortKey: key.key,
     sortOrder: key.order,
-    page: {
-      from,
-      to,
-      count: pageCount,
-      current: currentPage,
-      next,
-      prev,
-      jump,
-    },
     filter: {
       add: addFilter,
       remove: removeFilter,
