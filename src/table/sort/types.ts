@@ -24,5 +24,5 @@ export type TReturnSortReducer = {
   asc: boolean;
   changeKey: (key: string) => void;
   changeOrder: () => void;
-  sort: <T extends DataObject>(rows: T[]) => T[];
+  sort: (rows: DataObject[]) => DataObject[];
 };

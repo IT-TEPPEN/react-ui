@@ -1,10 +1,10 @@
 import { useEffect, useMemo } from "react";
-import { DataObject, TPropsTable } from "./type";
+import { TPropsTable } from "./type";
 import { usePageContext } from "./pagenation/providers";
 import { useFilterContext } from "./filter";
 import { useSortContext } from "./sort";
 
-export function useTable<T extends DataObject>(props: TPropsTable<T>) {
+export function useTable(props: TPropsTable) {
   const { filter } = useFilterContext();
   const { sort } = useSortContext();
   const { setRowCount, pageFilter } = usePageContext();

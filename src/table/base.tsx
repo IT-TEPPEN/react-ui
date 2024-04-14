@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTable } from "./hook";
 import { TableCell } from "./cell";
 import { TableHeaderElement } from "./header";
-import { DataObject, TPropsTable } from "./type";
+import { TPropsTable } from "./type";
 import { PagenationProvider, DisplayRange, Pagenation } from "./pagenation";
 import {
   FilterProvider,
@@ -13,20 +13,23 @@ import {
   TableFilterRemoveButton,
 } from "./filter";
 import { SortButton, SortProvider } from "./sort";
+import { ColumnsProvider, RowProvider } from "./sheet/providers";
 
-export default function Table<T extends DataObject>(props: TPropsTable<T>) {
+export default function Table(props: TPropsTable) {
   return (
     <FilterProvider>
       <SortProvider initialCondition={props.initialCondition?.sort}>
         <PagenationProvider rowCount={props.rows.length}>
-          <BaseTable {...props} />
+          <ColumnsProvider cols={props.cols}>
+            <BaseTable {...props} />
+          </ColumnsProvider>
         </PagenationProvider>
       </SortProvider>
     </FilterProvider>
   );
 }
 
-function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
+function BaseTable(props: TPropsTable) {
   const { cols, rows } = useTable(props);
   const [isOpenFilterForm, setIsOpenFilterForm] = useState(false);
 
@@ -98,29 +101,29 @@ function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
                 </td>
               </tr>
             )}
-            {rows.map((r) => (
-              <tr
-                key={r.id}
-                className={`border border-gray-200 hover:bg-gray-100 ${
-                  !!rows[0]?.onClick ? "hover:cursor-pointer" : ""
-                }`}
-                onClick={r.onClick}
-                data-testid={r.id}
-              >
-                {cols.map((col) => {
-                  const { key, ...colInfo } = col;
-                  return (
-                    <TableCell
-                      key={key}
-                      {...colInfo}
-                      columnKey={col?.key}
-                      currentRecord={r}
-                    >
-                      {r[col?.key]}
-                    </TableCell>
-                  );
-                })}
-              </tr>
+            {rows.map((r, i) => (
+              <RowProvider key={r.id} row={r}>
+                <tr
+                  className={`border border-gray-200 hover:bg-gray-100 ${
+                    !!rows[0]?.onClick ? "hover:cursor-pointer" : ""
+                  }`}
+                  onClick={r.onClick}
+                  data-testid={r.id}
+                >
+                  {cols.map((col, j) => {
+                    return (
+                      <TableCell
+                        key={col.key}
+                        rowNumber={i}
+                        colNumber={j}
+                        columnKey={col.key}
+                      >
+                        {r[col.key]}
+                      </TableCell>
+                    );
+                  })}
+                </tr>
+              </RowProvider>
             ))}
           </tbody>
         </table>
