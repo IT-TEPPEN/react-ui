@@ -1,3 +1,5 @@
+"use client";
+
 import { createContext, useContext } from "react";
 import { TPageContext } from "./types";
 import { usePageReducer } from "./hooks";

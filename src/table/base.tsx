@@ -1,32 +1,33 @@
 "use client";
 
+import { useState } from "react";
 import { useTable } from "./hook";
 import { TableCell } from "./cell";
-import { Sort } from "./sort";
 import { TableHeaderElement } from "./header";
 import { DataObject, TPropsTable } from "./type";
-import { DisplayRange, Pagenation } from "./pagenation/components";
-import { useState } from "react";
-import { PagenationProvider } from "./pagenation/providers";
+import { PagenationProvider, DisplayRange, Pagenation } from "./pagenation";
 import {
   FilterProvider,
   TableFilter,
   TableFilterForm,
   TableFilterRemoveButton,
 } from "./filter";
+import { SortButton, SortProvider } from "./sort";
 
 export default function Table<T extends DataObject>(props: TPropsTable<T>) {
   return (
     <FilterProvider>
-      <PagenationProvider rowCount={props.rows.length}>
-        <BaseTable {...props} />
-      </PagenationProvider>
+      <SortProvider initialCondition={props.initialCondition?.sort}>
+        <PagenationProvider rowCount={props.rows.length}>
+          <BaseTable {...props} />
+        </PagenationProvider>
+      </SortProvider>
     </FilterProvider>
   );
 }
 
 function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
-  const { cols, rows, sortKey, sortOrder } = useTable(props);
+  const { cols, rows } = useTable(props);
   const [isOpenFilterForm, setIsOpenFilterForm] = useState(false);
 
   return (
@@ -45,11 +46,7 @@ function BaseTable<T extends DataObject>(props: TPropsTable<T>) {
                   label={col.label}
                   sortConponent={
                     col.type !== "component" ? (
-                      <Sort
-                        onClick={col.onClick}
-                        isSortedByThis={sortKey === col.key}
-                        sortOrder={sortOrder}
-                      />
+                      <SortButton keyName={col.key} />
                     ) : undefined
                   }
                   filterComponent={
