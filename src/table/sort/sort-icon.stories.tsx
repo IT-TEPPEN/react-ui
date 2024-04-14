@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { SortIcon } from "./sort-icon";
+import { SortIcon } from "./icon";
 
 const meta = {
   title: "Table/Icon/Sort",

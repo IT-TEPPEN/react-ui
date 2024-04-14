@@ -88,4 +88,7 @@ export type TColumnType = Exclude<TTableColumn<DataObject>["type"], undefined>;
 export type TPropsTable<T extends DataObject> = {
   cols: TTableColumn<T>[];
   rows: T[];
+  initialCondition?: {
+    sort?: { key: string; asc?: boolean };
+  };
 };
