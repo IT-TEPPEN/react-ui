@@ -8,15 +8,16 @@ import {
   forwardRef,
   useCallback,
 } from "react";
-import { DataObject, TCellEditingCondition } from "./type";
 import { EditIcon } from "./edit-icon";
 import { CancelIcon } from "./cancel-icon";
-import { useRowContext } from "./sheet/providers";
+import { useColumnContext, useRowContext } from "./sheet/providers";
 
 type TPropsCell = {
+  rowNumber: number;
+  colNumber: number;
   columnKey: string;
   children: string | number;
-} & TCellEditingCondition;
+};
 
 const CellInput = forwardRef(function CI(
   props: {
@@ -64,38 +65,36 @@ function StringCellInput(props: {
   currentRef: React.ForwardedRef<HTMLInputElement>;
   columnKey: string;
   compEditing: () => void;
-  onCellBlur: (
-    key: string,
-    value: string,
-    current: DataObject,
-    completeEditing: () => void
-  ) => void;
-  constraints?: { maxLength?: number; minLength?: number; pattern?: string };
   setOccurredOnCellBlur: () => void;
 }) {
+  const col = useColumnContext(props.columnKey);
   const row = useRowContext();
   const [value, setValue] = useState(row[props.columnKey] as string);
 
+  if (!col.editable || col.type !== "string") {
+    throw new Error("Invalid condition");
+  }
+
   const validate = () => {
-    if (props.constraints?.maxLength) {
-      if (value.length > props.constraints.maxLength) {
+    if (col.constraints?.maxLength) {
+      if (value.length > col.constraints.maxLength) {
         alert(
-          `最大文字数(${props.constraints.maxLength})を超過しています。(現在${value.length}文字)`
+          `最大文字数(${col.constraints.maxLength})を超過しています。(現在${value.length}文字)`
         );
         return false;
       }
     }
-    if (props.constraints?.minLength) {
-      if (value.length < props.constraints.minLength) {
+    if (col.constraints?.minLength) {
+      if (value.length < col.constraints.minLength) {
         alert(
-          `最小文字数(${props.constraints.minLength})を下回っています。(現在${value.length}文字)`
+          `最小文字数(${col.constraints.minLength})を下回っています。(現在${value.length}文字)`
         );
         return false;
       }
     }
-    if (props.constraints?.pattern) {
-      if (!new RegExp(props.constraints.pattern).test(value)) {
-        alert(`パターンに一致しません。(パターン${props.constraints.pattern})`);
+    if (col.constraints?.pattern) {
+      if (!new RegExp(col.constraints.pattern).test(value)) {
+        alert(`パターンに一致しません。(パターン${col.constraints.pattern})`);
         return false;
       }
     }
@@ -125,7 +124,7 @@ function StringCellInput(props: {
           return;
         }
 
-        props.onCellBlur(props.columnKey, value, row, props.compEditing);
+        col.onCellBlur(props.columnKey, value, row, props.compEditing);
 
         props.setOccurredOnCellBlur();
       }}
@@ -139,37 +138,31 @@ function NumberCellInput(props: {
   currentRef: React.ForwardedRef<HTMLInputElement>;
   columnKey: string;
   compEditing: () => void;
-  onCellBlur: (
-    key: string,
-    value: number,
-    current: DataObject,
-    completeEditing: () => void
-  ) => void;
-  constraints?: { max?: number; min?: number };
   setOccurredOnCellBlur: () => void;
 }) {
+  const col = useColumnContext(props.columnKey);
   const row = useRowContext();
   const [value, setValue] = useState(
     (row[props.columnKey] as number).toString()
   );
 
+  if (!col.editable || col.type !== "number") {
+    throw new Error("Invalid condition");
+  }
+
   const validate = () => {
     const v = parseInt(value);
 
-    if (props.constraints?.max) {
-      if (v > props.constraints.max) {
-        alert(
-          `最大値(${props.constraints.max})を超過しています。(入力値:${v})`
-        );
+    if (col.constraints?.max) {
+      if (v > col.constraints.max) {
+        alert(`最大値(${col.constraints.max})を超過しています。(入力値:${v})`);
         return false;
       }
     }
 
-    if (props.constraints?.min) {
-      if (v < props.constraints.min) {
-        alert(
-          `最小値(${props.constraints.min})を下回っています。(入力値:${v})`
-        );
+    if (col.constraints?.min) {
+      if (v < col.constraints.min) {
+        alert(`最小値(${col.constraints.min})を下回っています。(入力値:${v})`);
         return false;
       }
     }
@@ -220,12 +213,7 @@ function NumberCellInput(props: {
           return;
         }
 
-        props.onCellBlur(
-          props.columnKey,
-          Number(value),
-          row,
-          props.compEditing
-        );
+        col.onCellBlur(props.columnKey, Number(value), row, props.compEditing);
 
         props.setOccurredOnCellBlur();
       }}
@@ -239,18 +227,15 @@ function SelectCellInput(props: {
   currentRef: React.ForwardedRef<HTMLSelectElement>;
   columnKey: string;
   compEditing: () => void;
-  options: { value: string; label: string }[];
-  allowEmpty?: boolean;
-  onCellBlur: (
-    key: string,
-    value: string,
-    current: DataObject,
-    completeEditing: () => void
-  ) => void;
   setOccurredOnCellBlur: () => void;
 }) {
+  const col = useColumnContext(props.columnKey);
   const row = useRowContext();
   const [value, setValue] = useState(row[props.columnKey] as string);
+
+  if (!col.editable || col.type !== "select") {
+    throw new Error("Invalid condition");
+  }
 
   return (
     <div className="flex justify-between gap-1 w-full items-center">
@@ -265,7 +250,7 @@ function SelectCellInput(props: {
         onBlur={(e) => {
           e.preventDefault();
 
-          props.onCellBlur(props.columnKey, value, row, props.compEditing);
+          col.onCellBlur(props.columnKey, value, row, props.compEditing);
 
           props.setOccurredOnCellBlur();
         }}
@@ -284,12 +269,12 @@ function SelectCellInput(props: {
           }
         }}
       >
-        {props.allowEmpty && (
+        {col.allowEmpty && (
           <option key="TEPPEN/ReactUI Empty Option" value="">
             {row[props.columnKey] == "" ? "-- 未選択 --" : "-- 選択解除 --"}
           </option>
         )}
-        {props.options.map((option) => (
+        {col.options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>
@@ -309,6 +294,7 @@ function SelectCellInput(props: {
 }
 
 function _TableCell(props: TPropsCell) {
+  const col = useColumnContext(props.columnKey);
   const [isEditing, setIsEditing] = useState(false);
   const ref = useRef<HTMLElement>(null);
   const [occurredOnCellBlur, setOccurredOnCellBlur] = useState(false);
@@ -336,41 +322,38 @@ function _TableCell(props: TPropsCell) {
             e.stopPropagation();
           }}
         >
-          {props.type === "component" ? (
+          {col.type === "component" ? (
             props.children
           ) : (
             <div
               onDoubleClick={(e) => {
                 e.preventDefault();
-                if (props.editable) {
+                if (col.editable) {
                   setIsEditing(true);
                 }
               }}
             >
               <p className="text-left">
-                {props.type === "select"
-                  ? props.options.find((op) => op.value === props.children)
-                      ?.label
+                {col.type === "select"
+                  ? col.options.find((op) => op.value === props.children)?.label
                   : props.children}
               </p>
             </div>
           )}
 
-          {props.editable && (
+          {col.editable && (
             <button
               className="w-fit h-fit p-1 rounded-full text-gray-500 hover:bg-gray-200"
               onClick={(e) => {
                 e.preventDefault();
-                if (props.editable) {
-                  setIsEditing(true);
-                }
+                setIsEditing(true);
               }}
             >
               <EditIcon size={12} />
             </button>
           )}
         </div>
-        {props.editable && isEditing && (
+        {col.editable && isEditing && (
           <div
             className="absolute top-0 left-0 w-full h-full grid place-items-center z-10 pr-2"
             onClick={(e) => {
@@ -378,38 +361,31 @@ function _TableCell(props: TPropsCell) {
               e.stopPropagation();
             }}
           >
-            {props.type === "string" && (
+            {col.type === "string" && (
               <StringCellInput
                 currentRef={ref as React.RefObject<HTMLInputElement>}
                 columnKey={props.columnKey}
                 compEditing={compEditing}
-                onCellBlur={props.onCellBlur}
-                constraints={props.constraints}
                 setOccurredOnCellBlur={() => {
                   setOccurredOnCellBlur(true);
                 }}
               />
             )}
-            {props.type === "number" && (
+            {col.type === "number" && (
               <NumberCellInput
                 currentRef={ref as React.RefObject<HTMLInputElement>}
                 columnKey={props.columnKey}
                 compEditing={compEditing}
-                onCellBlur={props.onCellBlur}
-                constraints={props.constraints}
                 setOccurredOnCellBlur={() => {
                   setOccurredOnCellBlur(true);
                 }}
               />
             )}
-            {props.type === "select" && (
+            {col.type === "select" && (
               <SelectCellInput
                 currentRef={ref as React.RefObject<HTMLSelectElement>}
                 columnKey={props.columnKey}
                 compEditing={compEditing}
-                options={props.options}
-                allowEmpty={props.allowEmpty}
-                onCellBlur={props.onCellBlur}
                 setOccurredOnCellBlur={() => {
                   setOccurredOnCellBlur(true);
                 }}

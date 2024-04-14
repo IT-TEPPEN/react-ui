@@ -13,14 +13,16 @@ import {
   TableFilterRemoveButton,
 } from "./filter";
 import { SortButton, SortProvider } from "./sort";
-import { RowProvider } from "./sheet/providers";
+import { ColumnsProvider, RowProvider } from "./sheet/providers";
 
 export default function Table(props: TPropsTable) {
   return (
     <FilterProvider>
       <SortProvider initialCondition={props.initialCondition?.sort}>
         <PagenationProvider rowCount={props.rows.length}>
-          <BaseTable {...props} />
+          <ColumnsProvider cols={props.cols}>
+            <BaseTable {...props} />
+          </ColumnsProvider>
         </PagenationProvider>
       </SortProvider>
     </FilterProvider>
@@ -99,7 +101,7 @@ function BaseTable(props: TPropsTable) {
                 </td>
               </tr>
             )}
-            {rows.map((r) => (
+            {rows.map((r, i) => (
               <RowProvider key={r.id} row={r}>
                 <tr
                   className={`border border-gray-200 hover:bg-gray-100 ${
@@ -108,11 +110,15 @@ function BaseTable(props: TPropsTable) {
                   onClick={r.onClick}
                   data-testid={r.id}
                 >
-                  {cols.map((col) => {
-                    const { key, ...colInfo } = col;
+                  {cols.map((col, j) => {
                     return (
-                      <TableCell key={key} {...colInfo} columnKey={col?.key}>
-                        {r[col?.key]}
+                      <TableCell
+                        key={col.key}
+                        rowNumber={i}
+                        colNumber={j}
+                        columnKey={col.key}
+                      >
+                        {r[col.key]}
                       </TableCell>
                     );
                   })}
