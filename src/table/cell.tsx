@@ -1,3 +1,5 @@
+"use client";
+
 import {
   memo,
   useEffect,
@@ -9,16 +11,16 @@ import {
 import { DataObject, TCellEditingCondition } from "./type";
 import { EditIcon } from "./edit-icon";
 import { CancelIcon } from "./cancel-icon";
+import { useRowContext } from "./sheet/providers";
 
-type TPropsCell<T extends DataObject> = {
-  currentRecord: T;
+type TPropsCell = {
   columnKey: string;
   children: string | number;
-} & TCellEditingCondition<T>;
+} & TCellEditingCondition;
 
-const CellInput = forwardRef(function CI<T extends string | number>(
+const CellInput = forwardRef(function CI(
   props: {
-    value: T;
+    value: string | number;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onBlur: (e: React.FocusEvent<HTMLInputElement>) => void;
     reset: () => void;
@@ -58,23 +60,21 @@ const CellInput = forwardRef(function CI<T extends string | number>(
   );
 });
 
-function StringCellInput<T extends DataObject>(props: {
+function StringCellInput(props: {
   currentRef: React.ForwardedRef<HTMLInputElement>;
   columnKey: string;
-  currentRecord: T;
   compEditing: () => void;
   onCellBlur: (
     key: string,
     value: string,
-    current: T,
+    current: DataObject,
     completeEditing: () => void
   ) => void;
   constraints?: { maxLength?: number; minLength?: number; pattern?: string };
   setOccurredOnCellBlur: () => void;
 }) {
-  const [value, setValue] = useState(
-    props.currentRecord[props.columnKey] as string
-  );
+  const row = useRowContext();
+  const [value, setValue] = useState(row[props.columnKey] as string);
 
   const validate = () => {
     if (props.constraints?.maxLength) {
@@ -113,7 +113,7 @@ function StringCellInput<T extends DataObject>(props: {
       onBlur={(e) => {
         e.preventDefault();
 
-        if (value === props.currentRecord[props.columnKey]) {
+        if (value === row[props.columnKey]) {
           props.compEditing();
           return;
         }
@@ -125,37 +125,32 @@ function StringCellInput<T extends DataObject>(props: {
           return;
         }
 
-        props.onCellBlur(
-          props.columnKey,
-          value,
-          props.currentRecord,
-          props.compEditing
-        );
+        props.onCellBlur(props.columnKey, value, row, props.compEditing);
 
         props.setOccurredOnCellBlur();
       }}
-      reset={() => setValue(props.currentRecord[props.columnKey])}
+      reset={() => setValue(row[props.columnKey])}
       endEditing={props.compEditing}
     />
   );
 }
 
-function NumberCellInput<T extends DataObject>(props: {
+function NumberCellInput(props: {
   currentRef: React.ForwardedRef<HTMLInputElement>;
   columnKey: string;
-  currentRecord: T;
   compEditing: () => void;
   onCellBlur: (
     key: string,
     value: number,
-    current: T,
+    current: DataObject,
     completeEditing: () => void
   ) => void;
   constraints?: { max?: number; min?: number };
   setOccurredOnCellBlur: () => void;
 }) {
+  const row = useRowContext();
   const [value, setValue] = useState(
-    (props.currentRecord[props.columnKey] as number).toString()
+    (row[props.columnKey] as number).toString()
   );
 
   const validate = () => {
@@ -213,7 +208,7 @@ function NumberCellInput<T extends DataObject>(props: {
       onBlur={(e) => {
         e.preventDefault();
 
-        if (Number(value) === props.currentRecord[props.columnKey]) {
+        if (Number(value) === row[props.columnKey]) {
           props.compEditing();
           return;
         }
@@ -228,38 +223,34 @@ function NumberCellInput<T extends DataObject>(props: {
         props.onCellBlur(
           props.columnKey,
           Number(value),
-          props.currentRecord,
+          row,
           props.compEditing
         );
 
         props.setOccurredOnCellBlur();
       }}
-      reset={() =>
-        setValue((props.currentRecord[props.columnKey] as number).toString())
-      }
+      reset={() => setValue((row[props.columnKey] as number).toString())}
       endEditing={props.compEditing}
     />
   );
 }
 
-function SelectCellInput<T extends DataObject>(props: {
+function SelectCellInput(props: {
   currentRef: React.ForwardedRef<HTMLSelectElement>;
   columnKey: string;
-  currentRecord: T;
   compEditing: () => void;
   options: { value: string; label: string }[];
   allowEmpty?: boolean;
   onCellBlur: (
     key: string,
     value: string,
-    current: T,
+    current: DataObject,
     completeEditing: () => void
   ) => void;
   setOccurredOnCellBlur: () => void;
 }) {
-  const [value, setValue] = useState(
-    props.currentRecord[props.columnKey] as string
-  );
+  const row = useRowContext();
+  const [value, setValue] = useState(row[props.columnKey] as string);
 
   return (
     <div className="flex justify-between gap-1 w-full items-center">
@@ -274,12 +265,7 @@ function SelectCellInput<T extends DataObject>(props: {
         onBlur={(e) => {
           e.preventDefault();
 
-          props.onCellBlur(
-            props.columnKey,
-            value,
-            props.currentRecord,
-            props.compEditing
-          );
+          props.onCellBlur(props.columnKey, value, row, props.compEditing);
 
           props.setOccurredOnCellBlur();
         }}
@@ -293,16 +279,14 @@ function SelectCellInput<T extends DataObject>(props: {
           if (e.key === "Enter") {
             (e.target as HTMLSelectElement).blur();
           } else if (e.key === "Escape") {
-            setValue(props.currentRecord[props.columnKey] as string);
+            setValue(row[props.columnKey] as string);
             props.compEditing();
           }
         }}
       >
         {props.allowEmpty && (
           <option key="TEPPEN/ReactUI Empty Option" value="">
-            {props.currentRecord[props.columnKey] == ""
-              ? "-- 未選択 --"
-              : "-- 選択解除 --"}
+            {row[props.columnKey] == "" ? "-- 未選択 --" : "-- 選択解除 --"}
           </option>
         )}
         {props.options.map((option) => (
@@ -314,7 +298,7 @@ function SelectCellInput<T extends DataObject>(props: {
       <button
         onMouseDown={(e) => {
           e.preventDefault();
-          setValue(props.currentRecord[props.columnKey] as string);
+          setValue(row[props.columnKey] as string);
           props.compEditing();
         }}
       >
@@ -324,7 +308,7 @@ function SelectCellInput<T extends DataObject>(props: {
   );
 }
 
-function _TableCell<T extends DataObject>(props: TPropsCell<T>) {
+function _TableCell(props: TPropsCell) {
   const [isEditing, setIsEditing] = useState(false);
   const ref = useRef<HTMLElement>(null);
   const [occurredOnCellBlur, setOccurredOnCellBlur] = useState(false);
@@ -398,7 +382,6 @@ function _TableCell<T extends DataObject>(props: TPropsCell<T>) {
               <StringCellInput
                 currentRef={ref as React.RefObject<HTMLInputElement>}
                 columnKey={props.columnKey}
-                currentRecord={props.currentRecord}
                 compEditing={compEditing}
                 onCellBlur={props.onCellBlur}
                 constraints={props.constraints}
@@ -411,7 +394,6 @@ function _TableCell<T extends DataObject>(props: TPropsCell<T>) {
               <NumberCellInput
                 currentRef={ref as React.RefObject<HTMLInputElement>}
                 columnKey={props.columnKey}
-                currentRecord={props.currentRecord}
                 compEditing={compEditing}
                 onCellBlur={props.onCellBlur}
                 constraints={props.constraints}
@@ -424,7 +406,6 @@ function _TableCell<T extends DataObject>(props: TPropsCell<T>) {
               <SelectCellInput
                 currentRef={ref as React.RefObject<HTMLSelectElement>}
                 columnKey={props.columnKey}
-                currentRecord={props.currentRecord}
                 compEditing={compEditing}
                 options={props.options}
                 allowEmpty={props.allowEmpty}

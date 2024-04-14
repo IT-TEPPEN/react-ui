@@ -14,7 +14,7 @@ const SortContext = createContext<TReturnSortReducer>({
   changeOrder: function (): void {
     throw new Error("Function not implemented.");
   },
-  sort: function <T extends DataObject>(): T[] {
+  sort: function (): DataObject[] {
     throw new Error("Function not implemented.");
   },
 });

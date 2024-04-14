@@ -29,7 +29,7 @@ export function useSortReducer(initial?: {
   };
 
   const sort = useCallback(
-    <T extends DataObject>(rows: T[]) =>
+    (rows: DataObject[]) =>
       [...rows].sort((a, b) => {
         if (a[state.key] < b[state.key]) {
           return state.asc ? -1 : 1;

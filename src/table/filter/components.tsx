@@ -59,13 +59,11 @@ export function TableFilterRemoveButton({
   );
 }
 
-type TPropsFilterForm<T extends DataObject> = {
-  cols: TTableColumn<T>[];
+type TPropsFilterForm = {
+  cols: TTableColumn[];
 };
 
-export function TableFilterForm<T extends DataObject>(
-  props: TPropsFilterForm<T>
-) {
+export function TableFilterForm(props: TPropsFilterForm) {
   const { addFilter, removeFilter, filterConditions } = useFilterContext();
   const [selectingKey, setSelectingKey] = useState<string>("");
   const [selectingOperator, setSelectingOperator] = useState<string>("");

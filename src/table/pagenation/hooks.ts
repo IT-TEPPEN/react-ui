@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useReducer } from "react";
 import { TPageAction, TPageState } from "./types";
 import { INITIAL_PAGE_STATE } from "./constants";
+import { DataObject } from "../type";
 
 function pagenationReducer(state: TPageState, action: TPageAction): TPageState {
   switch (action.type) {
@@ -74,7 +75,7 @@ export function usePageReducer(initialState?: TPageState) {
   const to = useMemo(() => state.currentPage * state.perPage, [state]);
 
   const pageFilter = useCallback(
-    <T>(data: T[]): T[] => {
+    (data: DataObject[]): DataObject[] => {
       return data.slice(from, to);
     },
     [from, to]

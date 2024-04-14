@@ -60,7 +60,7 @@ export type TReturnUseFilterReducer = {
   addFilter: (filter: TFilter) => void;
   removeFilter: (id: number) => void;
   clearFilter: () => void;
-  filter: <T extends DataObject>(rows: T[]) => T[];
+  filter: (rows: DataObject[]) => DataObject[];
   filterConditions: ({
     id: number;
   } & TFilter)[];
