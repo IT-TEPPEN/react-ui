@@ -5,8 +5,7 @@ import { useFilterContext } from "./filter";
 import { useSortContext } from "./sort";
 
 export function useTable<T extends DataObject>(props: TPropsTable<T>) {
-  const { filter, addFilter, removeFilter, clearFilter, filterConditions } =
-    useFilterContext();
+  const { filter } = useFilterContext();
   const { sort } = useSortContext();
   const { setRowCount, pageFilter } = usePageContext();
 
@@ -26,12 +25,5 @@ export function useTable<T extends DataObject>(props: TPropsTable<T>) {
   return {
     cols: props.cols,
     rows: pageRows,
-    rowCount: filteredRows.length,
-    filter: {
-      add: addFilter,
-      remove: removeFilter,
-      clear: clearFilter,
-      conditions: filterConditions,
-    },
   };
 }

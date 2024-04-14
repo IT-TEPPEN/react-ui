@@ -1,12 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { useTable } from "./hook";
 import { TableCell } from "./cell";
 import { TableHeaderElement } from "./header";
 import { DataObject, TPropsTable } from "./type";
-import { DisplayRange, Pagenation } from "./pagenation/components";
-import { useState } from "react";
-import { PagenationProvider } from "./pagenation/providers";
+import { PagenationProvider, DisplayRange, Pagenation } from "./pagenation";
 import {
   FilterProvider,
   TableFilter,
