@@ -32,11 +32,11 @@ export function useTable(props: TPropsTable) {
 
 export function useCellFocus<T extends HTMLElement>() {
   const ref = useRef<T>(null);
-  const { rowNumber, colNumber } = useCellContext();
+  const { rowIndex, colIndex } = useCellContext();
   const { isEditing, checkFocus } = useFocusContext();
   const [occurredOnCellBlur, setOccurredOnCellBlur] = useState(false);
 
-  const isFocus = checkFocus(rowNumber, colNumber);
+  const isFocus = checkFocus(rowIndex, colIndex);
 
   useEffect(() => {
     if (isFocus && isEditing) {

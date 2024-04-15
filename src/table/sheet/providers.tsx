@@ -47,22 +47,22 @@ export function useColumnContext(key: string) {
   return useContext(ColsContext)[key];
 }
 
-const CellContext = createContext<{ rowNumber: number; colNumber: number }>({
-  rowNumber: 0,
-  colNumber: 0,
+const CellContext = createContext<{ rowIndex: number; colIndex: number }>({
+  rowIndex: 0,
+  colIndex: 0,
 });
 
 export function CellProvider({
   children,
-  rowNumber,
-  colNumber,
+  rowIndex,
+  colIndex,
 }: {
   children: React.ReactNode;
-  rowNumber: number;
-  colNumber: number;
+  rowIndex: number;
+  colIndex: number;
 }) {
   return (
-    <CellContext.Provider value={{ rowNumber, colNumber }}>
+    <CellContext.Provider value={{ rowIndex, colIndex }}>
       {children}
     </CellContext.Provider>
   );

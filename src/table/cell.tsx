@@ -294,7 +294,7 @@ function _TableCell(props: TPropsCell) {
 
   const value = row[props.columnKey];
 
-  const isFocus = checkFocus(cell.rowNumber, cell.colNumber);
+  const isFocus = checkFocus(cell.rowIndex, cell.colIndex);
 
   useEffect(() => {
     if (!col.editable && isFocus && isEditing) {
@@ -316,7 +316,7 @@ function _TableCell(props: TPropsCell) {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            focus(cell.rowNumber, cell.colNumber);
+            focus(cell.rowIndex, cell.colIndex);
           }}
         >
           {col.type === "component" ? (
@@ -326,7 +326,7 @@ function _TableCell(props: TPropsCell) {
               onDoubleClick={(e) => {
                 e.preventDefault();
                 if (col.editable) {
-                  focusAndEdit(cell.rowNumber, cell.colNumber);
+                  focusAndEdit(cell.rowIndex, cell.colIndex);
                 }
               }}
             >
@@ -343,7 +343,7 @@ function _TableCell(props: TPropsCell) {
               className="w-fit h-fit p-1 rounded-full text-gray-500 hover:bg-gray-200"
               onClick={(e) => {
                 e.preventDefault();
-                focusAndEdit(cell.rowNumber, cell.colNumber);
+                focusAndEdit(cell.rowIndex, cell.colIndex);
               }}
             >
               <EditIcon size={12} />
