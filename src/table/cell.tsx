@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useEffect, useRef, useState, forwardRef } from "react";
+import { memo, useEffect, useState, forwardRef } from "react";
 import { EditIcon } from "./edit-icon";
 import { CancelIcon } from "./cancel-icon";
 import {
@@ -10,10 +10,6 @@ import {
 } from "./sheet/providers";
 import { useFocusContext } from "./edit/provider";
 import { useCellFocus } from "./hook";
-
-type TPropsCell = {
-  columnKey: string;
-};
 
 const CellInput = forwardRef(function CI(
   props: {
@@ -57,12 +53,13 @@ const CellInput = forwardRef(function CI(
   );
 });
 
-function StringCellInput(props: { columnKey: string }) {
-  const col = useColumnContext(props.columnKey);
+function StringCellInput() {
+  const cell = useCellContext();
+  const col = useColumnContext(cell.columnKey);
   const row = useRowContext();
   const { finishEditing } = useFocusContext();
   const { ref, callbackAfterBlur } = useCellFocus<HTMLInputElement>();
-  const [value, setValue] = useState(row[props.columnKey] as string);
+  const [value, setValue] = useState(row[cell.columnKey] as string);
 
   if (!col.editable || col.type !== "string") {
     throw new Error("Invalid condition");
@@ -105,7 +102,7 @@ function StringCellInput(props: { columnKey: string }) {
       onBlur={(e) => {
         e.preventDefault();
 
-        if (value === row[props.columnKey]) {
+        if (value === row[cell.columnKey]) {
           finishEditing();
           return;
         }
@@ -117,23 +114,24 @@ function StringCellInput(props: { columnKey: string }) {
           return;
         }
 
-        col.onCellBlur(props.columnKey, value, row, finishEditing);
+        col.onCellBlur(cell.columnKey, value, row, finishEditing);
 
         callbackAfterBlur();
       }}
-      reset={() => setValue(row[props.columnKey])}
+      reset={() => setValue(row[cell.columnKey])}
       endEditing={finishEditing}
     />
   );
 }
 
-function NumberCellInput(props: { columnKey: string }) {
-  const col = useColumnContext(props.columnKey);
+function NumberCellInput() {
+  const cell = useCellContext();
+  const col = useColumnContext(cell.columnKey);
   const row = useRowContext();
   const { finishEditing } = useFocusContext();
   const { ref, callbackAfterBlur } = useCellFocus<HTMLInputElement>();
   const [value, setValue] = useState(
-    (row[props.columnKey] as number).toString()
+    (row[cell.columnKey] as number).toString()
   );
 
   if (!col.editable || col.type !== "number") {
@@ -191,7 +189,7 @@ function NumberCellInput(props: { columnKey: string }) {
       onBlur={(e) => {
         e.preventDefault();
 
-        if (Number(value) === row[props.columnKey]) {
+        if (Number(value) === row[cell.columnKey]) {
           finishEditing();
           return;
         }
@@ -203,22 +201,23 @@ function NumberCellInput(props: { columnKey: string }) {
           return;
         }
 
-        col.onCellBlur(props.columnKey, Number(value), row, finishEditing);
+        col.onCellBlur(cell.columnKey, Number(value), row, finishEditing);
 
         callbackAfterBlur();
       }}
-      reset={() => setValue((row[props.columnKey] as number).toString())}
+      reset={() => setValue((row[cell.columnKey] as number).toString())}
       endEditing={finishEditing}
     />
   );
 }
 
-function SelectCellInput(props: { columnKey: string }) {
-  const col = useColumnContext(props.columnKey);
+function SelectCellInput() {
+  const cell = useCellContext();
+  const col = useColumnContext(cell.columnKey);
   const row = useRowContext();
   const { finishEditing } = useFocusContext();
   const { ref, callbackAfterBlur } = useCellFocus<HTMLSelectElement>();
-  const [value, setValue] = useState(row[props.columnKey] as string);
+  const [value, setValue] = useState(row[cell.columnKey] as string);
 
   if (!col.editable || col.type !== "select") {
     throw new Error("Invalid condition");
@@ -237,12 +236,12 @@ function SelectCellInput(props: { columnKey: string }) {
         onBlur={(e) => {
           e.preventDefault();
 
-          if (value === row[props.columnKey]) {
+          if (value === row[cell.columnKey]) {
             finishEditing();
             return;
           }
 
-          col.onCellBlur(props.columnKey, value, row, finishEditing);
+          col.onCellBlur(cell.columnKey, value, row, finishEditing);
 
           callbackAfterBlur();
         }}
@@ -256,14 +255,14 @@ function SelectCellInput(props: { columnKey: string }) {
           if (e.key === "Enter") {
             (e.target as HTMLSelectElement).blur();
           } else if (e.key === "Escape") {
-            setValue(row[props.columnKey] as string);
+            setValue(row[cell.columnKey] as string);
             finishEditing();
           }
         }}
       >
         {col.allowEmpty && (
           <option key="TEPPEN/ReactUI Empty Option" value="">
-            {row[props.columnKey] == "" ? "-- 未選択 --" : "-- 選択解除 --"}
+            {row[cell.columnKey] == "" ? "-- 未選択 --" : "-- 選択解除 --"}
           </option>
         )}
         {col.options.map((option) => (
@@ -275,7 +274,7 @@ function SelectCellInput(props: { columnKey: string }) {
       <button
         onMouseDown={(e) => {
           e.preventDefault();
-          setValue(row[props.columnKey] as string);
+          setValue(row[cell.columnKey] as string);
           finishEditing();
         }}
       >
@@ -285,14 +284,14 @@ function SelectCellInput(props: { columnKey: string }) {
   );
 }
 
-function _TableCell(props: TPropsCell) {
-  const col = useColumnContext(props.columnKey);
-  const row = useRowContext();
+export function TableCell() {
   const cell = useCellContext();
+  const col = useColumnContext(cell.columnKey);
+  const row = useRowContext();
   const { isEditing, checkFocus, focus, focusAndEdit, finishEditing } =
     useFocusContext();
 
-  const value = row[props.columnKey];
+  const value = row[cell.columnKey];
 
   const isFocus = checkFocus(cell.rowIndex, cell.colIndex);
 
@@ -358,19 +357,12 @@ function _TableCell(props: TPropsCell) {
               e.stopPropagation();
             }}
           >
-            {col.type === "string" && (
-              <StringCellInput columnKey={props.columnKey} />
-            )}
-            {col.type === "number" && (
-              <NumberCellInput columnKey={props.columnKey} />
-            )}
-            {col.type === "select" && (
-              <SelectCellInput columnKey={props.columnKey} />
-            )}
+            {col.type === "string" && <StringCellInput />}
+            {col.type === "number" && <NumberCellInput />}
+            {col.type === "select" && <SelectCellInput />}
           </div>
         )}
       </div>
     </td>
   );
 }
-export const TableCell = memo(_TableCell) as typeof _TableCell;

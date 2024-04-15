@@ -166,8 +166,13 @@ function BaseTable(props: TPropsTable) {
                 >
                   {cols.map((col, j) => {
                     return (
-                      <CellProvider key={col.key} rowIndex={i} colIndex={j}>
-                        <TableCell columnKey={col.key} />
+                      <CellProvider
+                        key={col.key}
+                        columnKey={col.key}
+                        rowIndex={i}
+                        colIndex={j}
+                      >
+                        <TableCell />
                       </CellProvider>
                     );
                   })}
