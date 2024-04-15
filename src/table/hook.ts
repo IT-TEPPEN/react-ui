@@ -1,8 +1,10 @@
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TPropsTable } from "./type";
 import { usePageContext } from "./pagenation/providers";
 import { useFilterContext } from "./filter";
 import { useSortContext } from "./sort";
+import { useFocusContext } from "./edit/provider";
+import { useCellContext } from "./sheet/providers";
 
 export function useTable(props: TPropsTable) {
   const { filter } = useFilterContext();
@@ -26,4 +28,26 @@ export function useTable(props: TPropsTable) {
     cols: props.cols,
     rows: pageRows,
   };
+}
+
+export function useCellFocus<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  const { rowNumber, colNumber } = useCellContext();
+  const { isEditing, checkFocus } = useFocusContext();
+  const [occurredOnCellBlur, setOccurredOnCellBlur] = useState(false);
+
+  const isFocus = checkFocus(rowNumber, colNumber);
+
+  useEffect(() => {
+    if (isFocus && isEditing) {
+      ref.current?.focus();
+    }
+    setOccurredOnCellBlur(false);
+  }, [isFocus, isEditing, occurredOnCellBlur]);
+
+  const callbackAfterBlur = useCallback(() => {
+    setOccurredOnCellBlur(true);
+  }, []);
+
+  return { ref, callbackAfterBlur };
 }

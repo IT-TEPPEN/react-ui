@@ -13,7 +13,7 @@ import {
   TableFilterRemoveButton,
 } from "./filter";
 import { SortButton, SortProvider } from "./sort";
-import { ColumnsProvider, RowProvider } from "./sheet/providers";
+import { CellProvider, ColumnsProvider, RowProvider } from "./sheet/providers";
 import { FocusProvider, useFocusContext } from "./edit/provider";
 
 export default function Table(props: TPropsTable) {
@@ -37,7 +37,6 @@ function BaseTable(props: TPropsTable) {
   const {
     isFocus,
     isEditing,
-    focus,
     edit,
     moveLeft,
     moveRight,
@@ -167,14 +166,9 @@ function BaseTable(props: TPropsTable) {
                 >
                   {cols.map((col, j) => {
                     return (
-                      <TableCell
-                        key={col.key}
-                        rowNumber={i}
-                        colNumber={j}
-                        columnKey={col.key}
-                      >
-                        {r[col.key]}
-                      </TableCell>
+                      <CellProvider key={col.key} rowNumber={i} colNumber={j}>
+                        <TableCell columnKey={col.key} />
+                      </CellProvider>
                     );
                   })}
                 </tr>

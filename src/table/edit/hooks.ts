@@ -14,6 +14,7 @@ const reducer: TFocusReducer = (state, action) => {
 
       return {
         ...state,
+        isFocus: true,
         isEditing: false,
         rowNumber: action.payload.rowNumber,
         colNumber: action.payload.colNumber,

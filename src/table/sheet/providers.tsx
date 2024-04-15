@@ -46,3 +46,28 @@ export function ColumnsProvider({
 export function useColumnContext(key: string) {
   return useContext(ColsContext)[key];
 }
+
+const CellContext = createContext<{ rowNumber: number; colNumber: number }>({
+  rowNumber: 0,
+  colNumber: 0,
+});
+
+export function CellProvider({
+  children,
+  rowNumber,
+  colNumber,
+}: {
+  children: React.ReactNode;
+  rowNumber: number;
+  colNumber: number;
+}) {
+  return (
+    <CellContext.Provider value={{ rowNumber, colNumber }}>
+      {children}
+    </CellContext.Provider>
+  );
+}
+
+export function useCellContext() {
+  return useContext(CellContext);
+}

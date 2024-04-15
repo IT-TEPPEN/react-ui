@@ -3,14 +3,16 @@
 import { memo, useEffect, useRef, useState, forwardRef } from "react";
 import { EditIcon } from "./edit-icon";
 import { CancelIcon } from "./cancel-icon";
-import { useColumnContext, useRowContext } from "./sheet/providers";
+import {
+  useCellContext,
+  useColumnContext,
+  useRowContext,
+} from "./sheet/providers";
 import { useFocusContext } from "./edit/provider";
+import { useCellFocus } from "./hook";
 
 type TPropsCell = {
-  rowNumber: number;
-  colNumber: number;
   columnKey: string;
-  children: string | number;
 };
 
 const CellInput = forwardRef(function CI(
@@ -55,14 +57,11 @@ const CellInput = forwardRef(function CI(
   );
 });
 
-function StringCellInput(props: {
-  currentRef: React.ForwardedRef<HTMLInputElement>;
-  columnKey: string;
-  setOccurredOnCellBlur: () => void;
-}) {
+function StringCellInput(props: { columnKey: string }) {
   const col = useColumnContext(props.columnKey);
   const row = useRowContext();
   const { finishEditing } = useFocusContext();
+  const { ref, callbackAfterBlur } = useCellFocus<HTMLInputElement>();
   const [value, setValue] = useState(row[props.columnKey] as string);
 
   if (!col.editable || col.type !== "string") {
@@ -97,7 +96,7 @@ function StringCellInput(props: {
 
   return (
     <CellInput
-      ref={props.currentRef}
+      ref={ref}
       value={value}
       onChange={(e) => {
         e.preventDefault();
@@ -120,7 +119,7 @@ function StringCellInput(props: {
 
         col.onCellBlur(props.columnKey, value, row, finishEditing);
 
-        props.setOccurredOnCellBlur();
+        callbackAfterBlur();
       }}
       reset={() => setValue(row[props.columnKey])}
       endEditing={finishEditing}
@@ -128,14 +127,11 @@ function StringCellInput(props: {
   );
 }
 
-function NumberCellInput(props: {
-  currentRef: React.ForwardedRef<HTMLInputElement>;
-  columnKey: string;
-  setOccurredOnCellBlur: () => void;
-}) {
+function NumberCellInput(props: { columnKey: string }) {
   const col = useColumnContext(props.columnKey);
   const row = useRowContext();
   const { finishEditing } = useFocusContext();
+  const { ref, callbackAfterBlur } = useCellFocus<HTMLInputElement>();
   const [value, setValue] = useState(
     (row[props.columnKey] as number).toString()
   );
@@ -166,7 +162,7 @@ function NumberCellInput(props: {
 
   return (
     <CellInput
-      ref={props.currentRef}
+      ref={ref}
       value={value}
       onChange={(e) => {
         e.preventDefault();
@@ -209,7 +205,7 @@ function NumberCellInput(props: {
 
         col.onCellBlur(props.columnKey, Number(value), row, finishEditing);
 
-        props.setOccurredOnCellBlur();
+        callbackAfterBlur();
       }}
       reset={() => setValue((row[props.columnKey] as number).toString())}
       endEditing={finishEditing}
@@ -217,14 +213,11 @@ function NumberCellInput(props: {
   );
 }
 
-function SelectCellInput(props: {
-  currentRef: React.ForwardedRef<HTMLSelectElement>;
-  columnKey: string;
-  setOccurredOnCellBlur: () => void;
-}) {
+function SelectCellInput(props: { columnKey: string }) {
   const col = useColumnContext(props.columnKey);
   const row = useRowContext();
   const { finishEditing } = useFocusContext();
+  const { ref, callbackAfterBlur } = useCellFocus<HTMLSelectElement>();
   const [value, setValue] = useState(row[props.columnKey] as string);
 
   if (!col.editable || col.type !== "select") {
@@ -234,7 +227,7 @@ function SelectCellInput(props: {
   return (
     <div className="flex justify-between gap-1 w-full items-center">
       <select
-        ref={props.currentRef}
+        ref={ref}
         className="w-full py-1 px-2"
         value={value}
         onChange={(e) => {
@@ -251,7 +244,7 @@ function SelectCellInput(props: {
 
           col.onCellBlur(props.columnKey, value, row, finishEditing);
 
-          props.setOccurredOnCellBlur();
+          callbackAfterBlur();
         }}
         onKeyDown={(e: React.KeyboardEvent<HTMLSelectElement>) => {
           if (e.key === "Enter") {
@@ -294,19 +287,14 @@ function SelectCellInput(props: {
 
 function _TableCell(props: TPropsCell) {
   const col = useColumnContext(props.columnKey);
+  const row = useRowContext();
+  const cell = useCellContext();
   const { isEditing, checkFocus, focus, focusAndEdit, finishEditing } =
     useFocusContext();
-  const ref = useRef<HTMLElement>(null);
-  const [occurredOnCellBlur, setOccurredOnCellBlur] = useState(false);
 
-  const isFocus = checkFocus(props.rowNumber, props.colNumber);
+  const value = row[props.columnKey];
 
-  useEffect(() => {
-    if (isFocus && isEditing) {
-      ref.current?.focus();
-    }
-    setOccurredOnCellBlur(false);
-  }, [isFocus, isEditing, occurredOnCellBlur]);
+  const isFocus = checkFocus(cell.rowNumber, cell.colNumber);
 
   useEffect(() => {
     if (!col.editable && isFocus && isEditing) {
@@ -328,24 +316,24 @@ function _TableCell(props: TPropsCell) {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            focus(props.rowNumber, props.colNumber);
+            focus(cell.rowNumber, cell.colNumber);
           }}
         >
           {col.type === "component" ? (
-            props.children
+            value
           ) : (
             <div
               onDoubleClick={(e) => {
                 e.preventDefault();
                 if (col.editable) {
-                  focusAndEdit(props.rowNumber, props.colNumber);
+                  focusAndEdit(cell.rowNumber, cell.colNumber);
                 }
               }}
             >
               <p className="text-left">
                 {col.type === "select"
-                  ? col.options.find((op) => op.value === props.children)?.label
-                  : props.children}
+                  ? col.options.find((op) => op.value === value)?.label
+                  : value}
               </p>
             </div>
           )}
@@ -355,7 +343,7 @@ function _TableCell(props: TPropsCell) {
               className="w-fit h-fit p-1 rounded-full text-gray-500 hover:bg-gray-200"
               onClick={(e) => {
                 e.preventDefault();
-                focusAndEdit(props.rowNumber, props.colNumber);
+                focusAndEdit(cell.rowNumber, cell.colNumber);
               }}
             >
               <EditIcon size={12} />
@@ -371,31 +359,13 @@ function _TableCell(props: TPropsCell) {
             }}
           >
             {col.type === "string" && (
-              <StringCellInput
-                currentRef={ref as React.RefObject<HTMLInputElement>}
-                columnKey={props.columnKey}
-                setOccurredOnCellBlur={() => {
-                  setOccurredOnCellBlur(true);
-                }}
-              />
+              <StringCellInput columnKey={props.columnKey} />
             )}
             {col.type === "number" && (
-              <NumberCellInput
-                currentRef={ref as React.RefObject<HTMLInputElement>}
-                columnKey={props.columnKey}
-                setOccurredOnCellBlur={() => {
-                  setOccurredOnCellBlur(true);
-                }}
-              />
+              <NumberCellInput columnKey={props.columnKey} />
             )}
             {col.type === "select" && (
-              <SelectCellInput
-                currentRef={ref as React.RefObject<HTMLSelectElement>}
-                columnKey={props.columnKey}
-                setOccurredOnCellBlur={() => {
-                  setOccurredOnCellBlur(true);
-                }}
-              />
+              <SelectCellInput columnKey={props.columnKey} />
             )}
           </div>
         )}
