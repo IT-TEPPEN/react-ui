@@ -3,9 +3,11 @@
 import { createContext, useContext } from "react";
 import { TReturnFocusReducer } from "./types";
 import { useFocusReducer } from "./hooks";
+import { usePageContext } from "../pagenation";
 
 const FocusContext = createContext<TReturnFocusReducer>({
   isEditing: false,
+  isFocus: false,
   checkFocus: function (): boolean {
     throw new Error("Function not implemented.");
   },
@@ -39,16 +41,26 @@ const FocusContext = createContext<TReturnFocusReducer>({
   setMaxColNumber: function (): void {
     throw new Error("Function not implemented.");
   },
+  focusAndEdit: function (): void {
+    throw new Error("Function not implemented.");
+  },
+  finishEditing: function (): void {
+    throw new Error("Function not implemented.");
+  },
 });
 
 export function FocusProvider(props: {
   children: React.ReactNode;
-  maxRowNumber: number;
-  maxColNumber: number;
+  columnCount: number;
 }) {
+  const { from, to, rowCount } = usePageContext();
+
   return (
     <FocusContext.Provider
-      value={useFocusReducer(props.maxRowNumber, props.maxColNumber)}
+      value={useFocusReducer(
+        to < rowCount ? to - from - 1 : rowCount - from - 1,
+        props.columnCount - 1
+      )}
     >
       {props.children}
     </FocusContext.Provider>

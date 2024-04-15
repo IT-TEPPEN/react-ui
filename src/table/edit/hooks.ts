@@ -27,6 +27,24 @@ const reducer: TFocusReducer = (state, action) => {
         isEditing: true,
       };
 
+    case "focusAndEdit":
+      if (
+        state.isFocus &&
+        state.isEditing &&
+        state.rowNumber === action.payload.rowNumber &&
+        state.colNumber === action.payload.colNumber
+      ) {
+        return state;
+      }
+
+      return {
+        ...state,
+        isFocus: true,
+        isEditing: true,
+        rowNumber: action.payload.rowNumber,
+        colNumber: action.payload.colNumber,
+      };
+
     case "move":
       if (
         !state.isFocus ||
@@ -108,6 +126,14 @@ const reducer: TFocusReducer = (state, action) => {
         isFocus: false,
       };
 
+    case "finishEditing":
+      if (!state.isFocus || !state.isEditing) return state;
+
+      return {
+        ...state,
+        isEditing: false,
+      };
+
     case "setMaxRowNumber":
       if (state.maxRowNumber === action.payload.maxRowNumber) return state;
 
@@ -155,6 +181,13 @@ export function useFocusReducer(
     dispatch({ type: "edit" });
   }, [dispatch]);
 
+  const focusAndEdit = useCallback(
+    (rowNumber: number, colNumber: number) => {
+      dispatch({ type: "focusAndEdit", payload: { rowNumber, colNumber } });
+    },
+    [dispatch]
+  );
+
   const move = useCallback(
     (rowNumber: number, colNumber: number) => {
       dispatch({ type: "move", payload: { rowNumber, colNumber } });
@@ -182,6 +215,10 @@ export function useFocusReducer(
     dispatch({ type: "unfocus" });
   }, [dispatch]);
 
+  const finishEditing = useCallback(() => {
+    dispatch({ type: "finishEditing" });
+  }, [dispatch]);
+
   const setMaxRowNumber = useCallback(
     (maxRowNumber: number) => {
       dispatch({ type: "setMaxRowNumber", payload: { maxRowNumber } });
@@ -197,16 +234,19 @@ export function useFocusReducer(
   );
 
   return {
+    isFocus: state.isFocus,
     isEditing: state.isFocus && state.isEditing,
     checkFocus,
     focus,
     edit,
+    focusAndEdit,
     move,
     moveLeft,
     moveRight,
     moveUp,
     moveDown,
     unfocus,
+    finishEditing,
     setMaxRowNumber,
     setMaxColNumber,
   };
