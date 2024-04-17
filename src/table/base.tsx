@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTable } from "./hook";
 import { TableCell } from "./cell";
 import { TableHeaderElement } from "./header";
@@ -13,7 +13,8 @@ import {
   TableFilterRemoveButton,
 } from "./filter";
 import { SortButton, SortProvider } from "./sort";
-import { ColumnsProvider, RowProvider } from "./sheet/providers";
+import { CellProvider, ColumnsProvider, RowProvider } from "./sheet/providers";
+import { FocusProvider, useFocusContext } from "./edit/provider";
 
 export default function Table(props: TPropsTable) {
   return (
@@ -21,7 +22,9 @@ export default function Table(props: TPropsTable) {
       <SortProvider initialCondition={props.initialCondition?.sort}>
         <PagenationProvider rowCount={props.rows.length}>
           <ColumnsProvider cols={props.cols}>
-            <BaseTable {...props} />
+            <FocusProvider columnCount={props.cols.length}>
+              <BaseTable {...props} />
+            </FocusProvider>
           </ColumnsProvider>
         </PagenationProvider>
       </SortProvider>
@@ -31,7 +34,58 @@ export default function Table(props: TPropsTable) {
 
 function BaseTable(props: TPropsTable) {
   const { cols, rows } = useTable(props);
+  const {
+    isFocus,
+    isEditing,
+    edit,
+    moveLeft,
+    moveRight,
+    moveUp,
+    moveDown,
+    unfocus,
+    setMaxRowNumber,
+  } = useFocusContext();
   const [isOpenFilterForm, setIsOpenFilterForm] = useState(false);
+
+  useEffect(() => {
+    const listener = (e: KeyboardEvent) => {
+      if (!isFocus || isEditing) return;
+
+      if (e.key === "Enter") {
+        e.preventDefault();
+        moveDown();
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        unfocus();
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        moveRight();
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        moveLeft();
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        moveUp();
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        moveDown();
+      } else if (e.key === "F2") {
+        edit();
+      } else {
+        console.log(e.key);
+      }
+    };
+
+    document.addEventListener("keydown", listener);
+
+    return () => {
+      document.removeEventListener("keydown", listener);
+    };
+  }, [isEditing, isFocus]);
+
+  useEffect(() => {
+    setMaxRowNumber(rows.length - 1);
+  }, [rows.length]);
 
   return (
     <div className="w-full">
@@ -112,14 +166,14 @@ function BaseTable(props: TPropsTable) {
                 >
                   {cols.map((col, j) => {
                     return (
-                      <TableCell
+                      <CellProvider
                         key={col.key}
-                        rowNumber={i}
-                        colNumber={j}
                         columnKey={col.key}
+                        rowIndex={i}
+                        colIndex={j}
                       >
-                        {r[col.key]}
-                      </TableCell>
+                        <TableCell />
+                      </CellProvider>
                     );
                   })}
                 </tr>

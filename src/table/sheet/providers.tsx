@@ -1,7 +1,12 @@
 "use client";
 
 import { createContext, useContext } from "react";
-import { DataObject, TCellEditingCondition, TTableColumn } from "../type";
+import {
+  DataObject,
+  TCellEditingCondition,
+  TColumnType,
+  TTableColumn,
+} from "../type";
 
 const RowContext = createContext<DataObject>({
   id: "",
@@ -45,4 +50,59 @@ export function ColumnsProvider({
 
 export function useColumnContext(key: string) {
   return useContext(ColsContext)[key];
+}
+
+const CellContext = createContext<{
+  columnKey: string;
+  value: any;
+  label: any;
+  type: TColumnType;
+  editable?: boolean;
+  rowIndex: number;
+  colIndex: number;
+}>({
+  columnKey: "",
+  value: "",
+  label: "",
+  type: "string",
+  rowIndex: 0,
+  colIndex: 0,
+});
+
+export function CellProvider({
+  children,
+  columnKey,
+  rowIndex,
+  colIndex,
+}: {
+  children: React.ReactNode;
+  columnKey: string;
+  rowIndex: number;
+  colIndex: number;
+}) {
+  const col = useColumnContext(columnKey);
+  const row = useRowContext();
+  const value = row[columnKey];
+  return (
+    <CellContext.Provider
+      value={{
+        columnKey,
+        value,
+        label:
+          col.type === "select"
+            ? col.options?.find((op) => op.value === value)?.label
+            : value,
+        editable: col.editable,
+        type: col.type,
+        rowIndex,
+        colIndex,
+      }}
+    >
+      {children}
+    </CellContext.Provider>
+  );
+}
+
+export function useCellContext() {
+  return useContext(CellContext);
 }
