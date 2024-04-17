@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useEffect, useState, forwardRef } from "react";
+import { memo, useEffect, useState, forwardRef, useCallback } from "react";
 import { EditIcon } from "./edit-icon";
 import { CancelIcon } from "./cancel-icon";
 import {
@@ -9,7 +9,7 @@ import {
   useRowContext,
 } from "./sheet/providers";
 import { useFocusContext } from "./edit/provider";
-import { useCellFocus } from "./hook";
+import { useCell, useCellFocus } from "./hook";
 
 const CellInput = forwardRef(function CI(
   props: {
@@ -130,9 +130,7 @@ function NumberCellInput() {
   const row = useRowContext();
   const { finishEditing } = useFocusContext();
   const { ref, callbackAfterBlur } = useCellFocus<HTMLInputElement>();
-  const [value, setValue] = useState(
-    (row[cell.columnKey] as number).toString()
-  );
+  const [value, setValue] = useState((cell.value as number).toString());
 
   if (!col.editable || col.type !== "number") {
     throw new Error("Invalid condition");
@@ -189,7 +187,7 @@ function NumberCellInput() {
       onBlur={(e) => {
         e.preventDefault();
 
-        if (Number(value) === row[cell.columnKey]) {
+        if (Number(value) === cell.value) {
           finishEditing();
           return;
         }
@@ -205,7 +203,7 @@ function NumberCellInput() {
 
         callbackAfterBlur();
       }}
-      reset={() => setValue((row[cell.columnKey] as number).toString())}
+      reset={() => setValue((cell.value as number).toString())}
       endEditing={finishEditing}
     />
   );
@@ -217,7 +215,7 @@ function SelectCellInput() {
   const row = useRowContext();
   const { finishEditing } = useFocusContext();
   const { ref, callbackAfterBlur } = useCellFocus<HTMLSelectElement>();
-  const [value, setValue] = useState(row[cell.columnKey] as string);
+  const [value, setValue] = useState(cell.value as string);
 
   if (!col.editable || col.type !== "select") {
     throw new Error("Invalid condition");
@@ -236,7 +234,7 @@ function SelectCellInput() {
         onBlur={(e) => {
           e.preventDefault();
 
-          if (value === row[cell.columnKey]) {
+          if (value === cell.value) {
             finishEditing();
             return;
           }
@@ -255,14 +253,14 @@ function SelectCellInput() {
           if (e.key === "Enter") {
             (e.target as HTMLSelectElement).blur();
           } else if (e.key === "Escape") {
-            setValue(row[cell.columnKey] as string);
+            setValue(cell.value as string);
             finishEditing();
           }
         }}
       >
         {col.allowEmpty && (
           <option key="TEPPEN/ReactUI Empty Option" value="">
-            {row[cell.columnKey] == "" ? "-- 未選択 --" : "-- 選択解除 --"}
+            {cell.value == "" ? "-- 未選択 --" : "-- 選択解除 --"}
           </option>
         )}
         {col.options.map((option) => (
@@ -274,7 +272,7 @@ function SelectCellInput() {
       <button
         onMouseDown={(e) => {
           e.preventDefault();
-          setValue(row[cell.columnKey] as string);
+          setValue(cell.value as string);
           finishEditing();
         }}
       >
@@ -284,22 +282,32 @@ function SelectCellInput() {
   );
 }
 
-export function TableCell() {
+const EditButton = memo(function EB() {
   const cell = useCellContext();
-  const col = useColumnContext(cell.columnKey);
-  const row = useRowContext();
-  const { isEditing, checkFocus, focus, focusAndEdit, finishEditing } =
-    useFocusContext();
+  const { focusAndEdit } = useFocusContext();
 
-  const value = row[cell.columnKey];
+  return (
+    <button
+      className="w-fit h-fit p-1 rounded-full text-gray-500 hover:bg-gray-200"
+      onClick={(e) => {
+        e.preventDefault();
+        focusAndEdit(cell.rowIndex, cell.colIndex);
+      }}
+    >
+      <EditIcon size={12} />
+    </button>
+  );
+});
 
-  const isFocus = checkFocus(cell.rowIndex, cell.colIndex);
-
-  useEffect(() => {
-    if (!col.editable && isFocus && isEditing) {
-      finishEditing();
-    }
-  }, [isFocus, isEditing, finishEditing]);
+export function TableCell() {
+  const {
+    cell,
+    isFocus,
+    isEditing,
+    onClickCellToFocus,
+    onDoubleClickCellToEdit,
+    preventPropagation,
+  } = useCell();
 
   return (
     <td
@@ -312,54 +320,27 @@ export function TableCell() {
           className={`flex items-center gap-3 w-fit p-2 cursor-default ${
             isFocus && isEditing ? "opacity-0" : ""
           }`}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            focus(cell.rowIndex, cell.colIndex);
-          }}
+          onClick={onClickCellToFocus}
         >
-          {col.type === "component" ? (
-            value
+          {cell.type === "component" ? (
+            cell.label
           ) : (
-            <div
-              onDoubleClick={(e) => {
-                e.preventDefault();
-                if (col.editable) {
-                  focusAndEdit(cell.rowIndex, cell.colIndex);
-                }
-              }}
-            >
-              <p className="text-left">
-                {col.type === "select"
-                  ? col.options.find((op) => op.value === value)?.label
-                  : value}
-              </p>
+            <div onDoubleClick={onDoubleClickCellToEdit}>
+              <p className="text-left">{cell.label}</p>
             </div>
           )}
 
-          {col.editable && (
-            <button
-              className="w-fit h-fit p-1 rounded-full text-gray-500 hover:bg-gray-200"
-              onClick={(e) => {
-                e.preventDefault();
-                focusAndEdit(cell.rowIndex, cell.colIndex);
-              }}
-            >
-              <EditIcon size={12} />
-            </button>
-          )}
+          {cell.editable && <EditButton />}
         </div>
-        {col.editable && isFocus && isEditing && (
+
+        {cell.editable && isFocus && isEditing && (
           <div
             className="absolute top-0 left-0 w-full h-full grid place-items-center z-10 pr-2"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
+            onClick={preventPropagation}
           >
-            {col.type === "string" && <StringCellInput />}
-            {col.type === "number" && <NumberCellInput />}
-            {col.type === "select" && <SelectCellInput />}
+            {cell.type === "string" && <StringCellInput />}
+            {cell.type === "number" && <NumberCellInput />}
+            {cell.type === "select" && <SelectCellInput />}
           </div>
         )}
       </div>

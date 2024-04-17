@@ -51,3 +51,53 @@ export function useCellFocus<T extends HTMLElement>() {
 
   return { ref, callbackAfterBlur };
 }
+
+export function useCell() {
+  const cell = useCellContext();
+  const { isEditing, checkFocus, focus, focusAndEdit, finishEditing } =
+    useFocusContext();
+
+  const isFocus = checkFocus(cell.rowIndex, cell.colIndex);
+
+  useEffect(() => {
+    if (!cell.editable && isFocus && isEditing) {
+      finishEditing();
+    }
+  }, [cell.editable, isFocus, isEditing, finishEditing]);
+
+  const onClickCellToFocus: React.MouseEventHandler<HTMLDivElement> =
+    useCallback(
+      (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        focus(cell.rowIndex, cell.colIndex);
+      },
+      [focus, cell.rowIndex, cell.colIndex]
+    );
+
+  const onDoubleClickCellToEdit: React.MouseEventHandler<HTMLDivElement> =
+    useCallback(
+      (e) => {
+        e.preventDefault();
+        if (cell.editable) {
+          focusAndEdit(cell.rowIndex, cell.colIndex);
+        }
+      },
+      [cell.editable, focusAndEdit, cell.rowIndex, cell.colIndex]
+    );
+
+  const preventPropagation: React.MouseEventHandler<HTMLDivElement> =
+    useCallback((e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    }, []);
+
+  return {
+    cell,
+    isFocus,
+    isEditing,
+    onClickCellToFocus,
+    onDoubleClickCellToEdit,
+    preventPropagation,
+  };
+}
