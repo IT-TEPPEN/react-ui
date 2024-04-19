@@ -329,7 +329,7 @@ export function TableFilterForm() {
         </ul>
         <div className="flex justify-center">
           <TableSpecifyKeyFilterRemoveButton>
-            <p className="text-gray-600 underline hover:text-gray-800">
+            <p className="text-xs text-gray-600 underline hover:text-gray-800">
               「{filterColumn.label}」のフィルタを全て解除
             </p>
           </TableSpecifyKeyFilterRemoveButton>
