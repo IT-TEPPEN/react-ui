@@ -11,6 +11,7 @@ import {
   TableFilter,
   TableFilterForm,
   TableFilterRemoveButton,
+  useFilterContext,
 } from "./filter";
 import { SortButton, SortProvider } from "./sort";
 import { CellProvider, ColumnsProvider, RowProvider } from "./sheet/providers";
@@ -45,7 +46,8 @@ function BaseTable(props: TPropsTable) {
     unfocus,
     setMaxRowNumber,
   } = useFocusContext();
-  const [isOpenFilterForm, setIsOpenFilterForm] = useState(false);
+  const { selectedFilterKey, setSelectedFilterKey } = useFilterContext();
+  const [setIsOpenFilterForm] = useState(false);
 
   useEffect(() => {
     const listener = (e: KeyboardEvent) => {
@@ -89,8 +91,12 @@ function BaseTable(props: TPropsTable) {
 
   return (
     <div className="w-full">
-      <div className="flex justify-end">
-        <TableFilterRemoveButton>remove all filters</TableFilterRemoveButton>
+      <div className="flex justify-end mb-1 mr-3">
+        <TableFilterRemoveButton>
+          <p className="text-xs underline text-gray-500 hover:text-gray-700">
+            全てのフィルタリング条件を解除する
+          </p>
+        </TableFilterRemoveButton>
       </div>
 
       <div className="relative w-full h-full max-h-[80vh] border border-gray-200 rounded-md overflow-auto">
@@ -112,7 +118,7 @@ function BaseTable(props: TPropsTable) {
                         keyName={col.key}
                         onClick={(e) => {
                           e.preventDefault();
-                          setIsOpenFilterForm((curr) => !curr);
+                          setSelectedFilterKey(col.key);
                         }}
                       />
                     ) : undefined
@@ -122,29 +128,13 @@ function BaseTable(props: TPropsTable) {
             </tr>
           </thead>
           <tbody>
-            {isOpenFilterForm && (
+            {!!selectedFilterKey && (
               <tr>
                 <td
                   colSpan={cols.length}
-                  className="sticky top-8 left-0 bg-gray-300 w-full shadow-lg rounded-b-2xl py-5 px-2 z-20"
+                  className="sticky top-8 left-0 bg-gray-300 w-full shadow-lg rounded-b-2xl z-20 p-0 overflow-hidden"
                 >
-                  <div className="container max-w-[768px] mx-auto">
-                    <div className="relative">
-                      <div className="absolute top-0 right-0">
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setIsOpenFilterForm(false);
-                          }}
-                        >
-                          close
-                        </button>
-                      </div>
-                      <div>
-                        <TableFilterForm cols={cols} />
-                      </div>
-                    </div>
-                  </div>
+                  <TableFilterForm />
                 </td>
               </tr>
             )}

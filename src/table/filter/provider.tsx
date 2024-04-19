@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import { createContext, useContext, useState } from "react";
 import { TReturnUseFilterReducer } from "./types";
 import { useFilterReducer } from "./hooks";
 
@@ -12,18 +12,34 @@ const FilterContext = createContext<TReturnUseFilterReducer>({
   filterConditions: [],
 });
 
+const SelectedFilterKey = createContext<{
+  selectedFilterKey: string | null;
+  setSelectedFilterKey: (key: string | null) => void;
+}>({
+  selectedFilterKey: null,
+  setSelectedFilterKey: () => {},
+});
+
 export function FilterProvider({
   children,
 }: {
   children: JSX.Element | JSX.Element[];
 }) {
+  const [selectedFilterKey, setSelectedFilterKey] = useState<string | null>(
+    null
+  );
+
   return (
-    <FilterContext.Provider value={useFilterReducer()}>
-      {children}
-    </FilterContext.Provider>
+    <SelectedFilterKey.Provider
+      value={{ selectedFilterKey, setSelectedFilterKey }}
+    >
+      <FilterContext.Provider value={useFilterReducer()}>
+        {children}
+      </FilterContext.Provider>
+    </SelectedFilterKey.Provider>
   );
 }
 
 export function useFilterContext() {
-  return useContext(FilterContext);
+  return { ...useContext(FilterContext), ...useContext(SelectedFilterKey) };
 }
