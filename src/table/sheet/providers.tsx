@@ -27,8 +27,14 @@ export function useRowContext() {
 }
 
 const ColsContext = createContext<{
-  [key: string]: { label?: string } & TCellEditingCondition;
-}>({});
+  cols: TTableColumn[];
+  colMaps: {
+    [key: string]: { label?: string } & TCellEditingCondition;
+  };
+}>({
+  cols: [],
+  colMaps: {},
+});
 
 export function ColumnsProvider({
   children,
@@ -37,19 +43,25 @@ export function ColumnsProvider({
   children: React.ReactNode;
   cols: TTableColumn[];
 }) {
-  const colsMap = cols.reduce((acc, col) => {
+  const colMaps = cols.reduce((acc, col) => {
     const { key, ...other } = col;
     acc[key] = other;
     return acc;
   }, {} as { [key: string]: { label?: string } & TCellEditingCondition });
 
   return (
-    <ColsContext.Provider value={colsMap}>{children}</ColsContext.Provider>
+    <ColsContext.Provider value={{ cols, colMaps }}>
+      {children}
+    </ColsContext.Provider>
   );
 }
 
 export function useColumnContext(key: string) {
-  return useContext(ColsContext)[key];
+  return useContext(ColsContext).colMaps[key];
+}
+
+export function useColumnsContext() {
+  return useContext(ColsContext).cols;
 }
 
 const CellContext = createContext<{
