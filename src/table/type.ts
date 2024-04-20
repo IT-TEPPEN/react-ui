@@ -1,7 +1,6 @@
 export type DataObject = {
-  [key: string]: any;
+  [key: string]: number | string;
   id: number | string;
-  onClick?: React.MouseEventHandler<HTMLTableRowElement>;
 };
 
 export type TStringCellEditingCondition =
@@ -85,6 +84,7 @@ export type TColumnType = Exclude<TTableColumn["type"], undefined>;
 export type TPropsTable = {
   cols: TTableColumn[];
   rows: DataObject[];
+  onClickRow?: (row: DataObject) => void;
   initialCondition?: {
     sort?: { key: string; asc?: boolean };
   };

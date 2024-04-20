@@ -129,9 +129,12 @@ function BaseTable(props: TPropsTable) {
               <RowProvider key={r.id} row={r}>
                 <tr
                   className={`border border-gray-200 hover:bg-gray-100 ${
-                    !!rows[0]?.onClick ? "hover:cursor-pointer" : ""
+                    !!props.onClickRow ? "hover:cursor-pointer" : ""
                   }`}
-                  onClick={r.onClick}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (!!props.onClickRow) props.onClickRow(r);
+                  }}
                   data-testid={r.id}
                 >
                   {cols.map((col, j) => {

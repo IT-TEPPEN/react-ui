@@ -118,7 +118,7 @@ function StringCellInput() {
 
         callbackAfterBlur();
       }}
-      reset={() => setValue(row[cell.columnKey])}
+      reset={() => setValue(row[cell.columnKey].toString())}
       endEditing={finishEditing}
     />
   );

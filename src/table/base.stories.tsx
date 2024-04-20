@@ -20,9 +20,6 @@ export const Default: Story = {
         id: i + 1,
         name: `name${1000 - i}`,
         age: 20 + (i % 10),
-        onClick: () => {
-          alert(i + 1);
-        },
         role: i % 2 === 0 ? "admin" : i % 4 === 1 ? "user" : "",
         button: (i * i) % 7,
       })),
@@ -82,6 +79,9 @@ export const Default: Story = {
         ),
       },
     ],
+    onClickRow: (row) => {
+      alert(row.id);
+    },
   },
   render: (props) => (
     <div className=" w-screen px-5">
