@@ -2,7 +2,7 @@
 
 import { FIlterIcon } from "./filter-icon";
 import { useFilterContext } from "./provider";
-import React, { ChangeEvent, useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { CancelIcon } from "../cancel-icon";
 import {
   FILTER_OPERATOR,
@@ -18,18 +18,26 @@ import {
 import { useColumnContext, useColumnsContext } from "../sheet/providers";
 
 type TPropsTableFilter = {
-  keyName: string;
-  onClick: React.MouseEventHandler<HTMLDivElement>;
+  columnKey: string;
 };
 
 export function TableFilter(props: TPropsTableFilter) {
-  const { filterConditions } = useFilterContext();
+  const col = useColumnContext(props.columnKey);
+  const { filterConditions, setSelectedFilterKey } = useFilterContext();
+
+  if (!col.label) return <></>;
 
   return (
-    <div className="relative cursor-pointer" onClick={props.onClick}>
+    <div
+      className="relative cursor-pointer"
+      onClick={(e) => {
+        e.preventDefault();
+        setSelectedFilterKey(props.columnKey);
+      }}
+    >
       <FIlterIcon
         isFilterActive={
-          filterConditions.filter((f) => f.key === props.keyName).length > 0
+          filterConditions.filter((f) => f.key === props.columnKey).length > 0
         }
       />
     </div>
@@ -221,7 +229,7 @@ export function TableFilterForm() {
   } = useFilterContext();
   const [selectingOperator, setSelectingOperator] = useState<string>("");
   const [value, setValue] = useState<string>("");
-  const filterColumn = useColumnContext(selectedFilterKey as string);
+  let filterColumn = useColumnContext(selectedFilterKey as string);
 
   useEffect(() => {
     setValue("");
@@ -238,7 +246,7 @@ export function TableFilterForm() {
     <div className="flex w-full max-h-[50vh] bg-gray-200">
       <ul className="flex flex-col items-end min-w-16 md:w-[20%] max-h-full overflow-y-auto no_scrollbar bg-white">
         {cols
-          .filter((col) => !!col.label && col.type !== "component")
+          .filter((col) => !!col.label)
           .map((col) => (
             <li
               key={col.key}

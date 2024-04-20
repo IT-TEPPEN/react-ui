@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useEffect, useState, forwardRef, useCallback } from "react";
+import { memo, useState, forwardRef } from "react";
 import { EditIcon } from "./edit-icon";
 import { CancelIcon } from "./cancel-icon";
 import {
@@ -118,7 +118,7 @@ function StringCellInput() {
 
         callbackAfterBlur();
       }}
-      reset={() => setValue(row[cell.columnKey])}
+      reset={() => setValue(row[cell.columnKey].toString())}
       endEditing={finishEditing}
     />
   );
@@ -308,6 +308,7 @@ export function TableCell() {
     onDoubleClickCellToEdit,
     preventPropagation,
   } = useCell();
+  const row = useRowContext();
 
   return (
     <td
@@ -322,8 +323,8 @@ export function TableCell() {
           }`}
           onClick={onClickCellToFocus}
         >
-          {cell.type === "component" ? (
-            cell.label
+          {!!cell.render ? (
+            cell.render(cell.value, row)
           ) : (
             <div onDoubleClick={onDoubleClickCellToEdit}>
               <p className="text-left">{cell.label}</p>

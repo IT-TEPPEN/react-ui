@@ -53,13 +53,21 @@ export function useFilterReducer(): TReturnUseFilterReducer {
           case "ne":
             return acc.filter((row) => row[filter.key] !== filter.value);
           case "gt":
-            return acc.filter((row) => row[filter.key] > filter.value);
+            return acc.filter(
+              (row) => (row[filter.key] as number) > filter.value
+            );
           case "lt":
-            return acc.filter((row) => row[filter.key] < filter.value);
+            return acc.filter(
+              (row) => (row[filter.key] as number) < filter.value
+            );
           case "gte":
-            return acc.filter((row) => row[filter.key] >= filter.value);
+            return acc.filter(
+              (row) => (row[filter.key] as number) >= filter.value
+            );
           case "lte":
-            return acc.filter((row) => row[filter.key] <= filter.value);
+            return acc.filter(
+              (row) => (row[filter.key] as number) <= filter.value
+            );
           case "selected":
             return acc.filter((row) => row[filter.key] === filter.value);
           case "notSelected":

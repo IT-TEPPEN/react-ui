@@ -20,27 +20,13 @@ export const Default: Story = {
         id: i + 1,
         name: `name${1000 - i}`,
         age: 20 + (i % 10),
-        onClick: () => {
-          alert(i + 1);
-        },
         role: i % 2 === 0 ? "admin" : i % 4 === 1 ? "user" : "",
-        button: (
-          <button
-            className="px-2 py-1 text-white bg-blue-500 rounded-md"
-            onClick={(e) => {
-              e.preventDefault();
-              alert(`Clicked! (id: ${i + 1})`);
-            }}
-          >
-            click
-          </button>
-        ),
+        button: (i * i) % 7,
       })),
     ],
     cols: [
       {
         key: "id",
-        label: "ID",
         type: "number",
         editable: true,
         constraints: { min: 1, max: 1000 },
@@ -76,8 +62,125 @@ export const Default: Story = {
           completeEditing();
         },
       },
-      { key: "button", type: "component" },
+      {
+        key: "button",
+        label: "ボタン",
+        type: "number",
+        render: (value, row) => (
+          <button
+            className="px-2 py-1 text-white bg-blue-500 rounded-md"
+            onClick={(e) => {
+              e.preventDefault();
+              alert(`Clicked! (id: ${row.id})`);
+            }}
+          >
+            {value % 7}
+          </button>
+        ),
+      },
     ],
+    onClickRow: (row) => {
+      alert(row.id);
+    },
+  },
+  render: (props) => (
+    <div className=" w-screen px-5">
+      <Table {...props} />
+    </div>
+  ),
+};
+
+export const Readme: Story = {
+  args: {
+    rows: [
+      {
+        id: 1,
+        name: "Taro",
+        age: 30,
+        role: "",
+        button: "Click",
+      },
+      {
+        id: 2,
+        name: "Yoshiko",
+        age: 60,
+        role: "1",
+        button: "Click",
+      },
+      {
+        id: 3,
+        name: "Koki",
+        age: 13,
+        role: "2",
+        button: "Click",
+      },
+      {
+        id: 4,
+        name: "Chisato",
+        age: 34,
+        role: "2",
+        button: "Click",
+      },
+    ],
+    cols: [
+      { key: "id", label: "ID", type: "number" },
+      {
+        key: "name",
+        label: "名前",
+        type: "string",
+        editable: true,
+        constraints: {
+          maxLength: 10,
+          minLength: 1,
+          pattern: "^[a-zA-Z0-9]+$",
+        },
+        onCellBlur: (key, value, current, completeEditing) => {
+          console.log(key, value, current);
+          completeEditing();
+        },
+      },
+      { key: "age", label: "年齢", type: "number" },
+      {
+        key: "role",
+        label: "役割",
+        type: "select",
+        editable: true,
+        options: [
+          { value: "1", label: "管理者" },
+          { value: "2", label: "オペレーター" },
+        ],
+        allowEmpty: true,
+        onCellBlur: (key, value, current, completeEditing) => {
+          console.log(key, value, current);
+          completeEditing();
+        },
+      },
+      {
+        key: "button",
+        label: "ボタン",
+        type: "string",
+        render: (value, row) => (
+          <button
+            className="px-2 py-1 text-white bg-blue-500 rounded-md"
+            onClick={(e) => {
+              e.preventDefault();
+              alert(`Clicked button: (id: ${row.id})`);
+            }}
+          >
+            {value}
+          </button>
+        ),
+      },
+    ],
+    initialCondition: {
+      sort: {
+        key: "id",
+        asc: true,
+      },
+    },
+    onClickRow: (row) => {
+      alert(`Clicked row: (id: ${row.id})`);
+    },
   },
   render: (props) => (
     <div className=" w-screen px-5">
