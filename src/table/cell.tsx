@@ -308,6 +308,7 @@ export function TableCell() {
     onDoubleClickCellToEdit,
     preventPropagation,
   } = useCell();
+  const row = useRowContext();
 
   return (
     <td
@@ -322,8 +323,8 @@ export function TableCell() {
           }`}
           onClick={onClickCellToFocus}
         >
-          {cell.type === "component" ? (
-            cell.label
+          {!!cell.render ? (
+            cell.render(cell.value, row)
           ) : (
             <div onDoubleClick={onDoubleClickCellToEdit}>
               <p className="text-left">{cell.label}</p>

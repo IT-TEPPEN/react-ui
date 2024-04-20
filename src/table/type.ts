@@ -8,6 +8,7 @@ export type TStringCellEditingCondition =
   | { type: "string" } & (
       | {
           editable?: false;
+          render?: (value: string, row: DataObject) => React.ReactNode;
         }
       | {
           editable: true;
@@ -31,6 +32,7 @@ export type TNumberCellEditingCondition =
     } & (
       | {
           editable?: false;
+          render?: (value: number, row: DataObject) => React.ReactNode;
         }
       | {
           editable: true;
@@ -54,6 +56,7 @@ export type TSelectCellEditingCondition =
     } & (
       | {
           editable?: false;
+          render?: (value: string, row: DataObject) => React.ReactNode;
         }
       | {
           editable: true;
@@ -67,16 +70,10 @@ export type TSelectCellEditingCondition =
         }
     );
 
-export type TComponentCellEditingCondition = {
-  type: "component";
-  editable?: false;
-};
-
 export type TCellEditingCondition =
   | TStringCellEditingCondition
   | TNumberCellEditingCondition
-  | TSelectCellEditingCondition
-  | TComponentCellEditingCondition;
+  | TSelectCellEditingCondition;
 
 export type TTableColumn = {
   key: string;

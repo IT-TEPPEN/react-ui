@@ -24,23 +24,12 @@ export const Default: Story = {
           alert(i + 1);
         },
         role: i % 2 === 0 ? "admin" : i % 4 === 1 ? "user" : "",
-        button: (
-          <button
-            className="px-2 py-1 text-white bg-blue-500 rounded-md"
-            onClick={(e) => {
-              e.preventDefault();
-              alert(`Clicked! (id: ${i + 1})`);
-            }}
-          >
-            click
-          </button>
-        ),
+        button: (i * i) % 7,
       })),
     ],
     cols: [
       {
         key: "id",
-        label: "ID",
         type: "number",
         editable: true,
         constraints: { min: 1, max: 1000 },
@@ -76,7 +65,22 @@ export const Default: Story = {
           completeEditing();
         },
       },
-      { key: "button", type: "component" },
+      {
+        key: "button",
+        label: "ボタン",
+        type: "number",
+        render: (value, row) => (
+          <button
+            className="px-2 py-1 text-white bg-blue-500 rounded-md"
+            onClick={(e) => {
+              e.preventDefault();
+              alert(`Clicked! (id: ${row.id})`);
+            }}
+          >
+            {value % 7}
+          </button>
+        ),
+      },
     ],
   },
   render: (props) => (

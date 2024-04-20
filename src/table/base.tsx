@@ -46,8 +46,7 @@ function BaseTable(props: TPropsTable) {
     unfocus,
     setMaxRowNumber,
   } = useFocusContext();
-  const { selectedFilterKey, setSelectedFilterKey } = useFilterContext();
-  const [setIsOpenFilterForm] = useState(false);
+  const { selectedFilterKey } = useFilterContext();
 
   useEffect(() => {
     const listener = (e: KeyboardEvent) => {
@@ -104,26 +103,7 @@ function BaseTable(props: TPropsTable) {
           <thead>
             <tr className="sticky top-0 border-gray-200 z-20">
               {cols.map((col) => (
-                <TableHeaderElement
-                  key={col.key}
-                  label={col.label}
-                  sortConponent={
-                    col.type !== "component" ? (
-                      <SortButton keyName={col.key} />
-                    ) : undefined
-                  }
-                  filterComponent={
-                    col.type !== "component" ? (
-                      <TableFilter
-                        keyName={col.key}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setSelectedFilterKey(col.key);
-                        }}
-                      />
-                    ) : undefined
-                  }
-                />
+                <TableHeaderElement key={col.key} columnKey={col.key} />
               ))}
             </tr>
           </thead>

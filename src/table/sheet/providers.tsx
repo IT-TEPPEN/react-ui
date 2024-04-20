@@ -70,6 +70,7 @@ const CellContext = createContext<{
   label: any;
   type: TColumnType;
   editable?: boolean;
+  render?: (value: any, row: DataObject) => React.ReactNode;
   rowIndex: number;
   colIndex: number;
 }>({
@@ -105,6 +106,7 @@ export function CellProvider({
             ? col.options?.find((op) => op.value === value)?.label
             : value,
         editable: col.editable,
+        render: col.editable ? undefined : col.render,
         type: col.type,
         rowIndex,
         colIndex,

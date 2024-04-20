@@ -1,16 +1,18 @@
 "use client";
 
+import { useColumnContext } from "../sheet";
 import { SortIcon } from "./icon";
 import { useSortContext } from "./provider";
 
 type TPropsSort = {
-  keyName: string;
+  columnKey: string;
 };
 
 export function SortButton(props: TPropsSort) {
+  const col = useColumnContext(props.columnKey);
   const { key, asc, changeKey, changeOrder } = useSortContext();
 
-  const isActive = key === props.keyName;
+  const isActive = key === props.columnKey;
 
   return (
     <div
@@ -19,7 +21,7 @@ export function SortButton(props: TPropsSort) {
         if (isActive) {
           changeOrder();
         } else {
-          changeKey(props.keyName);
+          changeKey(props.columnKey);
         }
       }}
       className="cursor-pointer"
