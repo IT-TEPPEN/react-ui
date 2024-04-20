@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useEffect, useState, forwardRef, useCallback } from "react";
+import { memo, useState, forwardRef } from "react";
 import { EditIcon } from "./edit-icon";
 import { CancelIcon } from "./cancel-icon";
 import {

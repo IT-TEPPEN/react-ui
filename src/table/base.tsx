@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTable } from "./hook";
 import { TableCell } from "./cell";
 import { TableHeaderElement } from "./header";
@@ -8,12 +8,11 @@ import { TPropsTable } from "./type";
 import { PagenationProvider, DisplayRange, Pagenation } from "./pagenation";
 import {
   FilterProvider,
-  TableFilter,
   TableFilterForm,
   TableFilterRemoveButton,
   useFilterContext,
 } from "./filter";
-import { SortButton, SortProvider } from "./sort";
+import { SortProvider } from "./sort";
 import { CellProvider, ColumnsProvider, RowProvider } from "./sheet/providers";
 import { FocusProvider, useFocusContext } from "./edit/provider";
 
@@ -72,8 +71,6 @@ function BaseTable(props: TPropsTable) {
         moveDown();
       } else if (e.key === "F2") {
         edit();
-      } else {
-        console.log(e.key);
       }
     };
 

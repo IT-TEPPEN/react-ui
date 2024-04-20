@@ -2,7 +2,7 @@
 
 import { FIlterIcon } from "./filter-icon";
 import { useFilterContext } from "./provider";
-import React, { ChangeEvent, useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { CancelIcon } from "../cancel-icon";
 import {
   FILTER_OPERATOR,
