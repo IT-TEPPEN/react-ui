@@ -6,7 +6,7 @@ This is a React component library that provides some useful UI elements for your
 
 This library includes the following components:
 
-- Table: A simple Table. (0.1.0 ～)
+- Table: A simple Table. (1.0.0 ～) (※ Not compatible with 0.\*.\*)
 
 ## Installation
 
@@ -63,28 +63,28 @@ const App = () => {
             name: "Taro",
             age: 30,
             role: "",
-            button: <button>Click</button>,
+            button: "Click",
           },
           {
             id: 2,
             name: "Yoshiko",
             age: 60,
             role: "1",
-            button: <button>Click</button>,
+            button: "Click",
           },
           {
             id: 3,
             name: "Koki",
             age: 13,
             role: "2",
-            button: <button>Click</button>,
+            button: "Click",
           },
           {
             id: 4,
             name: "Chisato",
             age: 34,
             role: "2",
-            button: <button>Click</button>,
+            button: "Click",
           },
         ]}
         cols={[
@@ -120,8 +120,32 @@ const App = () => {
               completeEditing();
             },
           },
-          { key: "button", type: "component" },
+          {
+            key: "button",
+            label: "ボタン",
+            type: "string",
+            render: (value, row) => (
+              <button
+                className="px-2 py-1 text-white bg-blue-500 rounded-md"
+                onClick={(e) => {
+                  e.preventDefault();
+                  alert(`Clicked button: (id: ${row.id})`);
+                }}
+              >
+                {value}
+              </button>
+            ),
+          },
         ]}
+        initialCondition={{
+          sort: {
+            key: "id",
+            asc: true,
+          },
+        }}
+        onClickRow={(row) => {
+          alert(`Clicked row: (id: ${row.id})`);
+        }}
       />
     </div>
   );
@@ -135,25 +159,26 @@ export default App;
 A component that displays a table based on the row and column information passed as arguments. The table component has the following features:
 
 - Pagination function
+- Sorting function
 - Filtering function (only when `label` is set in the column information)
-- Sorting function (only when `label` is set in the column information)
 - Editing function (only when `editable` is true and `onCellBlur` is set in the column information)
 
 #### Arguments
 
-The table component only accepts the arguments `rows` and `cols`. Details for each argument are described below.
+The table component only accepts the arguments `rows`, `cols`, `initialCondition` and `onClickRow`. Details for each argument are described below.
 
 ##### rows
 
-`rows` is an array of the following associative array (`DataObject`). Only id is required and it must be unique within the array. If onClick is set, it is possible to define the behavior when a row is clicked.
+`rows` is an array of the following associative array (`DataObject`). Only id is required and it must be unique within the array.
 
 ```ts
 export type DataObject = {
-  [key: string]: any;
+  [key: string]: number | string;
   id: number | string;
-  onClick?: React.MouseEventHandler<HTMLTableRowElement>;
 };
 ```
+
+※ `onClick` property has been deprecated since version 1.0.0 in favor of the new Table argument `onClickRow`
 
 ##### cols
 
@@ -162,7 +187,7 @@ In `cols`, you specify the data to be displayed in the table from left to right.
 When the `type` set `component`, editing, filtering, and sorting functions are not available. However, it is possible to embed a React Component created by the user into a cell.
 
 ```ts
-export type TColumnType = "string" | "number" | "select" | "component";
+export type TColumnType = "string" | "number" | "select";
 
 export type TTableColumn = {
   key: string;
@@ -170,6 +195,7 @@ export type TTableColumn = {
   options: { value: string; label: string }[]; // Only When "type" is "select"
   label?: string;
   editable?: boolean;
+  render?: (value: string | number, row: DataObject) => React.ReactNode; // Only When "editable" is false
   allowEmpty?: boolean; // Only When "type" is "select"
   constraints?: {
     maxLength?: number; // Only when "type" is "string"
@@ -185,6 +211,26 @@ export type TTableColumn = {
     completeEditing: () => void // Function to exit cell edit mode
   ) => void;
 };
+```
+
+※ TColumnType no longer supports `component` since version 1.0.0. Instead, `render` is now supported, allowing for sorting and filtering functions that were not previously supported by `component`.
+
+##### initialCondition
+
+In `initialCondition`, you can set initial values for each function. This is optional.
+
+```ts
+type TInitialCondition = {
+  sort?: { key: string; asc?: boolean };
+};
+```
+
+##### onClickRow
+
+In `onClickRow`, You may define the behavior when a row is clicked. This is optional.
+
+```ts
+type TOnClickRow = (row: DataObject) => void;
 ```
 
 ## License
