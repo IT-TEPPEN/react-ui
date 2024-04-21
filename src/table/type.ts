@@ -81,6 +81,8 @@ export type TTableColumn = {
 
 export type TColumnType = Exclude<TTableColumn["type"], undefined>;
 
+type TailwindCssStyle = string;
+
 export type TPropsTable = {
   cols: TTableColumn[];
   rows: DataObject[];
@@ -88,4 +90,5 @@ export type TPropsTable = {
   initialCondition?: {
     sort?: { key: string; asc?: boolean };
   };
+  applyRowFormatting?: (row: DataObject) => TailwindCssStyle;
 };

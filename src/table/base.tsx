@@ -125,8 +125,10 @@ function BaseTable(props: TPropsTable) {
             {rows.map((r, i) => (
               <RowProvider key={r.id} row={r}>
                 <tr
-                  className={`border border-gray-200 hover:bg-gray-100 ${
+                  className={`relative border border-gray-200 after:absolute after:w-full after:h-full after:top-0 after:left-0 after:pointer-events-none after:hover:bg-gray-500/10 ${
                     !!props.onClickRow ? "hover:cursor-pointer" : ""
+                  } ${
+                    props.applyRowFormatting ? props.applyRowFormatting(r) : ""
                   }`}
                   onClick={(e) => {
                     e.preventDefault();
