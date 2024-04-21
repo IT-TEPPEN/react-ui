@@ -181,6 +181,13 @@ export const Readme: Story = {
     onClickRow: (row) => {
       alert(`Clicked row: (id: ${row.id})`);
     },
+    applyRowFormatting: (row) => {
+      if (row.role === "1") {
+        return "bg-red-600 text-white";
+      } else {
+        return "";
+      }
+    },
   },
   render: (props) => (
     <div className=" w-screen px-5">

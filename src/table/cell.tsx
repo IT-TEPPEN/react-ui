@@ -25,7 +25,7 @@ const CellInput = forwardRef(function CI(
     <div className="flex justify-between gap-1 w-full items-center">
       <input
         ref={ref}
-        className="w-full py-1 px-2"
+        className="w-full py-1 px-2 bg-white text-gray-900"
         type="text"
         value={props.value}
         onChange={props.onChange}
@@ -225,7 +225,7 @@ function SelectCellInput() {
     <div className="flex justify-between gap-1 w-full items-center">
       <select
         ref={ref}
-        className="w-full py-1 px-2"
+        className="w-full py-1 px-2 bg-white text-gray-900"
         value={value}
         onChange={(e) => {
           e.preventDefault();

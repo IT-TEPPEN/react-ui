@@ -1,4 +1,4 @@
-# React-UI (@teppen/)
+# React-UI
 
 This is a React component library that provides some useful UI elements for your web applications.
 
@@ -146,6 +146,13 @@ const App = () => {
         onClickRow={(row) => {
           alert(`Clicked row: (id: ${row.id})`);
         }}
+        applyRowFormatting={(row) => {
+          if (row.role === "1") {
+            return "bg-red-600 text-white";
+          } else {
+            return "";
+          }
+        }}
       />
     </div>
   );
@@ -227,10 +234,21 @@ type TInitialCondition = {
 
 ##### onClickRow
 
-In `onClickRow`, You may define the behavior when a row is clicked. This is optional.
+In `onClickRow`, you may define the behavior when a row is clicked. This is optional.
 
 ```ts
 type TOnClickRow = (row: DataObject) => void;
+```
+
+##### applyRowFormatting
+
+In `applyRowFormatting`, depending on the status of each row, you can define the format of the row using TailwindCSS classes. In principle, TailwindCSS classes other than background and text color are not guaranteed to work, but any class can be specified.
+
+```ts
+/**
+ * The return value is a string of one TailwindCSS class or multiple TailwindCSS classes separated by spaces.
+ */
+type TApplyRowFormatting = (row: DataObject) => string;
 ```
 
 ## License
