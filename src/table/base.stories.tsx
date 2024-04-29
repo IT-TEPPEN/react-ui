@@ -161,7 +161,7 @@ export const Readme: Story = {
         type: "string",
         render: (value, row) => (
           <button
-            className="px-2 py-1 text-white bg-blue-500 rounded-md"
+            className="px-2 py-1 rounded-md bg-primary text-accent"
             onClick={(e) => {
               e.preventDefault();
               alert(`Clicked button: (id: ${row.id})`);

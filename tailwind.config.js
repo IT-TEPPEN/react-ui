@@ -6,5 +6,5 @@ module.exports = withTV({
   theme: {
     extend: {},
   },
-  plugins: [],
+  plugins: [require("./src/plugins")],
 });
