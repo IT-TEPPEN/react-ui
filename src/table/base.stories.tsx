@@ -74,6 +74,7 @@ export const Default: Story = {
         key: "button",
         label: "ボタン",
         type: "number",
+        disableFilter: true,
         render: (value, row) => (
           <button
             className="px-2 py-1 text-white bg-blue-500 rounded-md"
