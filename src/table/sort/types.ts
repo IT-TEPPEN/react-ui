@@ -1,5 +1,5 @@
 import { Reducer } from "react";
-import { DataObject } from "../type";
+import { DataObject, DataRecord } from "../type";
 
 type TSortState = {
   key: string;
@@ -19,10 +19,10 @@ type TSortAction =
 
 export type TSortReducer = Reducer<TSortState, TSortAction>;
 
-export type TReturnSortReducer = {
-  key: string;
+export type TReturnSortReducer<T extends DataRecord> = {
+  key: keyof T;
   asc: boolean;
   changeKey: (key: string) => void;
   changeOrder: () => void;
-  sort: (rows: DataObject[]) => DataObject[];
+  sort: <U extends DataRecord>(rows: DataObject<U>[]) => DataObject<U>[];
 };

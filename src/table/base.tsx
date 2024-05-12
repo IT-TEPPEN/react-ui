@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useTable } from "./hook";
 import { TableCell } from "./cell";
 import { TableHeaderElement } from "./header";
-import { TPropsTable } from "./type";
+import { DataRecord, TPropsTable } from "./type";
 import { PagenationProvider, DisplayRange, Pagenation } from "./pagenation";
 import {
   FilterProvider,
@@ -16,7 +16,7 @@ import { SortProvider } from "./sort";
 import { CellProvider, ColumnsProvider, RowProvider } from "./sheet/providers";
 import { FocusProvider, useFocusContext } from "./edit/provider";
 
-export default function Table(props: TPropsTable) {
+export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   return (
     <FilterProvider>
       <SortProvider initialCondition={props.initialCondition?.sort}>
@@ -32,8 +32,8 @@ export default function Table(props: TPropsTable) {
   );
 }
 
-function BaseTable(props: TPropsTable) {
-  const { cols, rows } = useTable(props);
+function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
+  const { cols, rows } = useTable<T>(props);
   const {
     isFocus,
     isEditing,
@@ -100,7 +100,10 @@ function BaseTable(props: TPropsTable) {
           <thead>
             <tr className="sticky top-0 border-gray-200 z-20">
               {cols.map((col) => (
-                <TableHeaderElement key={col.key} columnKey={col.key} />
+                <TableHeaderElement
+                  key={col.key as string}
+                  columnKey={col.key as string}
+                />
               ))}
             </tr>
           </thead>
@@ -139,8 +142,8 @@ function BaseTable(props: TPropsTable) {
                   {cols.map((col, j) => {
                     return (
                       <CellProvider
-                        key={col.key}
-                        columnKey={col.key}
+                        key={col.key as string}
+                        columnKey={col.key as string}
                         rowIndex={i}
                         colIndex={j}
                       >

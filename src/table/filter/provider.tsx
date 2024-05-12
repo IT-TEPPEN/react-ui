@@ -4,7 +4,9 @@ import { createContext, useContext, useState } from "react";
 import { TReturnUseFilterReducer } from "./types";
 import { useFilterReducer } from "./hooks";
 
-const FilterContext = createContext<TReturnUseFilterReducer>({
+const FilterContext = createContext<
+  TReturnUseFilterReducer<{ [key: string]: string | number }>
+>({
   addFilter: () => {},
   removeFilter: () => {},
   clearFilter: () => {},

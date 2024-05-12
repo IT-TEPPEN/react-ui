@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { TPropsTable } from "./type";
+import { DataRecord, TPropsTable } from "./type";
 import { usePageContext } from "./pagenation/providers";
 import { useFilterContext } from "./filter";
 import { useSortContext } from "./sort";
 import { useFocusContext } from "./edit/provider";
 import { useCellContext } from "./sheet/providers";
 
-export function useTable(props: TPropsTable) {
+export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { filter } = useFilterContext();
   const { sort } = useSortContext();
   const { setRowCount, pageFilter } = usePageContext();

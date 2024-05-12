@@ -2,10 +2,10 @@
 
 import { createContext, useContext } from "react";
 import { TReturnSortReducer } from "./types";
-import { DataObject } from "../type";
 import { useSortReducer } from "./hooks";
+import { DataRecord } from "../type";
 
-const SortContext = createContext<TReturnSortReducer>({
+const SortContext = createContext<TReturnSortReducer<DataRecord>>({
   key: "",
   asc: false,
   changeKey: function (): void {
@@ -14,9 +14,7 @@ const SortContext = createContext<TReturnSortReducer>({
   changeOrder: function (): void {
     throw new Error("Function not implemented.");
   },
-  sort: function (): DataObject[] {
-    throw new Error("Function not implemented.");
-  },
+  sort: () => [],
 });
 
 export function SortProvider(props: {

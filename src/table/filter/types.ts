@@ -1,4 +1,4 @@
-import { DataObject } from "../type";
+import { DataObject, DataRecord } from "../type";
 import {
   NUMBER_FILTER_OPERATOR,
   SELECT_FILTER_OPERATOR,
@@ -19,49 +19,52 @@ export type TFilterOperator =
   | TNumberFilterOperator
   | TSelectFilterOperator;
 
-type TStringFilter = {
-  key: string;
+type TStringFilter<T extends DataRecord, U extends keyof T = string> = {
+  key: U;
   operator: TStringFilterOperator;
   value: string[];
   label?: string;
 };
 
-type TNumberFilter = {
-  key: string;
+type TNumberFilter<T extends DataRecord, U extends keyof T = string> = {
+  key: U;
   operator: TNumberFilterOperator;
   value: number;
   label?: string;
 };
 
-type TSelectFilter = {
-  key: string;
+type TSelectFilter<T extends DataRecord, U extends keyof T = string> = {
+  key: U;
   operator: TSelectFilterOperator;
   value: string;
   label?: string;
 };
 
-export type TFilter = TStringFilter | TNumberFilter | TSelectFilter;
+export type TFilter<T extends DataRecord> =
+  | TStringFilter<T>
+  | TNumberFilter<T>
+  | TSelectFilter<T>;
 
-type TFilterState = {
-  filters: ({ id: number } & TFilter)[];
+export type TFilterState<T extends DataRecord> = {
+  filters: ({ id: number } & TFilter<T>)[];
 };
 
-type TFilterAction =
-  | { type: "add"; payload: { filter: TFilter } }
+export type TFilterAction<T extends DataRecord> =
+  | { type: "add"; payload: { filter: TFilter<T> } }
   | { type: "remove"; payload: { id: number } }
   | { type: "clear" };
 
-export type TFilterReducer = (
-  state: TFilterState,
-  action: TFilterAction
-) => TFilterState;
+export type TFilterReducer<T extends DataRecord> = (
+  state: TFilterState<T>,
+  action: TFilterAction<T>
+) => TFilterState<T>;
 
-export type TReturnUseFilterReducer = {
-  addFilter: (filter: TFilter) => void;
+export type TReturnUseFilterReducer<T extends DataRecord> = {
+  addFilter: <U extends DataRecord>(filter: TFilter<U>) => void;
   removeFilter: (id: number) => void;
   clearFilter: () => void;
-  filter: (rows: DataObject[]) => DataObject[];
+  filter: <U extends DataRecord>(rows: DataObject<U>[]) => DataObject<U>[];
   filterConditions: ({
     id: number;
-  } & TFilter)[];
+  } & TFilter<T>)[];
 };
