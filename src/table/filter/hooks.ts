@@ -1,8 +1,16 @@
 import { useCallback, useReducer } from "react";
-import { TFilter, TFilterReducer, TReturnUseFilterReducer } from "./types";
-import { DataObject } from "../type";
+import {
+  TFilter,
+  TFilterAction,
+  TFilterState,
+  TReturnUseFilterReducer,
+} from "./types";
+import { DataObject, DataRecord } from "../type";
 
-const reducer: TFilterReducer = (state, action) => {
+function reducer<T extends DataRecord>(
+  state: TFilterState<T>,
+  action: TFilterAction<T>
+): TFilterState<T> {
   switch (action.type) {
     case "add":
       return {
@@ -18,13 +26,15 @@ const reducer: TFilterReducer = (state, action) => {
     case "clear":
       return { filters: [] };
   }
-};
+}
 
-export function useFilterReducer(): TReturnUseFilterReducer {
+export function useFilterReducer<
+  T extends DataRecord
+>(): TReturnUseFilterReducer<T> {
   const [state, dispatch] = useReducer(reducer, { filters: [] });
 
   const addFilter = useCallback(
-    (filter: TFilter) => dispatch({ type: "add", payload: { filter } }),
+    (filter: TFilter<T>) => dispatch({ type: "add", payload: { filter } }),
     [dispatch]
   );
   const removeFilter = useCallback(
@@ -37,7 +47,7 @@ export function useFilterReducer(): TReturnUseFilterReducer {
   );
 
   const filter = useCallback(
-    (rows: DataObject[]): DataObject[] => {
+    <U extends DataRecord>(rows: DataObject<U>[]): DataObject<U>[] => {
       return state.filters.reduce((acc, filter) => {
         switch (filter.operator) {
           case "includeText":

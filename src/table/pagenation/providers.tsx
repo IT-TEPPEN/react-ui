@@ -3,7 +3,6 @@
 import { createContext, useContext } from "react";
 import { TPageContext } from "./types";
 import { usePageReducer } from "./hooks";
-import { DataObject } from "../type";
 
 const PageContext = createContext<TPageContext>({
   perPage: 0,
@@ -24,9 +23,7 @@ const PageContext = createContext<TPageContext>({
   setRowCount: function (): void {
     throw new Error("Function not implemented.");
   },
-  pageFilter: function (): DataObject[] {
-    throw new Error("Function not implemented.");
-  },
+  pageFilter: () => [],
 });
 
 export function PagenationProvider(props: {

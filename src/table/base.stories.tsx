@@ -8,7 +8,15 @@ const meta = {
     layout: "centered",
   },
   tags: ["autodocs"],
-} as Meta<typeof Table>;
+} as Meta<
+  typeof Table<{
+    id: number;
+    name: string;
+    age: number;
+    role: string;
+    button: number | string;
+  }>
+>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

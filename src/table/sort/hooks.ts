@@ -1,6 +1,6 @@
 import { useCallback, useReducer } from "react";
 import { TReturnSortReducer, TSortReducer } from "./types";
-import { DataObject } from "../type";
+import { DataObject, DataRecord } from "../type";
 
 const reducer: TSortReducer = (state, action) => {
   switch (action.type) {
@@ -11,10 +11,10 @@ const reducer: TSortReducer = (state, action) => {
   }
 };
 
-export function useSortReducer(initial?: {
+export function useSortReducer<T extends DataRecord>(initial?: {
   key: string;
   asc?: boolean;
-}): TReturnSortReducer {
+}): TReturnSortReducer<T> {
   const [state, dispatch] = useReducer(reducer, {
     key: initial?.key ?? "id",
     asc: initial?.asc ?? true,
@@ -29,7 +29,7 @@ export function useSortReducer(initial?: {
   };
 
   const sort = useCallback(
-    (rows: DataObject[]) =>
+    <U extends DataRecord>(rows: DataObject<U>[]) =>
       [...rows].sort((a, b) => {
         if (a[state.key] < b[state.key]) {
           return state.asc ? -1 : 1;

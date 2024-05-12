@@ -1,20 +1,21 @@
-export type DataObject = {
-  [key: string]: number | string;
+export type DataRecord = Record<string, string | number>;
+
+export type DataObject<T extends DataRecord> = T & {
   id: number | string;
 };
 
-export type TStringCellEditingCondition =
+export type TStringCellEditingCondition<T extends DataRecord> =
   | { type: "string" } & (
       | {
           editable?: false;
-          render?: (value: string, row: DataObject) => React.ReactNode;
+          render?: (value: string, row: DataObject<T>) => React.ReactNode;
         }
       | {
           editable: true;
           onCellBlur: (
-            key: string,
+            key: keyof T,
             value: string,
-            current: DataObject,
+            current: DataObject<T>,
             completeEditing: () => void
           ) => void;
           constraints?: {
@@ -25,20 +26,20 @@ export type TStringCellEditingCondition =
         }
     );
 
-export type TNumberCellEditingCondition =
+export type TNumberCellEditingCondition<T extends DataRecord> =
   | {
       type: "number";
     } & (
       | {
           editable?: false;
-          render?: (value: number, row: DataObject) => React.ReactNode;
+          render?: (value: number, row: DataObject<T>) => React.ReactNode;
         }
       | {
           editable: true;
           onCellBlur: (
-            key: string,
+            key: keyof T,
             value: number,
-            current: DataObject,
+            current: DataObject<T>,
             completeEditing: () => void
           ) => void;
           constraints?: {
@@ -48,47 +49,47 @@ export type TNumberCellEditingCondition =
         }
     );
 
-export type TSelectCellEditingCondition =
+export type TSelectCellEditingCondition<T extends DataRecord> =
   | {
       type: "select";
       options: { value: string; label: string }[];
     } & (
       | {
           editable?: false;
-          render?: (value: string, row: DataObject) => React.ReactNode;
+          render?: (value: string, row: DataObject<T>) => React.ReactNode;
         }
       | {
           editable: true;
           allowEmpty?: boolean;
           onCellBlur: (
-            key: string,
+            key: keyof T,
             value: string,
-            current: DataObject,
+            current: DataObject<T>,
             completeEditing: () => void
           ) => void;
         }
     );
 
-export type TCellEditingCondition =
-  | TStringCellEditingCondition
-  | TNumberCellEditingCondition
-  | TSelectCellEditingCondition;
+export type TCellEditingCondition<T extends DataRecord> =
+  | TStringCellEditingCondition<T>
+  | TNumberCellEditingCondition<T>
+  | TSelectCellEditingCondition<T>;
 
-export type TTableColumn = {
-  key: string;
+export type TTableColumn<T extends DataRecord> = {
+  key: keyof T;
   label?: string;
-} & TCellEditingCondition;
+} & TCellEditingCondition<T>;
 
-export type TColumnType = Exclude<TTableColumn["type"], undefined>;
+export type TColumnType = Exclude<TTableColumn<{}>["type"], undefined>;
 
 type TailwindCssStyle = string;
 
-export type TPropsTable = {
-  cols: TTableColumn[];
-  rows: DataObject[];
-  onClickRow?: (row: DataObject) => void;
+export type TPropsTable<T extends DataRecord> = {
+  cols: TTableColumn<T>[];
+  rows: DataObject<T>[];
+  onClickRow?: (row: DataObject<T>) => void;
   initialCondition?: {
     sort?: { key: string; asc?: boolean };
   };
-  applyRowFormatting?: (row: DataObject) => TailwindCssStyle;
+  applyRowFormatting?: (row: DataObject<T>) => TailwindCssStyle;
 };

@@ -1,14 +1,9 @@
 "use client";
 
 import { createContext, useContext } from "react";
-import {
-  DataObject,
-  TCellEditingCondition,
-  TColumnType,
-  TTableColumn,
-} from "../type";
+import { DataObject, DataRecord, TColumnType, TTableColumn } from "../type";
 
-const RowContext = createContext<DataObject>({
+const RowContext = createContext<DataObject<DataRecord>>({
   id: "",
 });
 
@@ -17,7 +12,7 @@ export function RowProvider({
   row,
 }: {
   children: React.ReactNode;
-  row: DataObject;
+  row: DataObject<DataRecord>;
 }) {
   return <RowContext.Provider value={row}>{children}</RowContext.Provider>;
 }
@@ -27,30 +22,39 @@ export function useRowContext() {
 }
 
 const ColsContext = createContext<{
-  cols: TTableColumn[];
+  cols: TTableColumn<DataRecord>[];
   colMaps: {
-    [key: string]: { label?: string } & TCellEditingCondition;
+    [key: string]: TTableColumn<DataRecord>;
   };
 }>({
   cols: [],
   colMaps: {},
 });
 
-export function ColumnsProvider({
+export function ColumnsProvider<T extends DataRecord>({
   children,
   cols,
 }: {
   children: React.ReactNode;
-  cols: TTableColumn[];
+  cols: TTableColumn<T>[];
 }) {
   const colMaps = cols.reduce((acc, col) => {
-    const { key, ...other } = col;
-    acc[key] = other;
+    const { key } = col;
+    acc[key] = col;
     return acc;
-  }, {} as { [key: string]: { label?: string } & TCellEditingCondition });
+  }, {} as { [key in keyof T]: TTableColumn<T> });
 
   return (
-    <ColsContext.Provider value={{ cols, colMaps }}>
+    <ColsContext.Provider
+      value={
+        { cols, colMaps } as {
+          cols: TTableColumn<DataRecord>[];
+          colMaps: {
+            [key: string]: TTableColumn<DataRecord>;
+          };
+        }
+      }
+    >
       {children}
     </ColsContext.Provider>
   );
@@ -70,7 +74,7 @@ const CellContext = createContext<{
   label: any;
   type: TColumnType;
   editable?: boolean;
-  render?: (value: any, row: DataObject) => React.ReactNode;
+  render?: (value: any, row: DataObject<DataRecord>) => React.ReactNode;
   rowIndex: number;
   colIndex: number;
 }>({
