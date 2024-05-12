@@ -123,6 +123,8 @@ const App = () => {
           {
             key: "button",
             label: "ボタン",
+            disableSort: true,
+            disableFilter: true,
             type: "string",
             render: (value, row) => (
               <button
@@ -189,18 +191,20 @@ export type DataObject = {
 
 ##### cols
 
-In `cols`, you specify the data to be displayed in the table from left to right. The `key` here needs to match the key name in each element of rows. However, it is not necessary to always include the key `id`. `label` is optional, but it is required for some functions, so it is recommended to set it.
+In `cols`, you specify the data to be displayed in the table from left to right. The `key` here needs to match the key name in each element of rows.
 
-When the `type` set `component`, editing, filtering, and sorting functions are not available. However, it is possible to embed a React Component created by the user into a cell.
+it is not necessary to always include the key `label`, but it is required for some functions, so it is recommended to set it.
 
 ```ts
 export type TColumnType = "string" | "number" | "select";
 
 export type TTableColumn = {
   key: string;
-  type: TColumnType;
-  options: { value: string; label: string }[]; // Only When "type" is "select"
   label?: string;
+  type: TColumnType;
+  disableSort?: boolean;
+  disableFilter?: boolean;
+  options: { value: string; label: string }[]; // Only When "type" is "select"
   editable?: boolean;
   render?: (value: string | number, row: DataObject) => React.ReactNode; // Only When "editable" is false
   allowEmpty?: boolean; // Only When "type" is "select"

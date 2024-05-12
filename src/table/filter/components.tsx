@@ -23,7 +23,8 @@ type TPropsTableFilter = {
 
 export function TableFilter(props: TPropsTableFilter) {
   const col = useColumnContext(props.columnKey);
-  const { filterConditions, setSelectedFilterKey } = useFilterContext();
+  const { filterConditions, setSelectedFilterKey, selectedFilterKey } =
+    useFilterContext();
 
   if (!col.label) return <></>;
 
@@ -32,10 +33,15 @@ export function TableFilter(props: TPropsTableFilter) {
       className="relative cursor-pointer"
       onClick={(e) => {
         e.preventDefault();
-        setSelectedFilterKey(props.columnKey);
+        if (selectedFilterKey === props.columnKey) {
+          setSelectedFilterKey(null);
+        } else {
+          setSelectedFilterKey(props.columnKey);
+        }
       }}
     >
       <FIlterIcon
+        isFilterTarget={selectedFilterKey === props.columnKey}
         isFilterActive={
           filterConditions.filter((f) => f.key === props.columnKey).length > 0
         }
@@ -246,7 +252,7 @@ export function TableFilterForm() {
     <div className="flex w-full max-h-[50vh] bg-gray-200">
       <ul className="flex flex-col items-end min-w-16 md:w-[20%] max-h-full overflow-y-auto no_scrollbar bg-white">
         {cols
-          .filter((col) => !!col.label)
+          .filter((col) => !!col.label && !col.disableFilter)
           .map((col) => (
             <li
               key={col.key}
@@ -260,7 +266,15 @@ export function TableFilterForm() {
                 setSelectedFilterKey(col.key);
               }}
             >
-              <p className="text-right text-nowrap">{col.label}</p>
+              <p
+                className={`text-right text-nowrap ${
+                  selectedFilterKey === col.key
+                    ? "underline underline-offset-2 decoration-2 decoration-neutral-500"
+                    : ""
+                }`}
+              >
+                {col.label}
+              </p>
               {filterConditions.filter((f) => f.key === col.key).length > 0 && (
                 <div className="absolute top-1/2 right-1">
                   <div className="-translate-y-1/2 rounded-full border border-gray-400 bg-gray-100 aspect-square w-5">

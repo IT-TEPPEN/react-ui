@@ -22,8 +22,8 @@ export function TableHeaderElement(props: TPropsTableHeader) {
       )}
 
       <div className="absolute flex items-center gap-1 top-1/2 right-1 -translate-y-1/2">
-        <SortButton columnKey={props.columnKey} />
-        <TableFilter columnKey={props.columnKey} />
+        {!col.disableSort && <SortButton columnKey={props.columnKey} />}
+        {!col.disableFilter && <TableFilter columnKey={props.columnKey} />}
       </div>
     </th>
   );

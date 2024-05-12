@@ -1,6 +1,7 @@
 type TPropsFIlterIcon = {
   size?: number;
   isFilterActive?: boolean;
+  isFilterTarget?: boolean;
 };
 
 export function FIlterIcon(props: TPropsFIlterIcon) {
@@ -8,7 +9,11 @@ export function FIlterIcon(props: TPropsFIlterIcon) {
   return (
     <div
       className={`duration-300 ${
-        props.isFilterActive ? "text-gray-700" : "text-gray-500"
+        props.isFilterTarget
+          ? "text-neutral-500"
+          : props.isFilterActive
+          ? "text-gray-700"
+          : "text-gray-500"
       }`}
     >
       <svg
@@ -21,7 +26,7 @@ export function FIlterIcon(props: TPropsFIlterIcon) {
         xmlSpace="preserve"
       >
         <defs></defs>
-        {props.isFilterActive ? (
+        {props.isFilterActive || props.isFilterTarget ? (
           <g
             style={{
               stroke: "none",

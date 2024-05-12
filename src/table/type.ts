@@ -78,6 +78,8 @@ export type TCellEditingCondition<T extends DataRecord> =
 export type TTableColumn<T extends DataRecord> = {
   key: keyof T;
   label?: string;
+  disableSort?: boolean;
+  disableFilter?: boolean;
 } & TCellEditingCondition<T>;
 
 export type TColumnType = Exclude<TTableColumn<{}>["type"], undefined>;
