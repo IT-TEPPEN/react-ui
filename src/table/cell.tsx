@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState, forwardRef } from "react";
+import { memo, useState, forwardRef, useEffect, useRef } from "react";
 import { EditIcon } from "./edit-icon";
 import { CancelIcon } from "./cancel-icon";
 import {
@@ -10,6 +10,7 @@ import {
 } from "./sheet/providers";
 import { useFocusContext } from "./edit/provider";
 import { useCell, useCellFocus } from "./hook";
+import { useInView } from "react-intersection-observer";
 
 const CellInput = forwardRef(function CI(
   props: {
@@ -22,7 +23,7 @@ const CellInput = forwardRef(function CI(
   ref: React.ForwardedRef<HTMLInputElement>
 ) {
   return (
-    <div className="flex justify-between gap-1 w-full items-center">
+    <div className={`flex justify-between gap-1 w-full items-center`}>
       <input
         ref={ref}
         className="w-full py-1 px-2 bg-white text-gray-900"
@@ -309,14 +310,33 @@ export function TableCell() {
     preventPropagation,
   } = useCell();
   const row = useRowContext();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const { inView, ref } = useInView({
+    root: document.querySelector("#table-frame"),
+    rootMargin: "-60px -30px -30px -30px",
+    threshold: 1,
+  });
+
+  useEffect(() => {
+    if (isFocus && !inView) {
+      if (scrollRef.current) {
+        scrollRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+          inline: "nearest",
+        });
+      }
+    }
+  }, [isFocus, inView, scrollRef]);
 
   return (
     <td
+      ref={ref}
       className={`${
         isFocus ? "outline outline-1 -outline-offset-1 outline-gray-400" : ""
       }`}
     >
-      <div className={`relative`}>
+      <div ref={scrollRef} className={`relative`}>
         <div
           className={`flex items-center gap-3 w-fit p-2 cursor-default ${
             isFocus && isEditing ? "opacity-0" : ""
