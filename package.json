@@ -72,5 +72,8 @@
     "front-end",
     "ui",
     "table"
-  ]
+  ],
+  "dependencies": {
+    "react-intersection-observer": "^9.10.3"
+  }
 }

@@ -95,7 +95,10 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
         </TableFilterRemoveButton>
       </div>
 
-      <div className="relative w-full h-full max-h-[80vh] border border-gray-200 rounded-md overflow-auto">
+      <div
+        id="table-frame"
+        className="relative w-full h-full max-h-[80vh] border border-gray-200 rounded-md overflow-auto"
+      >
         <table className={`table table-auto w-full`}>
           <thead>
             <tr className="sticky top-0 border-gray-200 z-20">
