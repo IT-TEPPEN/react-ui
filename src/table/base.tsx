@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useTable } from "./hook";
 import { TableCell } from "./cell";
 import { TableHeaderElement } from "./header";
-import { DataRecord, TPropsTable } from "./type";
+import { DataRecord, TPropsTable, TTableExtendedColumn } from "./type";
 import { PagenationProvider, DisplayRange, Pagenation } from "./pagenation";
 import {
   FilterProvider,
@@ -16,7 +16,11 @@ import { SortProvider } from "./sort";
 import { CellProvider, ColumnsProvider, RowProvider } from "./sheet/providers";
 import { FocusProvider, useFocusContext } from "./edit/provider";
 
-export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
+export default function Table<
+  T extends DataRecord,
+  S extends string,
+  U extends TTableExtendedColumn<S>
+>(props: TPropsTable<T, S, U>) {
   return (
     <FilterProvider>
       <SortProvider initialCondition={props.initialCondition?.sort}>
@@ -32,8 +36,12 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   );
 }
 
-function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
-  const { cols, rows } = useTable<T>(props);
+function BaseTable<
+  T extends DataRecord,
+  S extends string,
+  U extends TTableExtendedColumn<S>
+>(props: TPropsTable<T, S, U>) {
+  const { cols, asyncData, rows } = useTable<T, S, U>(props);
   const {
     isFocus,
     isEditing,
@@ -134,11 +142,13 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
                   className={`relative border border-gray-200 after:absolute after:w-full after:h-full after:top-0 after:left-0 after:pointer-events-none after:hover:bg-gray-500/10 ${
                     !!props.onClickRow ? "hover:cursor-pointer" : ""
                   } ${
-                    props.applyRowFormatting ? props.applyRowFormatting(r) : ""
+                    props.applyRowFormatting
+                      ? props.applyRowFormatting(r, asyncData)
+                      : ""
                   }`}
                   onClick={(e) => {
                     e.preventDefault();
-                    if (!!props.onClickRow) props.onClickRow(r);
+                    if (!!props.onClickRow) props.onClickRow(r, asyncData);
                   }}
                   data-testid={r.id}
                 >

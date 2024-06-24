@@ -1,15 +1,32 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { DataRecord, TPropsTable } from "./type";
+import {
+  DataRecord,
+  TPropsTable,
+  TTableAsincData,
+  TTableExtendedColumn,
+} from "./type";
 import { usePageContext } from "./pagenation/providers";
 import { useFilterContext } from "./filter";
 import { useSortContext } from "./sort";
 import { useFocusContext } from "./edit/provider";
 import { useCellContext } from "./sheet/providers";
 
-export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
+export function useTable<
+  T extends DataRecord,
+  S extends string,
+  U extends TTableExtendedColumn<S>
+>(props: TPropsTable<T, S, U>) {
   const { filter } = useFilterContext();
   const { sort } = useSortContext();
   const { setRowCount, pageFilter } = usePageContext();
+  const [asyncData, setAsyncData] = useState<TTableAsincData<S, U>[]>(
+    props.asyncCols
+      ? props.asyncCols.map((aCol) => ({
+          key: aCol.key,
+          isLoading: true,
+        }))
+      : []
+  );
 
   const filteredRows = useMemo(() => filter(props.rows), [filter, props.rows]);
 
@@ -26,6 +43,7 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
 
   return {
     cols: props.cols,
+    asyncData,
     rows: pageRows,
   };
 }

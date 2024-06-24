@@ -9,13 +9,20 @@ const meta = {
   },
   tags: ["autodocs"],
 } as Meta<
-  typeof Table<{
-    id: number;
-    name: string;
-    age: number;
-    role: string;
-    button: number | string;
-  }>
+  typeof Table<
+    {
+      id: number;
+      name: string;
+      age: number;
+      role: string;
+      button: number | string;
+    },
+    "",
+    {
+      key: "";
+      type: "number";
+    }
+  >
 >;
 
 export default meta;

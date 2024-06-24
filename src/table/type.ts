@@ -82,16 +82,81 @@ export type TTableColumn<T extends DataRecord> = {
   disableFilter?: boolean;
 } & TCellEditingCondition<T>;
 
+export type TTableExtendedColumn<S extends string> = {
+  key: S;
+} & (
+  | {
+      type: "string";
+    }
+  | {
+      type: "number";
+    }
+  | {
+      type: "select";
+      options: { value: string; label: string }[];
+    }
+);
+
+export type TTableExetendedColumnDefine<
+  T extends DataRecord,
+  S extends string,
+  U extends TTableExtendedColumn<S>
+> = {
+  update: (
+    row: DataObject<T>
+  ) => Promise<
+    U["type"] extends "string"
+      ? string
+      : U["type"] extends "number"
+      ? number
+      : string
+  >;
+};
+
+export type TTableAsincData<
+  S extends string,
+  U extends TTableExtendedColumn<S>
+> = {
+  key: S;
+} & (
+  | {
+      isLoading: false;
+      value: U["type"] extends "string"
+        ? string
+        : U["type"] extends "number"
+        ? number
+        : string;
+      label: U["type"] extends "select" ? string : never;
+    }
+  | {
+      isLoading: false;
+      error: any;
+    }
+  | {
+      isLoading: true;
+    }
+);
+
 export type TColumnType = Exclude<TTableColumn<{}>["type"], undefined>;
 
 type TailwindCssStyle = string;
 
-export type TPropsTable<T extends DataRecord> = {
+export type TAsyncDataObject = {};
+
+export type TPropsTable<
+  T extends DataRecord,
+  S extends string,
+  U extends TTableExtendedColumn<S>
+> = {
   cols: TTableColumn<T>[];
   rows: DataObject<T>[];
-  onClickRow?: (row: DataObject<T>) => void;
+  asyncCols?: (U & TTableExetendedColumnDefine<T, S, U>)[];
+  onClickRow?: (row: DataObject<T>, asyncData: TTableAsincData<S, U>[]) => void;
   initialCondition?: {
     sort?: { key: string; asc?: boolean };
   };
-  applyRowFormatting?: (row: DataObject<T>) => TailwindCssStyle;
+  applyRowFormatting?: (
+    row: DataObject<T>,
+    asyncData: TTableAsincData<S, U>[]
+  ) => TailwindCssStyle;
 };
