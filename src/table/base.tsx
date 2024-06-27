@@ -15,17 +15,23 @@ import {
 import { SortProvider } from "./sort";
 import { CellProvider, ColumnsProvider, RowProvider } from "./sheet/providers";
 import { FocusProvider, useFocusContext } from "./edit/provider";
+import { CheckboxProvider, CheckboxStatusProvider } from "./checkbox/provider";
+import { AllCheckbox, Checkbox } from "./checkbox/components";
 
 export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   return (
     <FilterProvider>
       <SortProvider initialCondition={props.initialCondition?.sort}>
         <PagenationProvider rowCount={props.rows.length}>
-          <ColumnsProvider cols={props.cols}>
-            <FocusProvider columnCount={props.cols.length}>
-              <BaseTable {...props} />
-            </FocusProvider>
-          </ColumnsProvider>
+          <CheckboxProvider checkbox={props.checkbox}>
+            <CheckboxStatusProvider checkboxCount={props.rows.length}>
+              <ColumnsProvider cols={props.cols}>
+                <FocusProvider columnCount={props.cols.length}>
+                  <BaseTable {...props} />
+                </FocusProvider>
+              </ColumnsProvider>
+            </CheckboxStatusProvider>
+          </CheckboxProvider>
         </PagenationProvider>
       </SortProvider>
     </FilterProvider>
@@ -102,6 +108,11 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
         <table className={`table table-auto w-full`}>
           <thead>
             <tr className="sticky top-0 border-gray-200 z-20">
+              {props.checkbox && (
+                <th className={`relative bg-gray-200 text-gray-600 h-[32px]`}>
+                  <AllCheckbox rows={props.rows} />
+                </th>
+              )}
               {cols.map((col) => (
                 <TableHeaderElement
                   key={col.key as string}
@@ -142,6 +153,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
                   }}
                   data-testid={r.id}
                 >
+                  <td>{props.checkbox && <Checkbox />}</td>
                   {cols.map((col, j) => {
                     return (
                       <CellProvider

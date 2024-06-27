@@ -84,6 +84,14 @@ export type TTableColumn<T extends DataRecord> = {
 
 export type TColumnType = Exclude<TTableColumn<{}>["type"], undefined>;
 
+export type TCheckboxProperty<T extends DataRecord> = {
+  checkbox?: {
+    checked: (row: DataObject<T>) => boolean;
+    onChecked: (row: DataObject<T>) => void;
+    onUnchecked: (row: DataObject<T>) => void;
+  };
+};
+
 type TailwindCssStyle = string;
 
 export type TPropsTable<T extends DataRecord> = {
@@ -94,4 +102,4 @@ export type TPropsTable<T extends DataRecord> = {
     sort?: { key: string; asc?: boolean };
   };
   applyRowFormatting?: (row: DataObject<T>) => TailwindCssStyle;
-};
+} & TCheckboxProperty<T>;

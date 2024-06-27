@@ -91,6 +91,11 @@ export const Default: Story = {
     onClickRow: (row) => {
       alert(row.id);
     },
+    checkbox: {
+      checked: (row) => row.id % 2 == 3,
+      onChecked: (row) => console.log("checked", row.id),
+      onUnchecked: (row) => console.log("unchecked", row.id),
+    },
   },
   render: (props) => (
     <div className=" w-screen px-5">
