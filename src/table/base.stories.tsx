@@ -197,6 +197,11 @@ export const Readme: Story = {
         return "";
       }
     },
+    checkbox: {
+      checked: (row) => row.id % 2 == 1,
+      onChecked: (row) => console.log("checked", row.id),
+      onUnchecked: (row) => console.log("unchecked", row.id),
+    },
   },
   render: (props) => (
     <div className=" w-screen px-5">

@@ -5,17 +5,34 @@ import { useFilterContext } from "./filter";
 import { useSortContext } from "./sort";
 import { useFocusContext } from "./edit/provider";
 import { useCellContext } from "./sheet/providers";
+import { useCheckboxStatusContext } from "./checkbox/provider";
 
 export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { filter } = useFilterContext();
   const { sort } = useSortContext();
   const { setRowCount, pageFilter } = usePageContext();
+  const { dispatchCheckboxStatus } = useCheckboxStatusContext();
 
   const filteredRows = useMemo(() => filter(props.rows), [filter, props.rows]);
 
   useEffect(() => {
     setRowCount(filteredRows.length);
   }, [filteredRows.length]);
+
+  const checkBoxes = useMemo(() => {
+    if (!props.checkbox) {
+      return [];
+    }
+
+    return props.rows.filter((row) => props.checkbox?.checked(row));
+  }, [props.checkbox, props.rows]);
+
+  useEffect(() => {
+    dispatchCheckboxStatus({
+      type: "SET",
+      payload: { checkedRecords: checkBoxes },
+    });
+  }, [checkBoxes]);
 
   const sortedRows = useMemo(() => sort(filteredRows), [filteredRows, sort]);
 
