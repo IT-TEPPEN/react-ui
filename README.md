@@ -155,6 +155,11 @@ const App = () => {
             return "";
           }
         }}
+        checkbox={{
+          checked: (row) => row.id % 2 == 1,
+          onChecked: (row) => console.log("checked", row.id),
+          onUnchecked: (row) => console.log("unchecked", row.id),
+        }}
       />
     </div>
   );
@@ -171,6 +176,7 @@ A component that displays a table based on the row and column information passed
 - Sorting function
 - Filtering function (only when `label` is set in the column information)
 - Editing function (only when `editable` is true and `onCellBlur` is set in the column information)
+- Checkbox function
 
 #### Arguments
 
@@ -224,7 +230,8 @@ export type TTableColumn = {
 };
 ```
 
-※ TColumnType no longer supports `component` since version 1.0.0. Instead, `render` is now supported, allowing for sorting and filtering functions that were not previously supported by `component`.
+※ TColumnType no longer supports `component` since version 1.0.0. Instead, `render`
+is now supported, allowing for sorting and filtering functions that were not previously supported by `component`.
 
 ##### initialCondition
 
@@ -253,6 +260,24 @@ In `applyRowFormatting`, depending on the status of each row, you can define the
  * The return value is a string of one TailwindCSS class or multiple TailwindCSS classes separated by spaces.
  */
 type TApplyRowFormatting = (row: DataObject) => string;
+```
+
+##### checkbox
+
+In `checkbox`, you can easily place a checkbox at the left edge of the table. If `checkbox` is not defined, no checkbox will appear at the left edge.
+
+When defining a `checkbox`, the following three properties must be set.
+
+1. checked: Function to determine if a checkbox is checked or not
+2. onChecked: Function to define the behavior when a checkbox is checked
+3. onUnchecked: Function to define the behavior when a checkbox is unchecked
+
+```ts
+type TCheckbox = {
+  checked: (row: DataObject) => boolean;
+  onChecked: (row: DataObject) => void;
+  onUnchecked: (row: DataObject) => void;
+};
 ```
 
 ## License
