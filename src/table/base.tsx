@@ -103,7 +103,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
 
       <div
         id="table-frame"
-        className="relative w-fit h-full max-w-full max-h-[80vh] border border-gray-200 rounded-md overflow-auto"
+        className="relative h-full max-w-full max-h-[80vh] border border-gray-200 rounded-md overflow-auto"
       >
         <table className={`table`}>
           <thead>
