@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useTable } from "./hook";
 import { TableCell } from "./cell";
-import { TableHeaderElement } from "./header";
+import { TableHeaderElement } from "./header/header";
 import { DataRecord, TPropsTable } from "./type";
 import { PagenationProvider, DisplayRange, Pagenation } from "./pagenation";
 import {
@@ -103,13 +103,13 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
 
       <div
         id="table-frame"
-        className="relative w-full h-full max-h-[80vh] border border-gray-200 rounded-md overflow-auto"
+        className="relative w-fit h-full max-w-full max-h-[80vh] border border-gray-200 rounded-md overflow-auto"
       >
-        <table className={`table table-auto w-full`}>
+        <table className={`table`}>
           <thead>
-            <tr className="sticky top-0 border-gray-200 z-20">
+            <tr className="sticky top-0 border-gray-200 z-20 bg-gray-200 text-gray-600 h-[32px]">
               {props.checkbox && (
-                <th className={`relative bg-gray-200 text-gray-600 h-[32px]`}>
+                <th>
                   <AllCheckbox rows={props.rows} />
                 </th>
               )}
@@ -153,7 +153,11 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
                   }}
                   data-testid={r.id}
                 >
-                  <td>{props.checkbox && <Checkbox />}</td>
+                  {props.checkbox && (
+                    <td>
+                      <Checkbox />
+                    </td>
+                  )}
                   {cols.map((col, j) => {
                     return (
                       <CellProvider

@@ -80,6 +80,8 @@ export type TTableColumn<T extends DataRecord> = {
   label?: string;
   disableSort?: boolean;
   disableFilter?: boolean;
+  initialWidth?: number;
+  minWidth?: number;
 } & TCellEditingCondition<T>;
 
 export type TColumnType = Exclude<TTableColumn<{}>["type"], undefined>;
