@@ -35,7 +35,7 @@ export function TableHeaderElement(props: TPropsTableHeader) {
         </div>
       </div>
       <div
-        className="absolute top-0 -right-[4px] grid place-items-center py-1 w-[8px] h-full cursor-col-resize"
+        className="absolute top-0 right-0 grid place-items-end py-1 w-[4px] h-full cursor-col-resize"
         onMouseDown={onMouseDownResizeWidth}
       >
         <div className={`w-[1px] h-full bg-white`} />
