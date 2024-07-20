@@ -347,7 +347,7 @@ export function TableCell() {
             cell.render(cell.value, row)
           ) : (
             <div onDoubleClick={onDoubleClickCellToEdit}>
-              <p className="text-left">{cell.label}</p>
+              <p className="text-left whitespace-nowrap">{cell.label}</p>
             </div>
           )}
 

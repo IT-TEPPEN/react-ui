@@ -36,16 +36,12 @@ export const Default: Story = {
       {
         key: "id",
         type: "number",
-        editable: true,
-        constraints: { min: 1, max: 1000 },
-        onCellBlur: (id, value, current, completeEditing) => {
-          console.log(id, value, current);
-          completeEditing();
-        },
+        initialWidth: 12,
       },
       {
         key: "name",
         label: "名前",
+        initialWidth: 20,
         type: "string",
         editable: true,
         constraints: { maxLength: 10, minLength: 1, pattern: "^[a-zA-Z0-9]+$" },
@@ -54,10 +50,11 @@ export const Default: Story = {
           completeEditing();
         },
       },
-      { key: "age", label: "年齢", type: "number" },
+      { key: "age", label: "年齢", initialWidth: 50, type: "number" },
       {
         key: "role",
         label: "役割",
+        initialWidth: 100,
         type: "select",
         editable: true,
         options: [
@@ -73,6 +70,7 @@ export const Default: Story = {
       {
         key: "button",
         label: "ボタン",
+        initialWidth: 50,
         type: "number",
         disableFilter: true,
         render: (value, row) => (
