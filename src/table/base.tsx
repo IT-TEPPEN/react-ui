@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useTable } from "./hook";
 import { TableCell } from "./cell";
 import { TableHeaderElement } from "./header/header";
@@ -52,6 +52,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
     setMaxRowNumber,
   } = useFocusContext();
   const { selectedFilterKey } = useFilterContext();
+  const ref = useRef<HTMLTableElement>(null);
 
   useEffect(() => {
     const listener = (e: KeyboardEvent) => {
@@ -88,6 +89,21 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
   }, [isEditing, isFocus]);
 
   useEffect(() => {
+    const onClickOutOfTable = (e: MouseEvent) => {
+      const element = ref.current;
+      const ele = e.target;
+      if (ele instanceof Node && element?.contains(ele)) return;
+      unfocus();
+    };
+
+    document.addEventListener("click", onClickOutOfTable);
+
+    return () => {
+      document.removeEventListener("click", onClickOutOfTable);
+    };
+  }, [ref, unfocus]);
+
+  useEffect(() => {
     setMaxRowNumber(rows.length - 1);
   }, [rows.length]);
 
@@ -105,7 +121,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
         id="table-frame"
         className="relative h-full max-w-full max-h-[80vh] border border-gray-200 rounded-md overflow-auto"
       >
-        <table className={`table`}>
+        <table ref={ref} className={`table`}>
           <thead>
             <tr className="sticky top-0 border-gray-200 z-20 bg-gray-200 text-gray-600 h-[32px]">
               {props.checkbox && (
