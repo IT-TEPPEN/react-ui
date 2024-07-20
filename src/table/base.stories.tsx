@@ -41,7 +41,8 @@ export const Default: Story = {
       {
         key: "name",
         label: "名前",
-        initialWidth: 20,
+        initialWidth: 500,
+        minWidth: 100,
         type: "string",
         editable: true,
         constraints: { maxLength: 10, minLength: 1, pattern: "^[a-zA-Z0-9]+$" },
