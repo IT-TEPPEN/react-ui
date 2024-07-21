@@ -43,54 +43,9 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
 
 function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { cols, rows } = useTable<T>(props);
-  const {
-    isFocus,
-    isEditing,
-    edit,
-    checkFocus,
-    moveLeft,
-    moveRight,
-    moveUp,
-    moveDown,
-    unfocus,
-    setMaxRowNumber,
-  } = useFocusContext();
+  const { checkFocus, unfocus, setMaxRowNumber } = useFocusContext();
   const { selectedFilterKey } = useFilterContext();
   const ref = useRef<HTMLTableElement>(null);
-
-  useEffect(() => {
-    const listener = (e: KeyboardEvent) => {
-      if (!isFocus || isEditing) return;
-
-      if (e.key === "Enter") {
-        e.preventDefault();
-        moveDown();
-      } else if (e.key === "Escape") {
-        e.preventDefault();
-        unfocus();
-      } else if (e.key === "ArrowRight") {
-        e.preventDefault();
-        moveRight();
-      } else if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        moveLeft();
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        moveUp();
-      } else if (e.key === "ArrowDown") {
-        e.preventDefault();
-        moveDown();
-      } else if (e.key === "F2") {
-        edit();
-      }
-    };
-
-    document.addEventListener("keydown", listener);
-
-    return () => {
-      document.removeEventListener("keydown", listener);
-    };
-  }, [isEditing, isFocus]);
 
   useEffect(() => {
     const onClickOutOfTable = (e: MouseEvent) => {
@@ -186,7 +141,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
                         rowIndex={i}
                         colIndex={j}
                       >
-                        <TableCell isFocus={checkFocus(i, j)} />
+                        <TableCell />
                       </CellProvider>
                     );
                   })}

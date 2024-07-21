@@ -103,18 +103,19 @@ const WithEditor = memo(function WE(props: {
   );
 });
 
-export function TableCell(props: { isFocus: boolean }) {
+export function TableCell() {
   const {
     cell,
     isEditing,
+    isFocus,
     onClickCellToFocus,
     onDoubleClickCellToEdit,
     preventPropagation,
-  } = useCell(props.isFocus);
+  } = useCell();
 
   return (
     <WithEditor
-      isFocus={props.isFocus}
+      isFocus={isFocus}
       isEditing={isEditing}
       editable={cell.editable}
       type={cell.type}

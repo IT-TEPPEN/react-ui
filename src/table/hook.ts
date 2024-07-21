@@ -69,9 +69,12 @@ export function useCellFocus<T extends HTMLElement>() {
   return { ref, callbackAfterBlur };
 }
 
-export function useCell(isFocus: boolean) {
+export function useCell() {
   const cell = useCellContext();
-  const { isEditing, focus, focusAndEdit, finishEditing } = useFocusContext();
+  const { isEditing, checkFocus, focus, focusAndEdit, finishEditing } =
+    useFocusContext();
+
+  const isFocus = checkFocus(cell.rowIndex, cell.colIndex);
 
   useEffect(() => {
     if (!cell.editable && isFocus && isEditing) {
@@ -109,6 +112,7 @@ export function useCell(isFocus: boolean) {
   return {
     cell,
     isEditing,
+    isFocus,
     onClickCellToFocus,
     onDoubleClickCellToEdit,
     preventPropagation,
