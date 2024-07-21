@@ -1,7 +1,11 @@
+"use client";
+
 import { useEffect, useRef } from "react";
 import { useInView } from "react-intersection-observer";
+import { useCellIsFocusContext } from "../../sheet/providers";
 
-export function useScrollAtFocusCell(isFocus: boolean) {
+export function useScrollAtFocusCell() {
+  const isFocus = useCellIsFocusContext();
   const scrollRef = useRef<HTMLDivElement>(null);
   const { inView, ref } = useInView({
     root: document.querySelector("#table-frame"),

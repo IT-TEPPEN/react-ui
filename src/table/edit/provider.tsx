@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect } from "react";
 import { TReturnFocusReducer } from "./types";
 import { useFocusReducer } from "./hooks";
 import { usePageContext } from "../pagenation";
+import { useProcessedDataContext } from "../sheet/providers";
 
 const FocusContext = createContext<TReturnFocusReducer>({
   isEditing: false,
@@ -58,6 +59,7 @@ export function FocusProvider(props: {
     to < rowCount ? to - from - 1 : rowCount - from - 1,
     props.columnCount - 1
   );
+  const { rows } = useProcessedDataContext();
 
   useEffect(() => {
     const listener = (e: KeyboardEvent) => {
@@ -92,6 +94,25 @@ export function FocusProvider(props: {
       document.removeEventListener("keydown", listener);
     };
   }, [focusStatus.isEditing, focusStatus.isFocus]);
+
+  useEffect(() => {
+    focusStatus.setMaxRowNumber(rows.length - 1);
+  }, [rows.length]);
+
+  useEffect(() => {
+    const onClickOutOfTable = (e: MouseEvent) => {
+      const element = document.getElementById("table-frame");
+      const ele = e.target;
+      if (ele instanceof Node && element?.contains(ele)) return;
+      focusStatus.unfocus();
+    };
+
+    document.addEventListener("click", onClickOutOfTable);
+
+    return () => {
+      document.removeEventListener("click", onClickOutOfTable);
+    };
+  }, [focusStatus.unfocus]);
 
   return (
     <FocusContext.Provider value={focusStatus}>

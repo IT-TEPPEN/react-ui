@@ -1,7 +1,49 @@
 "use client";
 
 import React, { createContext, useContext, useMemo } from "react";
-import { DataObject, DataRecord, TColumnType, TTableColumn } from "../type";
+import {
+  DataObject,
+  DataRecord,
+  TColumnType,
+  TPropsTable,
+  TTableColumn,
+} from "../type";
+import { useTable } from "../hook";
+import { useFocusContext } from "../edit/provider";
+
+const ProcessedDataContext = createContext<{
+  cols: TTableColumn<DataRecord>[];
+  rows: DataObject<DataRecord>[];
+}>({
+  cols: [],
+  rows: [],
+});
+
+export function ProcessedDataProvider<T extends DataRecord>({
+  children,
+  props,
+}: {
+  children: React.ReactNode;
+  props: TPropsTable<T>;
+}) {
+  const { cols, rows } = useTable<T>(props);
+  return (
+    <ProcessedDataContext.Provider
+      value={
+        { cols, rows } as {
+          cols: TTableColumn<DataRecord>[];
+          rows: DataObject<DataRecord>[];
+        }
+      }
+    >
+      {children}
+    </ProcessedDataContext.Provider>
+  );
+}
+
+export function useProcessedDataContext() {
+  return useContext(ProcessedDataContext);
+}
 
 const RowContext = createContext<DataObject<DataRecord>>({
   id: "",
@@ -86,6 +128,8 @@ const CellContext = createContext<{
   colIndex: 0,
 });
 
+const CellFocusContext = createContext<boolean>(false);
+
 export function CellProvider({
   children,
   columnKey,
@@ -99,7 +143,9 @@ export function CellProvider({
 }) {
   const col = useColumnContext(columnKey);
   const row = useRowContext();
+  const { checkFocus } = useFocusContext();
   const value = row[columnKey];
+  const isFocus = checkFocus(rowIndex, colIndex);
 
   const label =
     col.type === "select"
@@ -127,11 +173,17 @@ export function CellProvider({
         colIndex,
       }}
     >
-      {children}
+      <CellFocusContext.Provider value={isFocus}>
+        {children}
+      </CellFocusContext.Provider>
     </CellContext.Provider>
   );
 }
 
 export function useCellContext() {
   return useContext(CellContext);
+}
+
+export function useCellIsFocusContext() {
+  return useContext(CellFocusContext);
 }

@@ -4,7 +4,7 @@ import { usePageContext } from "./pagenation/providers";
 import { useFilterContext } from "./filter";
 import { useSortContext } from "./sort";
 import { useFocusContext } from "./edit/provider";
-import { useCellContext } from "./sheet/providers";
+import { useCellContext, useCellIsFocusContext } from "./sheet/providers";
 import { useCheckboxStatusContext } from "./checkbox/provider";
 
 export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
@@ -49,11 +49,9 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
 
 export function useCellFocus<T extends HTMLElement>() {
   const ref = useRef<T>(null);
-  const { rowIndex, colIndex } = useCellContext();
-  const { isEditing, checkFocus } = useFocusContext();
+  const { isEditing } = useFocusContext();
   const [occurredOnCellBlur, setOccurredOnCellBlur] = useState(false);
-
-  const isFocus = checkFocus(rowIndex, colIndex);
+  const isFocus = useCellIsFocusContext();
 
   useEffect(() => {
     if (isFocus && isEditing) {
@@ -71,10 +69,8 @@ export function useCellFocus<T extends HTMLElement>() {
 
 export function useCell() {
   const cell = useCellContext();
-  const { isEditing, checkFocus, focus, focusAndEdit, finishEditing } =
-    useFocusContext();
-
-  const isFocus = checkFocus(cell.rowIndex, cell.colIndex);
+  const { isEditing, focus, focusAndEdit, finishEditing } = useFocusContext();
+  const isFocus = useCellIsFocusContext();
 
   useEffect(() => {
     if (!cell.editable && isFocus && isEditing) {
@@ -112,7 +108,6 @@ export function useCell() {
   return {
     cell,
     isEditing,
-    isFocus,
     onClickCellToFocus,
     onDoubleClickCellToEdit,
     preventPropagation,

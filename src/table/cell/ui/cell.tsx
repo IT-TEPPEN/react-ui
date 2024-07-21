@@ -1,6 +1,6 @@
 "use client";
 
-import { useCellContext } from "../../sheet/providers";
+import { useCellIsFocusContext } from "../../sheet/providers";
 import { useCell } from "../../hook";
 import { EditButton } from "./edit-button";
 import { StringCellInput } from "./string-input";
@@ -45,7 +45,6 @@ const WithEdit = memo(function WE(props: {
 });
 
 const WithEditor = memo(function WE(props: {
-  isFocus: boolean;
   isEditing: boolean;
   editable?: boolean;
   type: TColumnType | "component";
@@ -54,7 +53,8 @@ const WithEditor = memo(function WE(props: {
   onDoubleClickCellToEdit: React.MouseEventHandler<HTMLDivElement>;
   preventPropagation: React.MouseEventHandler<HTMLDivElement>;
 }) {
-  const { ref, scrollRef } = useScrollAtFocusCell(props.isFocus);
+  const { ref, scrollRef } = useScrollAtFocusCell();
+  const isFocus = useCellIsFocusContext();
 
   const CellDataComponent = useMemo(
     () => (
@@ -71,15 +71,11 @@ const WithEditor = memo(function WE(props: {
     <td
       ref={ref}
       className={`${
-        props.isFocus
-          ? "outline outline-1 -outline-offset-1 outline-gray-400"
-          : ""
+        isFocus ? "outline outline-1 -outline-offset-1 outline-gray-400" : ""
       }`}
     >
       <div ref={scrollRef} className={`relative`}>
-        <div
-          className={`${props.isFocus && props.isEditing ? "opacity-0" : ""}`}
-        >
+        <div className={`${isFocus && props.isEditing ? "opacity-0" : ""}`}>
           <WithEdit
             editable={props.editable}
             onClick={props.onClickCellToFocus}
@@ -88,7 +84,7 @@ const WithEditor = memo(function WE(props: {
           </WithEdit>
         </div>
 
-        {props.editable && props.isFocus && props.isEditing && (
+        {props.editable && isFocus && props.isEditing && (
           <div
             className="absolute top-0 left-0 w-full h-full grid place-items-center z-10 pr-2"
             onClick={props.preventPropagation}
@@ -107,7 +103,6 @@ export function TableCell() {
   const {
     cell,
     isEditing,
-    isFocus,
     onClickCellToFocus,
     onDoubleClickCellToEdit,
     preventPropagation,
@@ -115,7 +110,6 @@ export function TableCell() {
 
   return (
     <WithEditor
-      isFocus={isFocus}
       isEditing={isEditing}
       editable={cell.editable}
       type={cell.type}

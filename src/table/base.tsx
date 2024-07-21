@@ -13,7 +13,12 @@ import {
   useFilterContext,
 } from "./filter";
 import { SortProvider } from "./sort";
-import { CellProvider, ColumnsProvider, RowProvider } from "./sheet/providers";
+import {
+  CellProvider,
+  ColumnsProvider,
+  ProcessedDataProvider,
+  RowProvider,
+} from "./sheet/providers";
 import { FocusProvider, useFocusContext } from "./edit/provider";
 import { CheckboxProvider, CheckboxStatusProvider } from "./checkbox/provider";
 import { AllCheckbox, Checkbox } from "./checkbox/components";
@@ -28,11 +33,13 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
         >
           <CheckboxProvider checkbox={props.checkbox}>
             <CheckboxStatusProvider checkboxCount={props.rows.length}>
-              <ColumnsProvider cols={props.cols}>
-                <FocusProvider columnCount={props.cols.length}>
-                  <BaseTable {...props} />
-                </FocusProvider>
-              </ColumnsProvider>
+              <ProcessedDataProvider props={props}>
+                <ColumnsProvider cols={props.cols}>
+                  <FocusProvider columnCount={props.cols.length}>
+                    <BaseTable {...props} />
+                  </FocusProvider>
+                </ColumnsProvider>
+              </ProcessedDataProvider>
             </CheckboxStatusProvider>
           </CheckboxProvider>
         </PagenationProvider>
@@ -43,28 +50,9 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
 
 function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { cols, rows } = useTable<T>(props);
-  const { checkFocus, unfocus, setMaxRowNumber } = useFocusContext();
   const { selectedFilterKey } = useFilterContext();
-  const ref = useRef<HTMLTableElement>(null);
 
-  useEffect(() => {
-    const onClickOutOfTable = (e: MouseEvent) => {
-      const element = ref.current;
-      const ele = e.target;
-      if (ele instanceof Node && element?.contains(ele)) return;
-      unfocus();
-    };
-
-    document.addEventListener("click", onClickOutOfTable);
-
-    return () => {
-      document.removeEventListener("click", onClickOutOfTable);
-    };
-  }, [ref, unfocus]);
-
-  useEffect(() => {
-    setMaxRowNumber(rows.length - 1);
-  }, [rows.length]);
+  console.log("BaseTable");
 
   return (
     <div className="w-full">
@@ -80,7 +68,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
         id="table-frame"
         className="relative h-full max-w-full max-h-[80vh] border border-gray-200 rounded-md overflow-auto"
       >
-        <table ref={ref} className={`table`}>
+        <table className={`table`}>
           <thead>
             <tr className="sticky top-0 border-gray-200 z-20 bg-gray-200 text-gray-600 h-[32px]">
               {props.checkbox && (
