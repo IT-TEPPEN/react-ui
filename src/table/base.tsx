@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useTable } from "./hook";
-import { TableCell } from "./cell";
+import { TableCell } from "./cell/ui/cell";
 import { TableHeaderElement } from "./header/header";
 import { DataRecord, TPropsTable } from "./type";
 import { PagenationProvider, DisplayRange, Pagenation } from "./pagenation";
