@@ -1,79 +1,127 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useRowContext } from "../../sheet/providers";
+import { useCellContext } from "../../sheet/providers";
 import { useCell } from "../../hook";
-import { useInView } from "react-intersection-observer";
 import { EditButton } from "./edit-button";
 import { StringCellInput } from "./string-input";
 import { NumberCellInput } from "./number-input";
 import { SelectCellInput } from "./select-input";
+import { useScrollAtFocusCell } from "../hook/scroll-at-focus-cell";
+import React, { memo, useMemo } from "react";
+import { TColumnType } from "../../type";
 
-export function TableCell() {
-  const {
-    cell,
-    isFocus,
-    isEditing,
-    onClickCellToFocus,
-    onDoubleClickCellToEdit,
-    preventPropagation,
-  } = useCell();
-  const row = useRowContext();
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const { inView, ref } = useInView({
-    root: document.querySelector("#table-frame"),
-    rootMargin: "-60px -30px -30px -30px",
-    threshold: 1,
-  });
+const CellData = memo(function CD(props: {
+  type: TColumnType | "component";
+  onDoubleClick: React.MouseEventHandler<HTMLDivElement>;
+  component?: React.ReactNode;
+}) {
+  return (
+    <>
+      {props.type === "component" ? (
+        props.component
+      ) : (
+        <div onDoubleClick={props.onDoubleClick}>
+          <p className="text-left whitespace-nowrap">{props.component}</p>
+        </div>
+      )}
+    </>
+  );
+});
 
-  useEffect(() => {
-    if (isFocus && !inView) {
-      if (scrollRef.current) {
-        scrollRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "nearest",
-          inline: "nearest",
-        });
-      }
-    }
-  }, [isFocus, inView, scrollRef]);
+const WithEdit = memo(function WE(props: {
+  editable?: boolean;
+  children: JSX.Element;
+  onClick: React.MouseEventHandler<HTMLDivElement>;
+}) {
+  return (
+    <div
+      className={`flex items-center gap-3 w-fit p-2 cursor-default`}
+      onClick={props.onClick}
+    >
+      {props.children}
+      {props.editable && <EditButton />}
+    </div>
+  );
+});
+
+const WithEditor = memo(function WE(props: {
+  isFocus: boolean;
+  isEditing: boolean;
+  editable?: boolean;
+  type: TColumnType | "component";
+  component: React.ReactNode;
+  onClickCellToFocus: React.MouseEventHandler<HTMLDivElement>;
+  onDoubleClickCellToEdit: React.MouseEventHandler<HTMLDivElement>;
+  preventPropagation: React.MouseEventHandler<HTMLDivElement>;
+}) {
+  const { ref, scrollRef } = useScrollAtFocusCell(props.isFocus);
+
+  const CellDataComponent = useMemo(
+    () => (
+      <CellData
+        type={props.type}
+        component={props.component}
+        onDoubleClick={props.onDoubleClickCellToEdit}
+      />
+    ),
+    [props.type, props.component, props.onDoubleClickCellToEdit]
+  );
 
   return (
     <td
       ref={ref}
       className={`${
-        isFocus ? "outline outline-1 -outline-offset-1 outline-gray-400" : ""
+        props.isFocus
+          ? "outline outline-1 -outline-offset-1 outline-gray-400"
+          : ""
       }`}
     >
       <div ref={scrollRef} className={`relative`}>
         <div
-          className={`flex items-center gap-3 w-fit p-2 cursor-default ${
-            isFocus && isEditing ? "opacity-0" : ""
-          }`}
-          onClick={onClickCellToFocus}
+          className={`${props.isFocus && props.isEditing ? "opacity-0" : ""}`}
         >
-          {!!cell.render ? (
-            cell.render(cell.value, row)
-          ) : (
-            <div onDoubleClick={onDoubleClickCellToEdit}>
-              <p className="text-left whitespace-nowrap">{cell.label}</p>
-            </div>
-          )}
-
-          {cell.editable && <EditButton />}
+          <WithEdit
+            editable={props.editable}
+            onClick={props.onClickCellToFocus}
+          >
+            {CellDataComponent}
+          </WithEdit>
         </div>
 
-        {cell.editable && isFocus && isEditing && (
+        {props.editable && props.isFocus && props.isEditing && (
           <div
             className="absolute top-0 left-0 w-full h-full grid place-items-center z-10 pr-2"
-            onClick={preventPropagation}
+            onClick={props.preventPropagation}
           >
-            {cell.type === "string" && <StringCellInput />}
-            {cell.type === "number" && <NumberCellInput />}
-            {cell.type === "select" && <SelectCellInput />}
+            {props.type === "string" && <StringCellInput />}
+            {props.type === "number" && <NumberCellInput />}
+            {props.type === "select" && <SelectCellInput />}
           </div>
         )}
       </div>
     </td>
+  );
+});
+
+export function TableCell(props: { isFocus: boolean }) {
+  const {
+    cell,
+    isEditing,
+    onClickCellToFocus,
+    onDoubleClickCellToEdit,
+    preventPropagation,
+  } = useCell(props.isFocus);
+
+  return (
+    <WithEditor
+      isFocus={props.isFocus}
+      isEditing={isEditing}
+      editable={cell.editable}
+      type={cell.type}
+      component={cell.component}
+      onClickCellToFocus={onClickCellToFocus}
+      onDoubleClickCellToEdit={onDoubleClickCellToEdit}
+      preventPropagation={preventPropagation}
+    />
   );
 }

@@ -47,6 +47,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
     isFocus,
     isEditing,
     edit,
+    checkFocus,
     moveLeft,
     moveRight,
     moveUp,
@@ -185,7 +186,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
                         rowIndex={i}
                         colIndex={j}
                       >
-                        <TableCell />
+                        <TableCell isFocus={checkFocus(i, j)} />
                       </CellProvider>
                     );
                   })}

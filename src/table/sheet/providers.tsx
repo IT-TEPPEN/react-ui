@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import React, { createContext, useContext, useMemo } from "react";
 import { DataObject, DataRecord, TColumnType, TTableColumn } from "../type";
 
 const RowContext = createContext<DataObject<DataRecord>>({
@@ -72,9 +72,9 @@ const CellContext = createContext<{
   columnKey: string;
   value: any;
   label: any;
-  type: TColumnType;
+  type: TColumnType | "component";
   editable?: boolean;
-  render?: (value: any, row: DataObject<DataRecord>) => React.ReactNode;
+  component?: React.ReactNode;
   rowIndex: number;
   colIndex: number;
 }>({
@@ -100,18 +100,29 @@ export function CellProvider({
   const col = useColumnContext(columnKey);
   const row = useRowContext();
   const value = row[columnKey];
+
+  const label =
+    col.type === "select"
+      ? col.options?.find((op) => op.value === value)?.label
+      : value;
+
+  const component = useMemo(() => {
+    if (col.editable) {
+      return label;
+    } else {
+      return col.render ? col.render(value as never, row) : value;
+    }
+  }, [col.editable, label, value, row]);
+
   return (
     <CellContext.Provider
       value={{
         columnKey,
         value,
-        label:
-          col.type === "select"
-            ? col.options?.find((op) => op.value === value)?.label
-            : value,
+        label,
         editable: col.editable,
-        render: col.editable ? undefined : col.render,
-        type: col.type,
+        component: component,
+        type: !col.editable && col.render ? "component" : col.type,
         rowIndex,
         colIndex,
       }}
