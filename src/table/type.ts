@@ -102,6 +102,9 @@ export type TPropsTable<T extends DataRecord> = {
   onClickRow?: (row: DataObject<T>) => void;
   initialCondition?: {
     sort?: { key: string; asc?: boolean };
+    pagenation?: {
+      rowCountPerPage?: 20 | 50 | 100 | "all";
+    };
   };
   applyRowFormatting?: (row: DataObject<T>) => TailwindCssStyle;
 } & TCheckboxProperty<T>;

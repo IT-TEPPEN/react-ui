@@ -22,7 +22,10 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   return (
     <FilterProvider>
       <SortProvider initialCondition={props.initialCondition?.sort}>
-        <PagenationProvider rowCount={props.rows.length}>
+        <PagenationProvider
+          rowCount={props.rows.length}
+          perPage={props.initialCondition?.pagenation?.rowCountPerPage}
+        >
           <CheckboxProvider checkbox={props.checkbox}>
             <CheckboxStatusProvider checkboxCount={props.rows.length}>
               <ColumnsProvider cols={props.cols}>

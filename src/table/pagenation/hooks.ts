@@ -6,17 +6,44 @@ import { DataObject, DataRecord } from "../type";
 function pagenationReducer(state: TPageState, action: TPageAction): TPageState {
   switch (action.type) {
     case "setRowCount":
+      if (!state.enable) {
+        return {
+          ...state,
+          rowCount: action.payload.rowCount,
+        };
+      }
       return {
         ...state,
         currentPage: 1,
         rowCount: action.payload.rowCount,
       };
     case "setPerPage":
+      if (action.payload.perPage === "all") {
+        return {
+          rowCount: state.rowCount,
+          enable: false,
+        };
+      }
+
+      if (!state.enable) {
+        return {
+          rowCount: state.rowCount,
+          enable: true,
+          currentPage: 1,
+          perPage: action.payload.perPage,
+        };
+      }
+
       return {
         ...state,
+        currentPage: 1,
         perPage: action.payload.perPage,
       };
     case "next":
+      if (!state.enable) {
+        return state;
+      }
+
       if (state.currentPage === Math.ceil(state.rowCount / state.perPage)) {
         return state;
       }
@@ -26,6 +53,10 @@ function pagenationReducer(state: TPageState, action: TPageAction): TPageState {
         currentPage: state.currentPage + 1,
       };
     case "prev":
+      if (!state.enable) {
+        return state;
+      }
+
       if (state.currentPage === 1) {
         return state;
       }
@@ -35,6 +66,10 @@ function pagenationReducer(state: TPageState, action: TPageAction): TPageState {
         currentPage: state.currentPage - 1,
       };
     case "jump":
+      if (!state.enable) {
+        return state;
+      }
+
       if (
         action.payload.pageNumber < 1 ||
         action.payload.pageNumber > Math.ceil(state.rowCount / state.perPage) ||
@@ -71,8 +106,19 @@ export function usePageReducer(initialState?: TPageState) {
     [dispatch]
   );
 
-  const from = useMemo(() => (state.currentPage - 1) * state.perPage, [state]);
-  const to = useMemo(() => state.currentPage * state.perPage, [state]);
+  const from = useMemo(() => {
+    if (!state.enable) {
+      return 0;
+    }
+    return (state.currentPage - 1) * state.perPage;
+  }, [state]);
+
+  const to = useMemo(() => {
+    if (!state.enable) {
+      return state.rowCount;
+    }
+    return state.currentPage * state.perPage;
+  }, [state]);
 
   const pageFilter = useCallback(
     <U extends DataRecord>(data: DataObject<U>[]): DataObject<U>[] => {
@@ -82,10 +128,11 @@ export function usePageReducer(initialState?: TPageState) {
   );
 
   return {
-    perPage: state.perPage,
-    current: state.currentPage,
+    enable: state.enable,
+    perPage: state.enable ? state.perPage : state.rowCount,
+    current: state.enable ? state.currentPage : 1,
     rowCount: state.rowCount,
-    pageCount: Math.ceil(state.rowCount / state.perPage),
+    pageCount: state.enable ? Math.ceil(state.rowCount / state.perPage) : 1,
     from,
     to,
     next,

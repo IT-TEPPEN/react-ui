@@ -144,6 +144,9 @@ const App = () => {
             key: "id",
             asc: true,
           },
+          pagenation: {
+            rowCountPerPage: 50,
+          },
         }}
         onClickRow={(row) => {
           alert(`Clicked row: (id: ${row.id})`);
@@ -240,6 +243,9 @@ In `initialCondition`, you can set initial values for each function. This is opt
 ```ts
 type TInitialCondition = {
   sort?: { key: string; asc?: boolean };
+  pagenation?: {
+    rowCountPerPage?: 20 | 50 | 100 | "all";
+  };
 };
 ```
 

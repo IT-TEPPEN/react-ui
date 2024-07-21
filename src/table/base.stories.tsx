@@ -90,6 +90,15 @@ export const Default: Story = {
     onClickRow: (row) => {
       alert(row.id);
     },
+    initialCondition: {
+      sort: {
+        key: "age",
+        asc: true,
+      },
+      pagenation: {
+        rowCountPerPage: "all",
+      },
+    },
   },
   render: (props) => (
     <div className=" w-screen px-5">
@@ -184,6 +193,9 @@ export const Readme: Story = {
       sort: {
         key: "id",
         asc: true,
+      },
+      pagenation: {
+        rowCountPerPage: 50,
       },
     },
     onClickRow: (row) => {

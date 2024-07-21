@@ -1,14 +1,19 @@
 import { usePageReducer } from "./hooks";
 
-export type TPageState = {
-  perPage: number;
-  currentPage: number;
-  rowCount: number;
-};
+export type TPageState = { rowCount: number } & (
+  | {
+      enable: false;
+    }
+  | {
+      enable: true;
+      perPage: number;
+      currentPage: number;
+    }
+);
 
 export type TPageAction =
   | { type: "setRowCount"; payload: { rowCount: number } }
-  | { type: "setPerPage"; payload: { perPage: number } }
+  | { type: "setPerPage"; payload: { perPage: number | "all" } }
   | {
       type: "next";
     }

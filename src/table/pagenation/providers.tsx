@@ -1,10 +1,11 @@
 "use client";
 
 import { createContext, useContext } from "react";
-import { TPageContext } from "./types";
+import { TPageContext, TPageState } from "./types";
 import { usePageReducer } from "./hooks";
 
 const PageContext = createContext<TPageContext>({
+  enable: true,
   perPage: 0,
   current: 0,
   pageCount: 0,
@@ -29,17 +30,21 @@ const PageContext = createContext<TPageContext>({
 export function PagenationProvider(props: {
   children: React.ReactNode;
   rowCount: number;
-  perPage?: number;
+  perPage?: number | "all";
   currentPage?: number;
 }) {
+  const pagenationParams: TPageState =
+    props.perPage === "all"
+      ? { enable: false, rowCount: props.rowCount }
+      : {
+          enable: true,
+          rowCount: props.rowCount,
+          perPage: props.perPage ?? 50,
+          currentPage: props.currentPage ?? 1,
+        };
+
   return (
-    <PageContext.Provider
-      value={usePageReducer({
-        perPage: props.perPage ?? 50,
-        currentPage: props.currentPage ?? 1,
-        rowCount: props.rowCount,
-      })}
-    >
+    <PageContext.Provider value={usePageReducer(pagenationParams)}>
       {props.children}
     </PageContext.Provider>
   );
