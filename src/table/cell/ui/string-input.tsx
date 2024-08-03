@@ -1,56 +1,33 @@
 "use client";
 
-import { useState } from "react";
-import { useFocusContext } from "../../edit/provider";
-import { useCellFocus } from "../../hook";
+import { memo, useState } from "react";
+import { useEditContext } from "../../edit/provider";
+// import { useCellFocus } from "../../hook";
 import {
-  useCellContext,
   useColumnContext,
+  useColumnValidateContext,
   useRowContext,
 } from "../../sheet/providers";
 import { CellInput } from "./base-input";
+import { useCellContext } from "../provider";
 
-export function StringCellInput() {
+export const StringCellInput = memo(function SCI() {
   const cell = useCellContext();
   const col = useColumnContext(cell.columnKey);
-  const row = useRowContext();
-  const { finishEditing } = useFocusContext();
-  const { ref, callbackAfterBlur } = useCellFocus<HTMLInputElement>();
-  const [value, setValue] = useState(row[cell.columnKey] as string);
+  const validate = useColumnValidateContext(cell.columnKey);
+  const { endEditing } = useEditContext();
+  // const { ref, callbackAfterBlur } = useCellFocus<HTMLInputElement>();
+  const [value, setValue] = useState(cell.value as string);
+
+  console.log("StringCellInput");
 
   if (!col.editable || col.type !== "string") {
     throw new Error("Invalid condition");
   }
 
-  const validate = () => {
-    if (col.constraints?.maxLength) {
-      if (value.length > col.constraints.maxLength) {
-        alert(
-          `最大文字数(${col.constraints.maxLength})を超過しています。(現在${value.length}文字)`
-        );
-        return false;
-      }
-    }
-    if (col.constraints?.minLength) {
-      if (value.length < col.constraints.minLength) {
-        alert(
-          `最小文字数(${col.constraints.minLength})を下回っています。(現在${value.length}文字)`
-        );
-        return false;
-      }
-    }
-    if (col.constraints?.pattern) {
-      if (!new RegExp(col.constraints.pattern).test(value)) {
-        alert(`パターンに一致しません。(パターン${col.constraints.pattern})`);
-        return false;
-      }
-    }
-    return true;
-  };
-
   return (
     <CellInput
-      ref={ref}
+      // ref={ref}
       value={value}
       onChange={(e) => {
         e.preventDefault();
@@ -59,24 +36,24 @@ export function StringCellInput() {
       onBlur={(e) => {
         e.preventDefault();
 
-        if (value === row[cell.columnKey]) {
-          finishEditing();
+        if (value === cell.value) {
+          endEditing();
           return;
         }
 
-        if (!validate()) {
+        if (!validate(value)) {
           setTimeout(() => {
             e.target.focus();
           }, 100);
           return;
         }
 
-        col.onCellBlur(cell.columnKey, value, row, finishEditing);
+        cell.updateCellValue(value);
 
-        callbackAfterBlur();
+        // callbackAfterBlur();
       }}
-      reset={() => setValue(row[cell.columnKey].toString())}
-      endEditing={finishEditing}
+      reset={() => setValue(cell.value.toString())}
+      endEditing={endEditing}
     />
   );
-}
+});

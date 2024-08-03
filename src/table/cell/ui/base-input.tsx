@@ -1,20 +1,16 @@
-import { forwardRef } from "react";
 import { CancelIcon } from "../../cancel-icon";
 
-export const CellInput = forwardRef(function CI(
-  props: {
-    value: string | number;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onBlur: (e: React.FocusEvent<HTMLInputElement>) => void;
-    reset: () => void;
-    endEditing: () => void;
-  },
-  ref: React.ForwardedRef<HTMLInputElement>
-) {
+export function CellInput(props: {
+  value: string | number;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onBlur: (e: React.FocusEvent<HTMLInputElement>) => void;
+  reset: () => void;
+  endEditing: () => void;
+}) {
   return (
     <div className={`flex justify-between gap-1 w-full items-center`}>
       <input
-        ref={ref}
+        id="table-cell-form"
         className="w-full py-1 px-2 bg-white text-gray-900"
         type="text"
         value={props.value}
@@ -41,4 +37,4 @@ export const CellInput = forwardRef(function CI(
       </button>
     </div>
   );
-});
+}

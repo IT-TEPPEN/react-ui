@@ -3,9 +3,14 @@ import { DataRecord, TPropsTable } from "./type";
 import { usePageContext } from "./pagenation/providers";
 import { useFilterContext } from "./filter";
 import { useSortContext } from "./sort";
-import { useFocusContext } from "./edit/provider";
-import { useCellContext, useCellIsFocusContext } from "./sheet/providers";
+import {
+  useFocusActionContext,
+  useFocusContext,
+  useFocusStateContext,
+} from "./focus/provider";
 import { useCheckboxStatusContext } from "./checkbox/provider";
+import { useEditStateContext } from "./edit/provider";
+import { useCellIndexContext } from "./cell/provider";
 
 export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { filter } = useFilterContext();
@@ -49,9 +54,9 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
 
 export function useCellFocus<T extends HTMLElement>() {
   const ref = useRef<T>(null);
-  const { isEditing } = useFocusContext();
+  const { isEditing } = useEditStateContext();
   const [occurredOnCellBlur, setOccurredOnCellBlur] = useState(false);
-  const isFocus = useCellIsFocusContext();
+  const { isFocus } = useFocusStateContext();
 
   useEffect(() => {
     if (isFocus && isEditing) {
@@ -67,37 +72,36 @@ export function useCellFocus<T extends HTMLElement>() {
   return { ref, callbackAfterBlur };
 }
 
-export function useCell() {
-  const cell = useCellContext();
-  const { isEditing, focus, focusAndEdit, finishEditing } = useFocusContext();
-  const isFocus = useCellIsFocusContext();
+export function useCell(rowIndex: number, colIndex: number) {
+  const focus = useFocusActionContext();
 
-  useEffect(() => {
-    if (!cell.editable && isFocus && isEditing) {
-      finishEditing();
-    }
-  }, [cell.editable, isFocus, isEditing, finishEditing]);
+  // useEffect(() => {
+  //   if (!cell.editable && isFocus && isEditing) {
+  //     finishEditing();
+  //   }
+  // }, [cell.editable, isFocus, isEditing, finishEditing]);
 
   const onClickCellToFocus: React.MouseEventHandler<HTMLDivElement> =
     useCallback(
       (e) => {
         e.preventDefault();
         e.stopPropagation();
-        focus(cell.rowIndex, cell.colIndex);
+        focus.move(rowIndex, colIndex);
+        focus.focus(rowIndex, colIndex);
       },
-      [focus, cell.rowIndex, cell.colIndex]
+      [focus, rowIndex, colIndex]
     );
 
-  const onDoubleClickCellToEdit: React.MouseEventHandler<HTMLDivElement> =
-    useCallback(
-      (e) => {
-        e.preventDefault();
-        if (cell.editable) {
-          focusAndEdit(cell.rowIndex, cell.colIndex);
-        }
-      },
-      [cell.editable, focusAndEdit, cell.rowIndex, cell.colIndex]
-    );
+  // const onDoubleClickCellToEdit: React.MouseEventHandler<HTMLDivElement> =
+  //   useCallback(
+  //     (e) => {
+  //       e.preventDefault();
+  //       if (cell.editable) {
+  //         focusAndEdit(cell.rowIndex, cell.colIndex);
+  //       }
+  //     },
+  //     [cell.editable, focusAndEdit, cell.rowIndex, cell.colIndex]
+  //   );
 
   const preventPropagation: React.MouseEventHandler<HTMLDivElement> =
     useCallback((e) => {
@@ -106,10 +110,9 @@ export function useCell() {
     }, []);
 
   return {
-    cell,
-    isEditing,
+    // isEditing,
     onClickCellToFocus,
-    onDoubleClickCellToEdit,
+    // onDoubleClickCellToEdit,
     preventPropagation,
   };
 }

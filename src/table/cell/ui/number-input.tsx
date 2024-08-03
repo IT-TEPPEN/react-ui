@@ -1,50 +1,29 @@
 "use client";
 
 import { useState } from "react";
-import { useFocusContext } from "../../edit/provider";
-import { useCellFocus } from "../../hook";
+// import { useCellFocus } from "../../hook";
 import {
-  useCellContext,
   useColumnContext,
-  useRowContext,
+  useColumnValidateContext,
 } from "../../sheet/providers";
 import { CellInput } from "./base-input";
+import { useCellContext } from "../provider";
+import { useEditActionContext } from "../../edit/provider";
 
 export function NumberCellInput() {
   const cell = useCellContext();
   const col = useColumnContext(cell.columnKey);
-  const row = useRowContext();
-  const { finishEditing } = useFocusContext();
-  const { ref, callbackAfterBlur } = useCellFocus<HTMLInputElement>();
+  const validate = useColumnValidateContext(cell.columnKey);
+  const { endEditing } = useEditActionContext();
+  // const { ref, callbackAfterBlur } = useCellFocus<HTMLInputElement>();
   const [value, setValue] = useState((cell.value as number).toString());
 
   if (!col.editable || col.type !== "number") {
     throw new Error("Invalid condition");
   }
 
-  const validate = () => {
-    const v = parseInt(value);
-
-    if (col.constraints?.max) {
-      if (v > col.constraints.max) {
-        alert(`最大値(${col.constraints.max})を超過しています。(入力値:${v})`);
-        return false;
-      }
-    }
-
-    if (col.constraints?.min) {
-      if (v < col.constraints.min) {
-        alert(`最小値(${col.constraints.min})を下回っています。(入力値:${v})`);
-        return false;
-      }
-    }
-
-    return true;
-  };
-
   return (
     <CellInput
-      ref={ref}
       value={value}
       onChange={(e) => {
         e.preventDefault();
@@ -74,23 +53,23 @@ export function NumberCellInput() {
         e.preventDefault();
 
         if (Number(value) === cell.value) {
-          finishEditing();
+          endEditing();
           return;
         }
 
-        if (!validate()) {
+        if (!validate(value)) {
           setTimeout(() => {
             e.target.focus();
           }, 100);
           return;
         }
 
-        col.onCellBlur(cell.columnKey, Number(value), row, finishEditing);
+        cell.updateCellValue(value);
 
-        callbackAfterBlur();
+        // callbackAfterBlur();
       }}
       reset={() => setValue((cell.value as number).toString())}
-      endEditing={finishEditing}
+      endEditing={endEditing}
     />
   );
 }

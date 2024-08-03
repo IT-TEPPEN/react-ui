@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { useTable } from "./hook";
 import { TableCell } from "./cell/ui/cell";
 import { TableHeaderElement } from "./header/header";
@@ -14,14 +13,20 @@ import {
 } from "./filter";
 import { SortProvider } from "./sort";
 import {
-  CellProvider,
   ColumnsProvider,
   ProcessedDataProvider,
   RowProvider,
 } from "./sheet/providers";
-import { FocusProvider, useFocusContext } from "./edit/provider";
+import { FocusProvider } from "./focus/provider";
 import { CheckboxProvider, CheckboxStatusProvider } from "./checkbox/provider";
 import { AllCheckbox, Checkbox } from "./checkbox/components";
+import { IdGenerator } from "./libs";
+import { EditProvider } from "./edit/provider";
+import { TablePropertyProvider } from "./table-property/provider";
+import { AutoUpdateTableProperty } from "./table-property/components/auto-update-table-property";
+import { KeyboardSetting } from "./operation/components/keyboard-setting";
+import { AutoSwitchEditMode } from "./table/components/auto-switch-edit-mode";
+import { CellProvider } from "./cell/provider";
 
 export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   return (
@@ -35,8 +40,15 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
             <CheckboxStatusProvider checkboxCount={props.rows.length}>
               <ProcessedDataProvider props={props}>
                 <ColumnsProvider cols={props.cols}>
-                  <FocusProvider columnCount={props.cols.length}>
-                    <BaseTable {...props} />
+                  <FocusProvider>
+                    <EditProvider>
+                      <TablePropertyProvider>
+                        <AutoUpdateTableProperty />
+                        <AutoSwitchEditMode />
+                        <KeyboardSetting />
+                        <BaseTable {...props} />
+                      </TablePropertyProvider>
+                    </EditProvider>
                   </FocusProvider>
                 </ColumnsProvider>
               </ProcessedDataProvider>
@@ -51,8 +63,6 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
 function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { cols, rows } = useTable<T>(props);
   const { selectedFilterKey } = useFilterContext();
-
-  console.log("BaseTable");
 
   return (
     <div className="w-full">
@@ -76,8 +86,9 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
                   <AllCheckbox rows={props.rows} />
                 </th>
               )}
-              {cols.map((col) => (
+              {cols.map((col, i) => (
                 <TableHeaderElement
+                  id={IdGenerator.getTableColId(i)}
                   key={col.key as string}
                   columnKey={col.key as string}
                 />
@@ -123,14 +134,12 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
                   )}
                   {cols.map((col, j) => {
                     return (
-                      <CellProvider
+                      <TableCell
                         key={col.key as string}
-                        columnKey={col.key as string}
                         rowIndex={i}
                         colIndex={j}
-                      >
-                        <TableCell />
-                      </CellProvider>
+                        columnKey={col.key as string}
+                      />
                     );
                   })}
                 </tr>

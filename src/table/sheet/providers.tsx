@@ -1,15 +1,10 @@
 "use client";
 
 import React, { createContext, useContext, useMemo } from "react";
-import {
-  DataObject,
-  DataRecord,
-  TColumnType,
-  TPropsTable,
-  TTableColumn,
-} from "../type";
+import { DataObject, DataRecord, TPropsTable, TTableColumn } from "../type";
 import { useTable } from "../hook";
-import { useFocusContext } from "../edit/provider";
+import { generateValidateFunction } from "../libs/generate-validate-function";
+// import { useFocusContext } from "../edit/provider";
 
 const ProcessedDataContext = createContext<{
   cols: TTableColumn<DataRecord>[];
@@ -56,7 +51,9 @@ export function RowProvider({
   children: React.ReactNode;
   row: DataObject<DataRecord>;
 }) {
-  return <RowContext.Provider value={row}>{children}</RowContext.Provider>;
+  const state = useMemo(() => row, [row.id]);
+
+  return <RowContext.Provider value={state}>{children}</RowContext.Provider>;
 }
 
 export function useRowContext() {
@@ -68,9 +65,11 @@ const ColsContext = createContext<{
   colMaps: {
     [key: string]: TTableColumn<DataRecord>;
   };
+  validates: { [key: string]: (value: any) => boolean };
 }>({
   cols: [],
   colMaps: {},
+  validates: {},
 });
 
 export function ColumnsProvider<T extends DataRecord>({
@@ -80,20 +79,41 @@ export function ColumnsProvider<T extends DataRecord>({
   children: React.ReactNode;
   cols: TTableColumn<T>[];
 }) {
-  const colMaps = cols.reduce((acc, col) => {
-    const { key } = col;
-    acc[key] = col;
-    return acc;
-  }, {} as { [key in keyof T]: TTableColumn<T> });
+  const colMaps = useMemo(
+    () =>
+      cols.reduce((acc, col) => {
+        const { key } = col;
+        acc[key] = col;
+        return acc;
+      }, {} as { [key in keyof T]: TTableColumn<T> }),
+    [cols]
+  );
+
+  const validates = useMemo(
+    () =>
+      cols.reduce((acc, col) => {
+        const { key } = col;
+
+        if (!col.editable || col.type === "select") return acc;
+
+        acc[key] = generateValidateFunction(col);
+
+        return acc;
+      }, {} as { [key in keyof T]: (value: any) => boolean }),
+    [cols]
+  );
+
+  const state = useMemo(() => ({ cols, colMaps, validates }), [cols]);
 
   return (
     <ColsContext.Provider
       value={
-        { cols, colMaps } as {
+        state as {
           cols: TTableColumn<DataRecord>[];
           colMaps: {
             [key: string]: TTableColumn<DataRecord>;
           };
+          validates: { [key: string]: (value: any) => boolean };
         }
       }
     >
@@ -110,80 +130,6 @@ export function useColumnsContext() {
   return useContext(ColsContext).cols;
 }
 
-const CellContext = createContext<{
-  columnKey: string;
-  value: any;
-  label: any;
-  type: TColumnType | "component";
-  editable?: boolean;
-  component?: React.ReactNode;
-  rowIndex: number;
-  colIndex: number;
-}>({
-  columnKey: "",
-  value: "",
-  label: "",
-  type: "string",
-  rowIndex: 0,
-  colIndex: 0,
-});
-
-const CellFocusContext = createContext<boolean>(false);
-
-export function CellProvider({
-  children,
-  columnKey,
-  rowIndex,
-  colIndex,
-}: {
-  children: React.ReactNode;
-  columnKey: string;
-  rowIndex: number;
-  colIndex: number;
-}) {
-  const col = useColumnContext(columnKey);
-  const row = useRowContext();
-  const { checkFocus } = useFocusContext();
-  const value = row[columnKey];
-  const isFocus = checkFocus(rowIndex, colIndex);
-
-  const label =
-    col.type === "select"
-      ? col.options?.find((op) => op.value === value)?.label
-      : value;
-
-  const component = useMemo(() => {
-    if (col.editable) {
-      return label;
-    } else {
-      return col.render ? col.render(value as never, row) : value;
-    }
-  }, [col.editable, label, value, row]);
-
-  return (
-    <CellContext.Provider
-      value={{
-        columnKey,
-        value,
-        label,
-        editable: col.editable,
-        component: component,
-        type: !col.editable && col.render ? "component" : col.type,
-        rowIndex,
-        colIndex,
-      }}
-    >
-      <CellFocusContext.Provider value={isFocus}>
-        {children}
-      </CellFocusContext.Provider>
-    </CellContext.Provider>
-  );
-}
-
-export function useCellContext() {
-  return useContext(CellContext);
-}
-
-export function useCellIsFocusContext() {
-  return useContext(CellFocusContext);
+export function useColumnValidateContext(key: string) {
+  return useContext(ColsContext).validates[key];
 }

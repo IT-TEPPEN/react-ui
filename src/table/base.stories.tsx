@@ -51,7 +51,17 @@ export const Default: Story = {
           completeEditing();
         },
       },
-      { key: "age", label: "年齢", initialWidth: 50, type: "number" },
+      {
+        key: "age",
+        label: "年齢",
+        initialWidth: 50,
+        type: "number",
+        editable: true,
+        onCellBlur: (id, value, current, completeEditing) => {
+          console.log(id, value, current);
+          completeEditing();
+        },
+      },
       {
         key: "role",
         label: "役割",

@@ -1,21 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useFocusContext } from "../../edit/provider";
+import { useEditContext } from "../../edit/provider";
 import { useCellFocus } from "../../hook";
-import {
-  useCellContext,
-  useColumnContext,
-  useRowContext,
-} from "../../sheet/providers";
+import { useColumnContext } from "../../sheet/providers";
 import { CancelIcon } from "../../cancel-icon";
+import { useCellContext } from "../provider";
 
 export function SelectCellInput() {
   const cell = useCellContext();
   const col = useColumnContext(cell.columnKey);
-  const row = useRowContext();
-  const { finishEditing } = useFocusContext();
-  const { ref, callbackAfterBlur } = useCellFocus<HTMLSelectElement>();
+  const { endEditing } = useEditContext();
+  // const { ref, callbackAfterBlur } = useCellFocus<HTMLSelectElement>();
   const [value, setValue] = useState(cell.value as string);
 
   if (!col.editable || col.type !== "select") {
@@ -25,7 +21,7 @@ export function SelectCellInput() {
   return (
     <div className="flex justify-between gap-1 w-full items-center">
       <select
-        ref={ref}
+        // ref={ref}
         className="w-full py-1 px-2 bg-white text-gray-900"
         value={value}
         onChange={(e) => {
@@ -36,13 +32,13 @@ export function SelectCellInput() {
           e.preventDefault();
 
           if (value === cell.value) {
-            finishEditing();
+            endEditing();
             return;
           }
 
-          col.onCellBlur(cell.columnKey, value, row, finishEditing);
+          cell.updateCellValue(value);
 
-          callbackAfterBlur();
+          // callbackAfterBlur();
         }}
         onKeyDown={(e: React.KeyboardEvent<HTMLSelectElement>) => {
           if (e.key === "Enter") {
@@ -55,7 +51,7 @@ export function SelectCellInput() {
             (e.target as HTMLSelectElement).blur();
           } else if (e.key === "Escape") {
             setValue(cell.value as string);
-            finishEditing();
+            endEditing();
           }
         }}
       >
@@ -74,7 +70,7 @@ export function SelectCellInput() {
         onMouseDown={(e) => {
           e.preventDefault();
           setValue(cell.value as string);
-          finishEditing();
+          endEditing();
         }}
       >
         <CancelIcon size={16} />

@@ -1,9 +1,12 @@
+"use client";
+
 import { TableFilter } from "../filter";
 import { useColumnContext } from "../sheet";
 import { SortButton } from "../sort";
 import { useResizeColWidthHook } from "./resize-col-width-hook";
 
 type TPropsTableHeader = {
+  id: string;
   columnKey: string;
 };
 
@@ -15,7 +18,7 @@ export function TableHeaderElement(props: TPropsTableHeader) {
   });
 
   return (
-    <th className="relative" style={{ minWidth: colWidth }}>
+    <th id={props.id} className="relative" style={{ minWidth: colWidth }}>
       <div
         className={`flex justify-between items-center bg-gray-200 text-gray-600 h-[32px] min-w-fit`}
       >
