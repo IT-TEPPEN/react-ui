@@ -8,7 +8,13 @@ export function CellInput(props: {
   endEditing: () => void;
 }) {
   return (
-    <div className={`flex justify-between gap-1 w-full items-center`}>
+    <div
+      className={`flex justify-between gap-1 w-full items-center`}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+    >
       <input
         id="table-cell-form"
         className="w-full py-1 px-2 bg-white text-gray-900"
@@ -29,8 +35,11 @@ export function CellInput(props: {
       <button
         onMouseDown={(e) => {
           e.preventDefault();
-          props.reset();
-          props.endEditing();
+          e.stopPropagation();
+          setTimeout(() => {
+            props.reset();
+            props.endEditing();
+          }, 300);
         }}
       >
         <CancelIcon size={16} />

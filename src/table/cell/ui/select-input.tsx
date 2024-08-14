@@ -64,8 +64,11 @@ export function SelectCellInput() {
       <button
         onMouseDown={(e) => {
           e.preventDefault();
-          setValue(cell.value as string);
-          endEditing();
+          e.stopPropagation();
+          setTimeout(() => {
+            setValue(cell.value as string);
+            endEditing();
+          }, 300);
         }}
       >
         <CancelIcon size={16} />
