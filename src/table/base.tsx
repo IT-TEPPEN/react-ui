@@ -26,7 +26,6 @@ import { TablePropertyProvider } from "./table-property/provider";
 import { AutoUpdateTableProperty } from "./table-property/components/auto-update-table-property";
 import { KeyboardSetting } from "./operation/components/keyboard-setting";
 import { AutoSwitchEditMode } from "./table/components/auto-switch-edit-mode";
-import { CellProvider } from "./cell/provider";
 
 export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   return (
@@ -123,6 +122,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
                   }`}
                   onClick={(e) => {
                     e.preventDefault();
+
                     if (!!props.onClickRow) props.onClickRow(r);
                   }}
                   data-testid={r.id}

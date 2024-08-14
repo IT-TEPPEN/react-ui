@@ -2,12 +2,14 @@ import { useEffect } from "react";
 import { useTablePropertyStateContext } from "../../table-property/provider";
 import { useFocusContext } from "../../focus/provider";
 import { useEditContext } from "../../edit/provider";
+import { useColumnsContext } from "../../sheet/providers";
 
 export function KeyboardSetting() {
   const focus = useFocusContext();
   const edit = useEditContext();
   const { maxDisplayColCount, maxDisplayRowCount } =
     useTablePropertyStateContext();
+  const col = useColumnsContext()[focus.isFocus ? focus.colIndex : 0];
 
   const rowIndex = focus.isFocus ? focus.rowIndex : -1;
   const colIndex = focus.isFocus ? focus.colIndex : -1;
@@ -63,6 +65,12 @@ export function KeyboardSetting() {
       document.removeEventListener("keydown", listener);
     };
   }, [edit.isEditing, focus.isFocus, rowIndex, colIndex]);
+
+  useEffect(() => {
+    if (edit.isEditing && !col.editable) {
+      edit.endEditing();
+    }
+  }, [edit, col]);
 
   return <></>;
 }
