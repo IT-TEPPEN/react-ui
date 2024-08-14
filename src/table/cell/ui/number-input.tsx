@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-// import { useCellFocus } from "../../hook";
 import {
   useColumnContext,
   useColumnValidateContext,
@@ -15,7 +14,6 @@ export function NumberCellInput() {
   const col = useColumnContext(cell.columnKey);
   const validate = useColumnValidateContext(cell.columnKey);
   const { endEditing } = useEditActionContext();
-  // const { ref, callbackAfterBlur } = useCellFocus<HTMLInputElement>();
   const [value, setValue] = useState((cell.value as number).toString());
 
   if (!col.editable || col.type !== "number") {
@@ -65,8 +63,6 @@ export function NumberCellInput() {
         }
 
         cell.updateCellValue(value);
-
-        // callbackAfterBlur();
       }}
       reset={() => setValue((cell.value as number).toString())}
       endEditing={endEditing}

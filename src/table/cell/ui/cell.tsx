@@ -5,14 +5,11 @@ import { EditButton } from "./edit-button";
 import { StringCellInput } from "./string-input";
 import { NumberCellInput } from "./number-input";
 import { SelectCellInput } from "./select-input";
-import React, { memo, useMemo } from "react";
+import { memo } from "react";
 import { TColumnType } from "../../type";
 import { IdGenerator } from "../../libs";
-import {
-  CellProvider,
-  useCellContext,
-  useCellEditableContext,
-} from "../provider";
+import { CellProvider, useCellContext } from "../provider";
+import { useColumnContext } from "../../sheet";
 
 const CellData = memo(function CD(props: {
   type: TColumnType | "component";
@@ -36,13 +33,12 @@ const CellData = memo(function CD(props: {
 
 const WithEditor = memo(function WE(props: {
   id: string;
+  editable: boolean;
   onClickCellToFocus: React.MouseEventHandler<HTMLDivElement>;
   onDoubleClickCellToEdit: React.MouseEventHandler<HTMLDivElement>;
   preventPropagation: React.MouseEventHandler<HTMLDivElement>;
 }) {
   const cell = useCellContext();
-  const editable = useCellEditableContext();
-  // console.log("WithEditor");
 
   return (
     <td id={props.id}>
@@ -57,20 +53,22 @@ const WithEditor = memo(function WE(props: {
               component={cell.component}
               onDoubleClick={props.onDoubleClickCellToEdit}
             />
-            {editable && <EditButton />}
+            {props.editable && <EditButton />}
           </div>
         </div>
 
-        <div
-          id={`${props.id}-editor`}
-          className="absolute top-0 left-0 w-full h-full grid place-items-center z-10 pr-2"
-          onClick={props.preventPropagation}
-          style={{ opacity: 0, pointerEvents: "none" }}
-        >
-          {cell.type === "string" && <StringCellInput />}
-          {/* {props.type === "number" && <NumberCellInput />} */}
-          {cell.type === "select" && <SelectCellInput />}
-        </div>
+        {props.editable && (
+          <div
+            id={`${props.id}-editor`}
+            className="absolute top-0 left-0 w-full h-full grid place-items-center z-10 pr-2"
+            onClick={props.preventPropagation}
+            style={{ opacity: 0, pointerEvents: "none" }}
+          >
+            {cell.type === "string" && <StringCellInput />}
+            {cell.type === "number" && <NumberCellInput />}
+            {cell.type === "select" && <SelectCellInput />}
+          </div>
+        )}
       </div>
     </td>
   );
@@ -83,15 +81,13 @@ export function TableCell(props: {
 }) {
   const { onClickCellToFocus, onDoubleClickCellToEdit, preventPropagation } =
     useCell(props.rowIndex, props.colIndex);
+  const col = useColumnContext(props.columnKey);
 
   return (
-    <CellProvider
-      rowIndex={props.rowIndex}
-      colIndex={props.colIndex}
-      columnKey={props.columnKey}
-    >
+    <CellProvider columnKey={props.columnKey}>
       <WithEditor
         id={IdGenerator.getTableCellId(props.rowIndex, props.colIndex)}
+        editable={col.editable ?? false}
         onClickCellToFocus={onClickCellToFocus}
         onDoubleClickCellToEdit={onDoubleClickCellToEdit}
         preventPropagation={preventPropagation}

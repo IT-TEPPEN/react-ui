@@ -1,12 +1,10 @@
 "use client";
 
 import { memo, useState } from "react";
-import { useEditContext } from "../../edit/provider";
-// import { useCellFocus } from "../../hook";
+import { useEditActionContext } from "../../edit/provider";
 import {
   useColumnContext,
   useColumnValidateContext,
-  useRowContext,
 } from "../../sheet/providers";
 import { CellInput } from "./base-input";
 import { useCellContext } from "../provider";
@@ -15,11 +13,8 @@ export const StringCellInput = memo(function SCI() {
   const cell = useCellContext();
   const col = useColumnContext(cell.columnKey);
   const validate = useColumnValidateContext(cell.columnKey);
-  const { endEditing } = useEditContext();
-  // const { ref, callbackAfterBlur } = useCellFocus<HTMLInputElement>();
+  const { endEditing } = useEditActionContext();
   const [value, setValue] = useState(cell.value as string);
-
-  console.log("StringCellInput");
 
   if (!col.editable || col.type !== "string") {
     throw new Error("Invalid condition");
@@ -27,7 +22,6 @@ export const StringCellInput = memo(function SCI() {
 
   return (
     <CellInput
-      // ref={ref}
       value={value}
       onChange={(e) => {
         e.preventDefault();
@@ -49,8 +43,6 @@ export const StringCellInput = memo(function SCI() {
         }
 
         cell.updateCellValue(value);
-
-        // callbackAfterBlur();
       }}
       reset={() => setValue(cell.value.toString())}
       endEditing={endEditing}

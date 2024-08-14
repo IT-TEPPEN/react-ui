@@ -1,16 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { DataRecord, TPropsTable } from "./type";
 import { usePageContext } from "./pagenation/providers";
 import { useFilterContext } from "./filter";
 import { useSortContext } from "./sort";
-import {
-  useFocusActionContext,
-  useFocusContext,
-  useFocusStateContext,
-} from "./focus/provider";
+import { useFocusActionContext } from "./focus/provider";
 import { useCheckboxStatusContext } from "./checkbox/provider";
-import { useEditStateContext } from "./edit/provider";
-import { useCellIndexContext } from "./cell/provider";
+import { useEditActionContext } from "./edit/provider";
 
 export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { filter } = useFilterContext();
@@ -52,34 +47,9 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
   };
 }
 
-export function useCellFocus<T extends HTMLElement>() {
-  const ref = useRef<T>(null);
-  const { isEditing } = useEditStateContext();
-  const [occurredOnCellBlur, setOccurredOnCellBlur] = useState(false);
-  const { isFocus } = useFocusStateContext();
-
-  useEffect(() => {
-    if (isFocus && isEditing) {
-      ref.current?.focus();
-    }
-    setOccurredOnCellBlur(false);
-  }, [isFocus, isEditing, occurredOnCellBlur]);
-
-  const callbackAfterBlur = useCallback(() => {
-    setOccurredOnCellBlur(true);
-  }, []);
-
-  return { ref, callbackAfterBlur };
-}
-
 export function useCell(rowIndex: number, colIndex: number) {
   const focus = useFocusActionContext();
-
-  // useEffect(() => {
-  //   if (!cell.editable && isFocus && isEditing) {
-  //     finishEditing();
-  //   }
-  // }, [cell.editable, isFocus, isEditing, finishEditing]);
+  const editAction = useEditActionContext();
 
   const onClickCellToFocus: React.MouseEventHandler<HTMLDivElement> =
     useCallback(
@@ -92,16 +62,16 @@ export function useCell(rowIndex: number, colIndex: number) {
       [focus, rowIndex, colIndex]
     );
 
-  // const onDoubleClickCellToEdit: React.MouseEventHandler<HTMLDivElement> =
-  //   useCallback(
-  //     (e) => {
-  //       e.preventDefault();
-  //       if (cell.editable) {
-  //         focusAndEdit(cell.rowIndex, cell.colIndex);
-  //       }
-  //     },
-  //     [cell.editable, focusAndEdit, cell.rowIndex, cell.colIndex]
-  //   );
+  const onDoubleClickCellToEdit: React.MouseEventHandler<HTMLDivElement> =
+    useCallback(
+      (e) => {
+        e.preventDefault();
+        focus.move(rowIndex, colIndex);
+        focus.focus(rowIndex, colIndex);
+        editAction.startEditing();
+      },
+      [focus, editAction]
+    );
 
   const preventPropagation: React.MouseEventHandler<HTMLDivElement> =
     useCallback((e) => {
@@ -110,9 +80,8 @@ export function useCell(rowIndex: number, colIndex: number) {
     }, []);
 
   return {
-    // isEditing,
     onClickCellToFocus,
-    // onDoubleClickCellToEdit,
+    onDoubleClickCellToEdit,
     preventPropagation,
   };
 }

@@ -3,16 +3,6 @@ import { TColumnType } from "../type";
 import { useColumnContext, useRowContext } from "../sheet";
 import { useEditActionContext } from "../edit/provider";
 
-const CellIndexContext = createContext<{
-  rowIndex: number;
-  colIndex: number;
-}>({
-  rowIndex: 0,
-  colIndex: 0,
-});
-
-const CellEditableContext = createContext<boolean>(false);
-
 const CellContext = createContext<{
   columnKey: string;
   value: any;
@@ -31,17 +21,12 @@ const CellContext = createContext<{
 export function CellProvider({
   children,
   columnKey,
-  rowIndex,
-  colIndex,
 }: {
   children: React.ReactNode;
   columnKey: string;
-  rowIndex: number;
-  colIndex: number;
 }) {
   const col = useColumnContext(columnKey);
   const row = useRowContext();
-  // const { checkFocus } = useFocusContext();
   const value = row[columnKey];
   const { endEditing } = useEditActionContext();
 
@@ -57,11 +42,6 @@ export function CellProvider({
       return col.render ? col.render(value as never, row) : label;
     }
   }, [col.editable, label, value, row]);
-
-  const cellIndexState = useMemo(
-    () => ({ rowIndex, colIndex }),
-    [rowIndex, colIndex]
-  );
 
   const updateCellValue = useCallback(
     (value: string) => {
@@ -92,22 +72,8 @@ export function CellProvider({
   );
 
   return (
-    <CellIndexContext.Provider value={cellIndexState}>
-      <CellEditableContext.Provider value={col.editable ?? false}>
-        <CellContext.Provider value={cellStatus}>
-          {children}
-        </CellContext.Provider>
-      </CellEditableContext.Provider>
-    </CellIndexContext.Provider>
+    <CellContext.Provider value={cellStatus}>{children}</CellContext.Provider>
   );
-}
-
-export function useCellIndexContext() {
-  return useContext(CellIndexContext);
-}
-
-export function useCellEditableContext() {
-  return useContext(CellEditableContext);
 }
 
 export function useCellContext() {

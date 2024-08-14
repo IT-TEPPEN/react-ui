@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useEditContext } from "../../edit/provider";
-import { useCellFocus } from "../../hook";
+import { useEditActionContext } from "../../edit/provider";
 import { useColumnContext } from "../../sheet/providers";
 import { CancelIcon } from "../../cancel-icon";
 import { useCellContext } from "../provider";
@@ -10,8 +9,7 @@ import { useCellContext } from "../provider";
 export function SelectCellInput() {
   const cell = useCellContext();
   const col = useColumnContext(cell.columnKey);
-  const { endEditing } = useEditContext();
-  // const { ref, callbackAfterBlur } = useCellFocus<HTMLSelectElement>();
+  const { endEditing } = useEditActionContext();
   const [value, setValue] = useState(cell.value as string);
 
   if (!col.editable || col.type !== "select") {
@@ -21,7 +19,6 @@ export function SelectCellInput() {
   return (
     <div className="flex justify-between gap-1 w-full items-center">
       <select
-        // ref={ref}
         className="w-full py-1 px-2 bg-white text-gray-900"
         value={value}
         onChange={(e) => {
@@ -37,8 +34,6 @@ export function SelectCellInput() {
           }
 
           cell.updateCellValue(value);
-
-          // callbackAfterBlur();
         }}
         onKeyDown={(e: React.KeyboardEvent<HTMLSelectElement>) => {
           if (e.key === "Enter") {
