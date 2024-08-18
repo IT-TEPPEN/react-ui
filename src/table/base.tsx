@@ -144,6 +144,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
                         colIndex={j}
                         columnKey={col.key as string}
                         isExistOnClickRow={!!props.onClickRow}
+                        onUpdateRow={props.onUpdateRow}
                       />
                     );
                   })}

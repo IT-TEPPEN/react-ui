@@ -98,6 +98,7 @@ export type TPropsTable<T extends DataRecord> = {
   cols: TTableColumn<T>[];
   rows: DataObject<T>[];
   onClickRow?: (row: DataObject<T>) => void;
+  onUpdateRow?: (newRow: DataObject<T>, oldRow: DataObject<T>) => void;
   initialCondition?: {
     sort?: { key: string; asc?: boolean };
     pagenation?: {

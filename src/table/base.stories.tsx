@@ -61,6 +61,10 @@ export const Default: Story = {
           console.log(id, value, current);
           completeEditing();
         },
+        constraints: {
+          min: 0,
+          max: 150,
+        },
       },
       {
         key: "role",
@@ -100,6 +104,9 @@ export const Default: Story = {
     // onClickRow: (row) => {
     //   alert(row.id);
     // },
+    onUpdateRow: (newRow, oldRow) => {
+      console.log({ newRow, oldRow });
+    },
     initialCondition: {
       sort: {
         key: "age",

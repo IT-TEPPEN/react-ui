@@ -94,8 +94,6 @@ export function ColumnsProvider<T extends DataRecord>({
       cols.reduce((acc, col) => {
         const { key } = col;
 
-        if (!col.editable || col.type === "select") return acc;
-
         acc[key] = generateValidateFunction(col);
 
         return acc;
@@ -132,4 +130,8 @@ export function useColumnsContext() {
 
 export function useColumnValidateContext(key: string) {
   return useContext(ColsContext).validates[key];
+}
+
+export function useColumnValidatesContext() {
+  return useContext(ColsContext).validates;
 }

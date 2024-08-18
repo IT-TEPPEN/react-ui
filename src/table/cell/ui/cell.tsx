@@ -6,7 +6,7 @@ import { StringCellInput } from "./string-input";
 import { NumberCellInput } from "./number-input";
 import { SelectCellInput } from "./select-input";
 import { memo } from "react";
-import { TColumnType } from "../../type";
+import { DataObject, DataRecord, TColumnType } from "../../type";
 import { IdGenerator } from "../../libs";
 import { CellProvider, useCellContext } from "../provider";
 import { useColumnContext } from "../../sheet";
@@ -37,12 +37,24 @@ const WithEditor = memo(function WE(props: {
   focusAtCell: () => void;
   onDoubleClickCellToEdit: React.MouseEventHandler<HTMLDivElement>;
   preventPropagation: React.MouseEventHandler<HTMLDivElement>;
-  isExistOnClickRow?: boolean;
+  pasteData: (text: string) => void;
+  isExistOnClickRow: boolean;
+  isExistOnUpdateRow: boolean;
 }) {
   const cell = useCellContext();
 
   return (
-    <td id={props.id}>
+    <td
+      id={props.id}
+      onPaste={(e) => {
+        e.preventDefault();
+        if (!props.isExistOnUpdateRow) {
+          alert("ペースト機能が有効化されていません。");
+          return;
+        }
+        props.pasteData(e.clipboardData.getData("text"));
+      }}
+    >
       <div
         className={`relative`}
         onClick={
@@ -52,6 +64,9 @@ const WithEditor = memo(function WE(props: {
                 props.focusAtCell();
               }
             : undefined
+        }
+        onDoubleClick={
+          !props.isExistOnClickRow ? props.onDoubleClickCellToEdit : undefined
         }
       >
         <div id={`${props.id}-display`}>
@@ -89,16 +104,19 @@ const WithEditor = memo(function WE(props: {
   );
 });
 
-export function TableCell(props: {
+export function TableCell<T extends DataRecord>(props: {
   rowIndex: number;
   colIndex: number;
   columnKey: string;
-  isExistOnClickRow?: boolean;
+  isExistOnClickRow: boolean;
+  onUpdateRow?: (newRow: DataObject<T>, oldRow: DataObject<T>) => void;
 }) {
-  const { focusAtCell, onDoubleClickCellToEdit, preventPropagation } = useCell(
-    props.rowIndex,
-    props.colIndex
-  );
+  const {
+    focusAtCell,
+    onDoubleClickCellToEdit,
+    preventPropagation,
+    pasteData,
+  } = useCell(props.rowIndex, props.colIndex, props.onUpdateRow);
   const col = useColumnContext(props.columnKey);
 
   return (
@@ -109,7 +127,9 @@ export function TableCell(props: {
         focusAtCell={focusAtCell}
         onDoubleClickCellToEdit={onDoubleClickCellToEdit}
         preventPropagation={preventPropagation}
+        pasteData={pasteData}
         isExistOnClickRow={props.isExistOnClickRow}
+        isExistOnUpdateRow={!!props.onUpdateRow}
       />
     </CellProvider>
   );

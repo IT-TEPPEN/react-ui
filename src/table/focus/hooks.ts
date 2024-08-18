@@ -134,6 +134,7 @@ export function useFocusReducer(): TReturnFocusReducer {
         block: "nearest",
         inline: "nearest",
       });
+      element?.focus();
     }
 
     return () => {
