@@ -51,16 +51,10 @@ export function useCell(rowIndex: number, colIndex: number) {
   const focus = useFocusActionContext();
   const editAction = useEditActionContext();
 
-  const onClickCellToFocus: React.MouseEventHandler<HTMLDivElement> =
-    useCallback(
-      (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        focus.move(rowIndex, colIndex);
-        focus.focus(rowIndex, colIndex);
-      },
-      [focus, rowIndex, colIndex]
-    );
+  const focusAtCell = useCallback(() => {
+    focus.move(rowIndex, colIndex);
+    focus.focus(rowIndex, colIndex);
+  }, [focus, rowIndex, colIndex]);
 
   const onDoubleClickCellToEdit: React.MouseEventHandler<HTMLDivElement> =
     useCallback(
@@ -80,7 +74,7 @@ export function useCell(rowIndex: number, colIndex: number) {
     }, []);
 
   return {
-    onClickCellToFocus,
+    focusAtCell,
     onDoubleClickCellToEdit,
     preventPropagation,
   };

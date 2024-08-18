@@ -34,19 +34,34 @@ const CellData = memo(function CD(props: {
 const WithEditor = memo(function WE(props: {
   id: string;
   editable: boolean;
-  onClickCellToFocus: React.MouseEventHandler<HTMLDivElement>;
+  focusAtCell: () => void;
   onDoubleClickCellToEdit: React.MouseEventHandler<HTMLDivElement>;
   preventPropagation: React.MouseEventHandler<HTMLDivElement>;
+  isExistOnClickRow?: boolean;
 }) {
   const cell = useCellContext();
 
   return (
     <td id={props.id}>
-      <div className={`relative`}>
+      <div
+        className={`relative`}
+        onClick={
+          !props.isExistOnClickRow
+            ? (e) => {
+                e.preventDefault();
+                props.focusAtCell();
+              }
+            : undefined
+        }
+      >
         <div id={`${props.id}-display`}>
           <div
             className={`flex items-center gap-3 w-fit p-2 cursor-default`}
-            onClick={props.onClickCellToFocus}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              props.focusAtCell();
+            }}
           >
             <CellData
               type={cell.type}
@@ -78,9 +93,12 @@ export function TableCell(props: {
   rowIndex: number;
   colIndex: number;
   columnKey: string;
+  isExistOnClickRow?: boolean;
 }) {
-  const { onClickCellToFocus, onDoubleClickCellToEdit, preventPropagation } =
-    useCell(props.rowIndex, props.colIndex);
+  const { focusAtCell, onDoubleClickCellToEdit, preventPropagation } = useCell(
+    props.rowIndex,
+    props.colIndex
+  );
   const col = useColumnContext(props.columnKey);
 
   return (
@@ -88,9 +106,10 @@ export function TableCell(props: {
       <WithEditor
         id={IdGenerator.getTableCellId(props.rowIndex, props.colIndex)}
         editable={col.editable ?? false}
-        onClickCellToFocus={onClickCellToFocus}
+        focusAtCell={focusAtCell}
         onDoubleClickCellToEdit={onDoubleClickCellToEdit}
         preventPropagation={preventPropagation}
+        isExistOnClickRow={props.isExistOnClickRow}
       />
     </CellProvider>
   );

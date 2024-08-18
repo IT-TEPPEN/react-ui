@@ -97,9 +97,9 @@ export const Default: Story = {
         ),
       },
     ],
-    onClickRow: (row) => {
-      alert(row.id);
-    },
+    // onClickRow: (row) => {
+    //   alert(row.id);
+    // },
     initialCondition: {
       sort: {
         key: "age",

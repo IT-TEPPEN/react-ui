@@ -17,7 +17,7 @@ import {
   ProcessedDataProvider,
   RowProvider,
 } from "./sheet/providers";
-import { FocusProvider } from "./focus/provider";
+import { FocusProvider, useFocusActionContext } from "./focus/provider";
 import { CheckboxProvider, CheckboxStatusProvider } from "./checkbox/provider";
 import { AllCheckbox, Checkbox } from "./checkbox/components";
 import { IdGenerator } from "./libs";
@@ -62,6 +62,7 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
 function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { cols, rows } = useTable<T>(props);
   const { selectedFilterKey } = useFilterContext();
+  const { unfocus } = useFocusActionContext();
 
   return (
     <div className="w-full">
@@ -123,7 +124,10 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
                   onClick={(e) => {
                     e.preventDefault();
 
-                    if (!!props.onClickRow) props.onClickRow(r);
+                    if (!!props.onClickRow) {
+                      props.onClickRow(r);
+                      unfocus();
+                    }
                   }}
                   data-testid={r.id}
                 >
@@ -139,6 +143,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
                         rowIndex={i}
                         colIndex={j}
                         columnKey={col.key as string}
+                        isExistOnClickRow={!!props.onClickRow}
                       />
                     );
                   })}
