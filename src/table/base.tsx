@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
 import { useTable } from "./hook";
-import { TableCell } from "./cell";
+import { TableCell } from "./cell/ui/cell";
 import { TableHeaderElement } from "./header/header";
 import { DataRecord, TPropsTable } from "./type";
 import { PagenationProvider, DisplayRange, Pagenation } from "./pagenation";
@@ -13,23 +12,45 @@ import {
   useFilterContext,
 } from "./filter";
 import { SortProvider } from "./sort";
-import { CellProvider, ColumnsProvider, RowProvider } from "./sheet/providers";
-import { FocusProvider, useFocusContext } from "./edit/provider";
+import {
+  ColumnsProvider,
+  ProcessedDataProvider,
+  RowProvider,
+} from "./sheet/providers";
+import { FocusProvider, useFocusActionContext } from "./focus/provider";
 import { CheckboxProvider, CheckboxStatusProvider } from "./checkbox/provider";
 import { AllCheckbox, Checkbox } from "./checkbox/components";
+import { IdGenerator } from "./libs";
+import { EditProvider } from "./edit/provider";
+import { TablePropertyProvider } from "./table-property/provider";
+import { AutoUpdateTableProperty } from "./table-property/components/auto-update-table-property";
+import { KeyboardSetting } from "./operation/components/keyboard-setting";
+import { AutoSwitchEditMode } from "./table/components/auto-switch-edit-mode";
 
 export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   return (
     <FilterProvider>
       <SortProvider initialCondition={props.initialCondition?.sort}>
-        <PagenationProvider rowCount={props.rows.length}>
+        <PagenationProvider
+          rowCount={props.rows.length}
+          perPage={props.initialCondition?.pagenation?.rowCountPerPage}
+        >
           <CheckboxProvider checkbox={props.checkbox}>
             <CheckboxStatusProvider checkboxCount={props.rows.length}>
-              <ColumnsProvider cols={props.cols}>
-                <FocusProvider columnCount={props.cols.length}>
-                  <BaseTable {...props} />
-                </FocusProvider>
-              </ColumnsProvider>
+              <ProcessedDataProvider props={props}>
+                <ColumnsProvider cols={props.cols}>
+                  <FocusProvider>
+                    <EditProvider>
+                      <TablePropertyProvider>
+                        <AutoUpdateTableProperty />
+                        <AutoSwitchEditMode />
+                        <KeyboardSetting />
+                        <BaseTable {...props} />
+                      </TablePropertyProvider>
+                    </EditProvider>
+                  </FocusProvider>
+                </ColumnsProvider>
+              </ProcessedDataProvider>
             </CheckboxStatusProvider>
           </CheckboxProvider>
         </PagenationProvider>
@@ -40,56 +61,8 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
 
 function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { cols, rows } = useTable<T>(props);
-  const {
-    isFocus,
-    isEditing,
-    edit,
-    moveLeft,
-    moveRight,
-    moveUp,
-    moveDown,
-    unfocus,
-    setMaxRowNumber,
-  } = useFocusContext();
   const { selectedFilterKey } = useFilterContext();
-
-  useEffect(() => {
-    const listener = (e: KeyboardEvent) => {
-      if (!isFocus || isEditing) return;
-
-      if (e.key === "Enter") {
-        e.preventDefault();
-        moveDown();
-      } else if (e.key === "Escape") {
-        e.preventDefault();
-        unfocus();
-      } else if (e.key === "ArrowRight") {
-        e.preventDefault();
-        moveRight();
-      } else if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        moveLeft();
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        moveUp();
-      } else if (e.key === "ArrowDown") {
-        e.preventDefault();
-        moveDown();
-      } else if (e.key === "F2") {
-        edit();
-      }
-    };
-
-    document.addEventListener("keydown", listener);
-
-    return () => {
-      document.removeEventListener("keydown", listener);
-    };
-  }, [isEditing, isFocus]);
-
-  useEffect(() => {
-    setMaxRowNumber(rows.length - 1);
-  }, [rows.length]);
+  const { unfocus } = useFocusActionContext();
 
   return (
     <div className="w-full">
@@ -113,8 +86,9 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
                   <AllCheckbox rows={props.rows} />
                 </th>
               )}
-              {cols.map((col) => (
+              {cols.map((col, i) => (
                 <TableHeaderElement
+                  id={IdGenerator.getTableColId(i)}
                   key={col.key as string}
                   columnKey={col.key as string}
                 />
@@ -149,7 +123,11 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
                   }`}
                   onClick={(e) => {
                     e.preventDefault();
-                    if (!!props.onClickRow) props.onClickRow(r);
+
+                    if (!!props.onClickRow) {
+                      props.onClickRow(r);
+                      unfocus();
+                    }
                   }}
                   data-testid={r.id}
                 >
@@ -160,14 +138,14 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
                   )}
                   {cols.map((col, j) => {
                     return (
-                      <CellProvider
+                      <TableCell
                         key={col.key as string}
-                        columnKey={col.key as string}
                         rowIndex={i}
                         colIndex={j}
-                      >
-                        <TableCell />
-                      </CellProvider>
+                        columnKey={col.key as string}
+                        isExistOnClickRow={!!props.onClickRow}
+                        onUpdateRow={props.onUpdateRow}
+                      />
                     );
                   })}
                 </tr>

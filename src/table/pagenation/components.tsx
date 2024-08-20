@@ -3,7 +3,11 @@
 import { usePageContext } from "./providers";
 
 export function Pagenation() {
-  const { current, pageCount, jump, prev, next } = usePageContext();
+  const { enable, current, pageCount, jump, prev, next } = usePageContext();
+
+  if (!enable) {
+    return <></>;
+  }
 
   return (
     <div className="flex justify-center gap-2">
@@ -51,7 +55,11 @@ export function Pagenation() {
 }
 
 export function DisplayRange() {
-  const { from, to, rowCount } = usePageContext();
+  const { enable, from, to, rowCount } = usePageContext();
+
+  if (!enable) {
+    return <></>;
+  }
 
   return (
     <p className="text-center text-sm text-gray-600">

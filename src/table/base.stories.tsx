@@ -51,7 +51,21 @@ export const Default: Story = {
           completeEditing();
         },
       },
-      { key: "age", label: "年齢", initialWidth: 50, type: "number" },
+      {
+        key: "age",
+        label: "年齢",
+        initialWidth: 50,
+        type: "number",
+        editable: true,
+        onCellBlur: (id, value, current, completeEditing) => {
+          console.log(id, value, current);
+          completeEditing();
+        },
+        constraints: {
+          min: 0,
+          max: 150,
+        },
+      },
       {
         key: "role",
         label: "役割",
@@ -87,8 +101,20 @@ export const Default: Story = {
         ),
       },
     ],
-    onClickRow: (row) => {
-      alert(row.id);
+    // onClickRow: (row) => {
+    //   alert(row.id);
+    // },
+    onUpdateRow: (newRow, oldRow) => {
+      console.log({ newRow, oldRow });
+    },
+    initialCondition: {
+      sort: {
+        key: "age",
+        asc: true,
+      },
+      pagenation: {
+        rowCountPerPage: "all",
+      },
     },
   },
   render: (props) => (
@@ -184,6 +210,9 @@ export const Readme: Story = {
       sort: {
         key: "id",
         asc: true,
+      },
+      pagenation: {
+        rowCountPerPage: 50,
       },
     },
     onClickRow: (row) => {

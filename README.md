@@ -144,9 +144,15 @@ const App = () => {
             key: "id",
             asc: true,
           },
+          pagenation: {
+            rowCountPerPage: 50,
+          },
         }}
         onClickRow={(row) => {
           alert(`Clicked row: (id: ${row.id})`);
+        }}
+        onUpdateRow={(newRow, oldRow) => {
+          alert({ newRow, oldRow });
         }}
         applyRowFormatting={(row) => {
           if (row.role === "1") {
@@ -177,10 +183,11 @@ A component that displays a table based on the row and column information passed
 - Filtering function (only when `label` is set in the column information)
 - Editing function (only when `editable` is true and `onCellBlur` is set in the column information)
 - Checkbox function
+- Paste function
 
 #### Arguments
 
-The table component only accepts the arguments `rows`, `cols`, `initialCondition` and `onClickRow`. Details for each argument are described below.
+The table component only accepts the arguments `rows`, `cols`, `initialCondition`, `onClickRow`, `onUpdateRow`, `applyRowFormatting`. Details for each argument are described below.
 
 ##### rows
 
@@ -240,6 +247,9 @@ In `initialCondition`, you can set initial values for each function. This is opt
 ```ts
 type TInitialCondition = {
   sort?: { key: string; asc?: boolean };
+  pagenation?: {
+    rowCountPerPage?: 20 | 50 | 100 | "all";
+  };
 };
 ```
 
@@ -249,6 +259,15 @@ In `onClickRow`, you may define the behavior when a row is clicked. This is opti
 
 ```ts
 type TOnClickRow = (row: DataObject) => void;
+```
+
+##### onUpdateRow
+
+In `onUpdateRow`, You can define the behavior when you paste data from Excel or spreadsheets into a table. This is optional.
+For multi-line data, this function is executed one line at a time.
+
+```ts
+type TOnUpdateRow = (newRow: DataObject, oldRow: DataObject) => void;
 ```
 
 ##### applyRowFormatting

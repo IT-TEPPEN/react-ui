@@ -1,3 +1,8 @@
+import {
+  TNumberValidateOption,
+  TStringValidateOption,
+} from "./libs/generate-validate-function";
+
 export type DataRecord = Record<string, string | number>;
 
 export type DataObject<T extends DataRecord> = T & {
@@ -18,11 +23,7 @@ export type TStringCellEditingCondition<T extends DataRecord> =
             current: DataObject<T>,
             completeEditing: () => void
           ) => void;
-          constraints?: {
-            maxLength?: number;
-            minLength?: number;
-            pattern?: string;
-          };
+          constraints?: TStringValidateOption;
         }
     );
 
@@ -42,10 +43,7 @@ export type TNumberCellEditingCondition<T extends DataRecord> =
             current: DataObject<T>,
             completeEditing: () => void
           ) => void;
-          constraints?: {
-            max?: number;
-            min?: number;
-          };
+          constraints?: TNumberValidateOption;
         }
     );
 
@@ -100,8 +98,12 @@ export type TPropsTable<T extends DataRecord> = {
   cols: TTableColumn<T>[];
   rows: DataObject<T>[];
   onClickRow?: (row: DataObject<T>) => void;
+  onUpdateRow?: (newRow: DataObject<T>, oldRow: DataObject<T>) => void;
   initialCondition?: {
     sort?: { key: string; asc?: boolean };
+    pagenation?: {
+      rowCountPerPage?: 20 | 50 | 100 | "all";
+    };
   };
   applyRowFormatting?: (row: DataObject<T>) => TailwindCssStyle;
 } & TCheckboxProperty<T>;

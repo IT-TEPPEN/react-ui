@@ -1,7 +1,44 @@
 "use client";
 
-import { createContext, useContext } from "react";
-import { DataObject, DataRecord, TColumnType, TTableColumn } from "../type";
+import React, { createContext, useContext, useMemo } from "react";
+import { DataObject, DataRecord, TPropsTable, TTableColumn } from "../type";
+import { useTable } from "../hook";
+import { generateValidateFunction } from "../libs/generate-validate-function";
+// import { useFocusContext } from "../edit/provider";
+
+const ProcessedDataContext = createContext<{
+  cols: TTableColumn<DataRecord>[];
+  rows: DataObject<DataRecord>[];
+}>({
+  cols: [],
+  rows: [],
+});
+
+export function ProcessedDataProvider<T extends DataRecord>({
+  children,
+  props,
+}: {
+  children: React.ReactNode;
+  props: TPropsTable<T>;
+}) {
+  const { cols, rows } = useTable<T>(props);
+  return (
+    <ProcessedDataContext.Provider
+      value={
+        { cols, rows } as {
+          cols: TTableColumn<DataRecord>[];
+          rows: DataObject<DataRecord>[];
+        }
+      }
+    >
+      {children}
+    </ProcessedDataContext.Provider>
+  );
+}
+
+export function useProcessedDataContext() {
+  return useContext(ProcessedDataContext);
+}
 
 const RowContext = createContext<DataObject<DataRecord>>({
   id: "",
@@ -14,7 +51,9 @@ export function RowProvider({
   children: React.ReactNode;
   row: DataObject<DataRecord>;
 }) {
-  return <RowContext.Provider value={row}>{children}</RowContext.Provider>;
+  const state = useMemo(() => row, [row.id]);
+
+  return <RowContext.Provider value={state}>{children}</RowContext.Provider>;
 }
 
 export function useRowContext() {
@@ -26,9 +65,11 @@ const ColsContext = createContext<{
   colMaps: {
     [key: string]: TTableColumn<DataRecord>;
   };
+  validates: { [key: string]: (value: any) => boolean };
 }>({
   cols: [],
   colMaps: {},
+  validates: {},
 });
 
 export function ColumnsProvider<T extends DataRecord>({
@@ -38,20 +79,39 @@ export function ColumnsProvider<T extends DataRecord>({
   children: React.ReactNode;
   cols: TTableColumn<T>[];
 }) {
-  const colMaps = cols.reduce((acc, col) => {
-    const { key } = col;
-    acc[key] = col;
-    return acc;
-  }, {} as { [key in keyof T]: TTableColumn<T> });
+  const colMaps = useMemo(
+    () =>
+      cols.reduce((acc, col) => {
+        const { key } = col;
+        acc[key] = col;
+        return acc;
+      }, {} as { [key in keyof T]: TTableColumn<T> }),
+    [cols]
+  );
+
+  const validates = useMemo(
+    () =>
+      cols.reduce((acc, col) => {
+        const { key } = col;
+
+        acc[key] = generateValidateFunction(col);
+
+        return acc;
+      }, {} as { [key in keyof T]: (value: any) => boolean }),
+    [cols]
+  );
+
+  const state = useMemo(() => ({ cols, colMaps, validates }), [cols]);
 
   return (
     <ColsContext.Provider
       value={
-        { cols, colMaps } as {
+        state as {
           cols: TTableColumn<DataRecord>[];
           colMaps: {
             [key: string]: TTableColumn<DataRecord>;
           };
+          validates: { [key: string]: (value: any) => boolean };
         }
       }
     >
@@ -68,59 +128,10 @@ export function useColumnsContext() {
   return useContext(ColsContext).cols;
 }
 
-const CellContext = createContext<{
-  columnKey: string;
-  value: any;
-  label: any;
-  type: TColumnType;
-  editable?: boolean;
-  render?: (value: any, row: DataObject<DataRecord>) => React.ReactNode;
-  rowIndex: number;
-  colIndex: number;
-}>({
-  columnKey: "",
-  value: "",
-  label: "",
-  type: "string",
-  rowIndex: 0,
-  colIndex: 0,
-});
-
-export function CellProvider({
-  children,
-  columnKey,
-  rowIndex,
-  colIndex,
-}: {
-  children: React.ReactNode;
-  columnKey: string;
-  rowIndex: number;
-  colIndex: number;
-}) {
-  const col = useColumnContext(columnKey);
-  const row = useRowContext();
-  const value = row[columnKey];
-  return (
-    <CellContext.Provider
-      value={{
-        columnKey,
-        value,
-        label:
-          col.type === "select"
-            ? col.options?.find((op) => op.value === value)?.label
-            : value,
-        editable: col.editable,
-        render: col.editable ? undefined : col.render,
-        type: col.type,
-        rowIndex,
-        colIndex,
-      }}
-    >
-      {children}
-    </CellContext.Provider>
-  );
+export function useColumnValidateContext(key: string) {
+  return useContext(ColsContext).validates[key];
 }
 
-export function useCellContext() {
-  return useContext(CellContext);
+export function useColumnValidatesContext() {
+  return useContext(ColsContext).validates;
 }
