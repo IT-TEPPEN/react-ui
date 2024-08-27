@@ -51,7 +51,17 @@ export function RowProvider({
   children: React.ReactNode;
   row: DataObject<DataRecord>;
 }) {
-  const state = useMemo(() => row, [row]);
+  const state = useMemo(
+    () => row,
+    [
+      Object.keys(row)
+        .sort()
+        .reduce((acc, key) => {
+          acc[key] = row[key];
+          return acc;
+        }, {} as DataObject<DataRecord>),
+    ]
+  );
 
   return <RowContext.Provider value={state}>{children}</RowContext.Provider>;
 }
