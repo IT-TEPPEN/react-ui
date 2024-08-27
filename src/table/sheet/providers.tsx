@@ -54,12 +54,14 @@ export function RowProvider({
   const state = useMemo(
     () => row,
     [
-      Object.keys(row)
-        .sort()
-        .reduce((acc, key) => {
-          acc[key] = row[key];
-          return acc;
-        }, {} as DataObject<DataRecord>),
+      JSON.stringify(
+        Object.keys(row)
+          .sort()
+          .reduce((acc, key) => {
+            acc[key] = row[key];
+            return acc;
+          }, {} as DataObject<DataRecord>)
+      ),
     ]
   );
 
