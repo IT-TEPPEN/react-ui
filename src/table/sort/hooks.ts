@@ -1,13 +1,28 @@
-import { useCallback, useReducer } from "react";
+import { useCallback, useMemo, useReducer } from "react";
 import { TReturnSortReducer, TSortReducer } from "./types";
 import { DataObject, DataRecord } from "../type";
 
 const reducer: TSortReducer = (state, action) => {
   switch (action.type) {
     case "changeKey":
-      return { key: action.payload.key, asc: true };
+      return {
+        key: action.payload.key,
+        asc: true,
+        isUpdatedData: false,
+        sortTiming: state.sortTiming + 1,
+      };
     case "changeOrder":
-      return { ...state, asc: !state.asc };
+      if (state.isUpdatedData) {
+        return {
+          ...state,
+          isUpdatedData: false,
+          sortTiming: state.sortTiming + 1,
+        };
+      } else {
+        return { ...state, asc: !state.asc, sortTiming: state.sortTiming + 1 };
+      }
+    case "updateData":
+      return { ...state, isUpdatedData: true };
   }
 };
 
@@ -18,6 +33,8 @@ export function useSortReducer<T extends DataRecord>(initial?: {
   const [state, dispatch] = useReducer(reducer, {
     key: initial?.key ?? "id",
     asc: initial?.asc ?? true,
+    isUpdatedData: false,
+    sortTiming: 0,
   });
 
   const changeKey = (key: string) => {
@@ -26,6 +43,10 @@ export function useSortReducer<T extends DataRecord>(initial?: {
 
   const changeOrder = () => {
     dispatch({ type: "changeOrder" });
+  };
+
+  const updatedData = () => {
+    dispatch({ type: "updateData" });
   };
 
   const sort = useCallback(
@@ -39,8 +60,26 @@ export function useSortReducer<T extends DataRecord>(initial?: {
         }
         return 0;
       }),
-    [state]
+    [state.key, state.asc]
   );
 
-  return { key: state.key, asc: state.asc, changeKey, changeOrder, sort };
+  const stateExcludeSortTiming = useMemo(
+    () => ({
+      key: state.key,
+      asc: state.asc,
+      isUpdatedData: state.isUpdatedData,
+    }),
+    [state.key, state.asc, state.isUpdatedData]
+  );
+
+  const actions = useMemo(
+    () => ({ changeKey, changeOrder, updatedData, sort }),
+    [sort]
+  );
+
+  return {
+    state: stateExcludeSortTiming,
+    actions,
+    sortTiming: state.sortTiming,
+  };
 }

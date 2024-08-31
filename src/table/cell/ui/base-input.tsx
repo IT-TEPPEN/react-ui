@@ -16,7 +16,6 @@ export function CellInput(props: {
       }}
     >
       <input
-        id="table-cell-form"
         className="w-full py-1 px-2 bg-white text-gray-900"
         type="text"
         value={props.value}
