@@ -5,9 +5,19 @@ import { TReturnSortReducer } from "./types";
 import { useSortReducer } from "./hooks";
 import { DataRecord } from "../type";
 
-const SortContext = createContext<TReturnSortReducer<DataRecord>>({
-  key: "",
-  asc: false,
+const SortTimingContext = createContext<number>(0);
+
+const SortStateContext = createContext<TReturnSortReducer<DataRecord>["state"]>(
+  {
+    key: "",
+    asc: false,
+    isUpdatedData: false,
+  }
+);
+
+const SortActionContext = createContext<
+  TReturnSortReducer<DataRecord>["actions"]
+>({
   changeKey: function (): void {
     throw new Error("Function not implemented.");
   },
@@ -15,19 +25,43 @@ const SortContext = createContext<TReturnSortReducer<DataRecord>>({
     throw new Error("Function not implemented.");
   },
   sort: () => [],
+  updatedData: function (): void {
+    throw new Error("Function not implemented.");
+  },
 });
 
 export function SortProvider(props: {
   children: React.ReactNode;
   initialCondition?: { key: string; asc?: boolean };
 }) {
+  const { state, actions, sortTiming } = useSortReducer(props.initialCondition);
   return (
-    <SortContext.Provider value={useSortReducer(props.initialCondition)}>
-      {props.children}
-    </SortContext.Provider>
+    <SortTimingContext.Provider value={sortTiming}>
+      <SortStateContext.Provider value={state}>
+        <SortActionContext.Provider value={actions}>
+          {props.children}
+        </SortActionContext.Provider>
+      </SortStateContext.Provider>
+    </SortTimingContext.Provider>
   );
 }
 
 export function useSortContext() {
-  return useContext(SortContext);
+  return {
+    ...useContext(SortStateContext),
+    ...useContext(SortActionContext),
+    sortTiming: useContext(SortTimingContext),
+  };
+}
+
+export function useSortStateContext() {
+  return useContext(SortStateContext);
+}
+
+export function useSortActionContext() {
+  return useContext(SortActionContext);
+}
+
+export function useSortTimingContext() {
+  return useContext(SortTimingContext);
 }

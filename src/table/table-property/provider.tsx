@@ -1,11 +1,8 @@
 import { createContext, useContext, useMemo } from "react";
-import {
-  TTablePropertyActionContext,
-  TTablePropertyStateContext,
-} from "./type";
+import { TTablePropertyActionContext, TTablePropertyState } from "./type";
 import { useTablePropertyReducer } from "./hook";
 
-const TablePropertyStateContext = createContext<TTablePropertyStateContext>({
+const TablePropertyStateContext = createContext<TTablePropertyState>({
   maxDisplayColCount: 0,
   maxDisplayRowCount: 0,
 });
@@ -18,19 +15,13 @@ const TablePropertyActionContext = createContext<TTablePropertyActionContext>({
 export function TablePropertyProvider(props: {
   children: JSX.Element | JSX.Element[];
 }) {
-  const tableProperty = useTablePropertyReducer();
-
-  const state = useMemo(() => {
-    return {
-      maxDisplayColCount: tableProperty.maxDisplayColCount,
-      maxDisplayRowCount: tableProperty.maxDisplayRowCount,
-    };
-  }, [tableProperty.maxDisplayColCount, tableProperty.maxDisplayRowCount]);
+  const { state, setMaxDisplayColCount, setMaxDisplayRowCount } =
+    useTablePropertyReducer();
 
   const action = useMemo(() => {
     return {
-      setMaxDisplayColCount: tableProperty.setMaxDisplayColCount,
-      setMaxDisplayRowCount: tableProperty.setMaxDisplayRowCount,
+      setMaxDisplayColCount: setMaxDisplayColCount,
+      setMaxDisplayRowCount: setMaxDisplayRowCount,
     };
   }, []);
 

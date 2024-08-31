@@ -1,44 +1,9 @@
 "use client";
 
 import React, { createContext, useContext, useMemo } from "react";
-import { DataObject, DataRecord, TPropsTable, TTableColumn } from "../type";
-import { useTable } from "../hook";
+import { DataObject, DataRecord, TTableColumn } from "../type";
 import { generateValidateFunction } from "../libs/generate-validate-function";
 // import { useFocusContext } from "../edit/provider";
-
-const ProcessedDataContext = createContext<{
-  cols: TTableColumn<DataRecord>[];
-  rows: DataObject<DataRecord>[];
-}>({
-  cols: [],
-  rows: [],
-});
-
-export function ProcessedDataProvider<T extends DataRecord>({
-  children,
-  props,
-}: {
-  children: React.ReactNode;
-  props: TPropsTable<T>;
-}) {
-  const { cols, rows } = useTable<T>(props);
-  return (
-    <ProcessedDataContext.Provider
-      value={
-        { cols, rows } as {
-          cols: TTableColumn<DataRecord>[];
-          rows: DataObject<DataRecord>[];
-        }
-      }
-    >
-      {children}
-    </ProcessedDataContext.Provider>
-  );
-}
-
-export function useProcessedDataContext() {
-  return useContext(ProcessedDataContext);
-}
 
 const RowContext = createContext<DataObject<DataRecord>>({
   id: "",
@@ -51,21 +16,7 @@ export function RowProvider({
   children: React.ReactNode;
   row: DataObject<DataRecord>;
 }) {
-  const state = useMemo(
-    () => row,
-    [
-      JSON.stringify(
-        Object.keys(row)
-          .sort()
-          .reduce((acc, key) => {
-            acc[key] = row[key];
-            return acc;
-          }, {} as DataObject<DataRecord>)
-      ),
-    ]
-  );
-
-  return <RowContext.Provider value={state}>{children}</RowContext.Provider>;
+  return <RowContext.Provider value={row}>{children}</RowContext.Provider>;
 }
 
 export function useRowContext() {

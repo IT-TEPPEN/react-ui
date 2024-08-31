@@ -116,7 +116,7 @@ export function TableCell<T extends DataRecord>(props: {
     onDoubleClickCellToEdit,
     preventPropagation,
     pasteData,
-  } = useCell(props.rowIndex, props.colIndex, props.onUpdateRow);
+  } = useCell(props.rowIndex, props.colIndex);
   const col = useColumnContext(props.columnKey);
 
   return (

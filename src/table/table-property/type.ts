@@ -1,6 +1,6 @@
 import { Reducer } from "react";
 
-type TTablePropertyState = {
+export type TTablePropertyState = {
   maxDisplayRowCount: number;
   maxDisplayColCount: number;
 };
@@ -15,19 +15,16 @@ export type TTablePropertyReducer = Reducer<
 >;
 
 export type TReturnTablePropertyReducer = {
-  maxDisplayRowCount: number;
-  maxDisplayColCount: number;
+  state: TTablePropertyState;
   setMaxDisplayRowCount: (maxDisplayRowCount: number) => void;
   setMaxDisplayColCount: (maxDisplayColCount: number) => void;
 };
 
-type TStateKeys = "maxDisplayRowCount" | "maxDisplayColCount";
-
 export type TTablePropertyStateContext = Pick<
   TReturnTablePropertyReducer,
-  TStateKeys
+  "state"
 >;
 export type TTablePropertyActionContext = Omit<
   TReturnTablePropertyReducer,
-  TStateKeys
+  "state"
 >;

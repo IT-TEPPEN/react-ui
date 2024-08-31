@@ -1,9 +1,8 @@
 "use client";
 
 import { useTable } from "./hook";
-import { TableCell } from "./cell/ui/cell";
 import { TableHeaderElement } from "./header/header";
-import { DataRecord, TPropsTable } from "./type";
+import { DataRecord, TPropsTable, TTableColumn } from "./type";
 import { PagenationProvider, DisplayRange, Pagenation } from "./pagenation";
 import {
   FilterProvider,
@@ -12,20 +11,18 @@ import {
   useFilterContext,
 } from "./filter";
 import { SortProvider } from "./sort";
-import {
-  ColumnsProvider,
-  ProcessedDataProvider,
-  RowProvider,
-} from "./sheet/providers";
-import { FocusProvider, useFocusActionContext } from "./focus/provider";
+import { ColumnsProvider } from "./sheet/providers";
+import { FocusProvider } from "./focus/provider";
 import { CheckboxProvider, CheckboxStatusProvider } from "./checkbox/provider";
-import { AllCheckbox, Checkbox } from "./checkbox/components";
+import { AllCheckbox } from "./checkbox/components";
 import { IdGenerator } from "./libs";
 import { EditProvider } from "./edit/provider";
 import { TablePropertyProvider } from "./table-property/provider";
-import { AutoUpdateTableProperty } from "./table-property/components/auto-update-table-property";
 import { KeyboardSetting } from "./operation/components/keyboard-setting";
 import { AutoSwitchEditMode } from "./table/components/auto-switch-edit-mode";
+import { Row } from "./sheet/components";
+import { PasteProvider } from "./paste/provider";
+import { RenderingCheck } from "../temp/rendering-check";
 
 export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   return (
@@ -37,20 +34,24 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
         >
           <CheckboxProvider checkbox={props.checkbox}>
             <CheckboxStatusProvider checkboxCount={props.rows.length}>
-              <ProcessedDataProvider props={props}>
-                <ColumnsProvider cols={props.cols}>
-                  <FocusProvider>
-                    <EditProvider>
-                      <TablePropertyProvider>
-                        <AutoUpdateTableProperty />
+              <ColumnsProvider cols={props.cols}>
+                <FocusProvider>
+                  <EditProvider>
+                    <TablePropertyProvider>
+                      <PasteProvider
+                        rows={props.rows}
+                        cols={props.cols}
+                        colValidators={{}}
+                        onUpdateRowFunction={props.onUpdateRow}
+                      >
                         <AutoSwitchEditMode />
                         <KeyboardSetting />
                         <BaseTable {...props} />
-                      </TablePropertyProvider>
-                    </EditProvider>
-                  </FocusProvider>
-                </ColumnsProvider>
-              </ProcessedDataProvider>
+                      </PasteProvider>
+                    </TablePropertyProvider>
+                  </EditProvider>
+                </FocusProvider>
+              </ColumnsProvider>
             </CheckboxStatusProvider>
           </CheckboxProvider>
         </PagenationProvider>
@@ -60,9 +61,8 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
 }
 
 function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
-  const { cols, rows } = useTable<T>(props);
+  const { cols, rowMaps, pageRowIds } = useTable<T>(props);
   const { selectedFilterKey } = useFilterContext();
-  const { unfocus } = useFocusActionContext();
 
   return (
     <div className="w-full">
@@ -106,50 +106,24 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
                 </td>
               </tr>
             )}
-            {rows.length === 0 && (
+            {pageRowIds.length === 0 && (
               <tr>
                 <td colSpan={cols.length} className="py-5">
                   <p className="text-center font-bold text-lg">NO DATA</p>
                 </td>
               </tr>
             )}
-            {rows.map((r, i) => (
-              <RowProvider key={r.id} row={r}>
-                <tr
-                  className={`relative border border-gray-200 after:absolute after:w-full after:h-full after:top-0 after:left-0 after:pointer-events-none after:hover:bg-gray-500/10 ${
-                    !!props.onClickRow ? "hover:cursor-pointer" : ""
-                  } ${
-                    props.applyRowFormatting ? props.applyRowFormatting(r) : ""
-                  }`}
-                  onClick={(e) => {
-                    e.preventDefault();
-
-                    if (!!props.onClickRow) {
-                      props.onClickRow(r);
-                      unfocus();
-                    }
-                  }}
-                  data-testid={r.id}
-                >
-                  {props.checkbox && (
-                    <td>
-                      <Checkbox />
-                    </td>
-                  )}
-                  {cols.map((col, j) => {
-                    return (
-                      <TableCell
-                        key={col.key as string}
-                        rowIndex={i}
-                        colIndex={j}
-                        columnKey={col.key as string}
-                        isExistOnClickRow={!!props.onClickRow}
-                        onUpdateRow={props.onUpdateRow}
-                      />
-                    );
-                  })}
-                </tr>
-              </RowProvider>
+            {pageRowIds.map((rowId, i) => (
+              <Row
+                key={rowId}
+                existCheckbox={!!props.checkbox}
+                rowIndex={i}
+                dataString={rowMaps[rowId].stringValue}
+                cols={props.cols as TTableColumn<DataRecord>[]}
+                onClickRow={props.onClickRow}
+                applyRowFormatting={props.applyRowFormatting}
+                onUpdateRow={props.onUpdateRow}
+              />
             ))}
           </tbody>
         </table>

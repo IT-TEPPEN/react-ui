@@ -2,23 +2,27 @@ import { useCallback, useEffect, useMemo } from "react";
 import { DataObject, DataRecord, TPropsTable } from "./type";
 import { usePageContext } from "./pagenation/providers";
 import { useFilterContext } from "./filter";
-import { useSortContext } from "./sort";
 import { useFocusActionContext } from "./focus/provider";
 import { useCheckboxStatusContext } from "./checkbox/provider";
 import { useEditActionContext } from "./edit/provider";
-import {
-  useColumnsContext,
-  useColumnValidatesContext,
-  useProcessedDataContext,
-} from "./sheet/providers";
+import { useSortActionContext, useSortTimingContext } from "./sort/provider";
+import { useTablePropertyActionContext } from "./table-property/provider";
+import { usePasteActionContext } from "./paste/provider";
 
 export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { filter } = useFilterContext();
-  const { sort } = useSortContext();
+  const { sort, updatedData } = useSortActionContext();
+  const sortTiming = useSortTimingContext();
   const { setRowCount, pageFilter } = usePageContext();
   const { dispatchCheckboxStatus } = useCheckboxStatusContext();
+  const { setRows } = usePasteActionContext();
+  const { setMaxDisplayColCount, setMaxDisplayRowCount } =
+    useTablePropertyActionContext();
 
-  const filteredRows = useMemo(() => filter(props.rows), [filter, props.rows]);
+  const filteredRows = useMemo(
+    () => filter(props.rows),
+    [filter, sortTiming, props.rows.length]
+  );
 
   useEffect(() => {
     setRowCount(filteredRows.length);
@@ -39,29 +43,67 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
     });
   }, [checkBoxes]);
 
-  const sortedRows = useMemo(() => sort(filteredRows), [filteredRows, sort]);
+  const sortedRows = useMemo(
+    () => sort(filteredRows),
+    [filteredRows, sortTiming]
+  );
+
+  useEffect(() => {
+    updatedData();
+  }, [props.rows]);
 
   const pageRows = useMemo(
     () => pageFilter(sortedRows),
     [pageFilter, sortedRows]
   );
 
+  const pageRowIds = useMemo(() => pageRows.map((row) => row.id), [pageRows]);
+  const pageRowIdSets = useMemo(() => new Set(pageRowIds), [pageRowIds]);
+
+  const rowMaps = useMemo(
+    () =>
+      props.rows
+        .filter((row) => pageRowIdSets.has(row.id))
+        .reduce((acc, row) => {
+          const rowSortedByKey = Object.keys(row)
+            .sort()
+            .reduce((acc, key) => {
+              acc[key] = row[key];
+              return acc;
+            }, {} as { [key: string]: string | number });
+
+          acc[row.id] = {
+            data: rowSortedByKey,
+            stringValue: JSON.stringify(rowSortedByKey),
+          };
+          return acc;
+        }, {} as { [id: string | number]: { data: DataObject<any>; stringValue: string } }),
+    [props.rows, pageRowIdSets]
+  );
+
+  useEffect(() => {
+    setMaxDisplayColCount(props.cols.length);
+  }, [props.cols.length]);
+
+  useEffect(() => {
+    setMaxDisplayRowCount(pageRowIds.length);
+  }, [pageRowIds.length]);
+
+  useEffect(() => {
+    setRows(pageRowIds.map((id) => rowMaps[id].data));
+  }, [rowMaps]);
+
   return {
     cols: props.cols,
-    rows: pageRows,
+    rowMaps,
+    pageRowIds,
   };
 }
 
-export function useCell<T extends DataRecord>(
-  rowIndex: number,
-  colIndex: number,
-  onUpdateRow?: (newRow: DataObject<T>, oldRow: DataObject<T>) => void
-) {
+export function useCell(rowIndex: number, colIndex: number) {
   const focus = useFocusActionContext();
   const editAction = useEditActionContext();
-  const rows = useProcessedDataContext().rows;
-  const cols = useColumnsContext();
-  const colValidator = useColumnValidatesContext();
+  const { onPaste } = usePasteActionContext();
 
   const focusAtCell = useCallback(() => {
     focus.move(rowIndex, colIndex);
@@ -70,85 +112,13 @@ export function useCell<T extends DataRecord>(
 
   const pasteData = useCallback(
     (text: string) => {
-      let colLength = 0;
-
       const tableData = text
         .trim()
         .replace(/\r\n/g, "\n")
         .split("\n")
-        .map((row) => {
-          const colsData = row.split("\t");
-          colLength = Math.max(colLength, colsData.length);
-          return colsData;
-        });
+        .map((row) => row.split("\t"));
 
-      if (tableData.length === 0 || colLength === 0) {
-        return;
-      }
-
-      for (let i = 0; i < colLength; i++) {
-        const col = cols[colIndex + i];
-
-        if (!col.editable) {
-          alert(
-            `編集できない列にデータを貼り付けることはできません。\n\n編集不可列: ${
-              col.label ?? col.key
-            }`
-          );
-          return;
-        }
-      }
-
-      if (tableData.length + rowIndex > rows.length) {
-        alert("貼り付け先の行数が足りません。");
-        return;
-      }
-
-      for (let i = 0; i < tableData.length; i++) {
-        for (let j = 0; j < tableData[i].length; j++) {
-          const col = cols[colIndex + j];
-          const validate = colValidator[col.key];
-
-          if (!validate(tableData[i][j])) {
-            alert(
-              `[${
-                col.label ?? col.key
-              }]列に次の不正なデータが含まれています。\n${tableData[i][j]}`
-            );
-            return;
-          }
-        }
-      }
-
-      for (let i = 0; i < tableData.length; i++) {
-        let checkUpdatedRow = false;
-        const row = { ...rows[rowIndex + i] };
-
-        for (let j = 0; j < tableData[i].length; j++) {
-          const col = cols[colIndex + j];
-          const value =
-            col.type === "number"
-              ? Number(tableData[i][j])
-              : col.type === "select"
-              ? tableData[i][j] === ""
-                ? ""
-                : col.options.find(
-                    (option) => option.label === tableData[i][j]
-                  )!.value
-              : tableData[i][j];
-
-          if (row[col.key] !== value) {
-            checkUpdatedRow = true;
-
-            row[col.key] = value;
-          }
-        }
-        if (checkUpdatedRow && onUpdateRow)
-          onUpdateRow!(
-            row as DataObject<T>,
-            rows[rowIndex + i] as DataObject<T>
-          );
-      }
+      onPaste(rowIndex, colIndex, tableData);
     },
     [rowIndex, colIndex]
   );
@@ -161,7 +131,7 @@ export function useCell<T extends DataRecord>(
         focus.focus(rowIndex, colIndex);
         editAction.startEditing();
       },
-      [focus, editAction]
+      [focus, editAction, rowIndex, colIndex]
     );
 
   const preventPropagation: React.MouseEventHandler<HTMLDivElement> =
