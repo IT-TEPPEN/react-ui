@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { RowProvider } from "./providers";
 import { useFocusActionContext } from "../focus/provider";
-import { DataObject, DataRecord, TTableColumn } from "../type";
+import { DataRecord, TTableColumn } from "../type";
 import { Checkbox } from "../checkbox/components";
 import { TableCell } from "../cell/ui/cell";
 
@@ -10,6 +10,7 @@ interface TPropsRow<T extends DataRecord> {
   cols: TTableColumn<T>[];
   existCheckbox?: boolean;
   rowIndex: number;
+  conditionalFormattingString: string;
   onClickRow?: (row: any) => void;
   applyRowFormatting?: (row: any) => string;
   onUpdateRow?: (newRow: any, oldRow: any) => void;
@@ -18,6 +19,7 @@ interface TPropsRow<T extends DataRecord> {
 export const Row = memo(function R<T extends DataRecord>(props: TPropsRow<T>) {
   const { unfocus } = useFocusActionContext();
   const row = JSON.parse(props.dataString);
+  const conditionalFormatting = props.conditionalFormattingString.split(",");
 
   return (
     <RowProvider row={row}>
@@ -48,6 +50,7 @@ export const Row = memo(function R<T extends DataRecord>(props: TPropsRow<T>) {
               colIndex={j}
               columnKey={col.key as string}
               isExistOnClickRow={!!props.onClickRow}
+              cellFormatClassName={conditionalFormatting[j]}
               onUpdateRow={props.onUpdateRow}
             />
           );

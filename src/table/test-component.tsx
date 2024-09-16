@@ -162,6 +162,18 @@ export function TableTestComponent() {
         },
         pagenation: { rowCountPerPage: "all" },
       }}
+      conditionalFormattings={[
+        {
+          condition: (row) => row.age > 21,
+          key: "age",
+          style: "text-red-500",
+        },
+        {
+          condition: (row) => row.role === "admin",
+          key: "role",
+          style: "text-blue-500",
+        },
+      ]}
     />
   );
 }

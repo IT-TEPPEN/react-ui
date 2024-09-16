@@ -92,6 +92,12 @@ export type TCheckboxProperty<T extends DataRecord> = {
   };
 };
 
+export type TConditionalFormatting<T extends DataRecord> = {
+  condition: (row: DataObject<T>) => boolean;
+  key: keyof T;
+  style: TailwindCssStyle;
+};
+
 type TailwindCssStyle = string;
 
 export type TPropsTable<T extends DataRecord> = {
@@ -106,4 +112,5 @@ export type TPropsTable<T extends DataRecord> = {
     };
   };
   applyRowFormatting?: (row: DataObject<T>) => TailwindCssStyle;
+  conditionalFormattings?: TConditionalFormatting<T>[];
 } & TCheckboxProperty<T>;
