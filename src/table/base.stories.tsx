@@ -242,6 +242,23 @@ export const Readme: Story = {
       onChecked: (row) => console.log("checked", row.id),
       onUnchecked: (row) => console.log("unchecked", row.id),
     },
+    conditionalFormattings: [
+      {
+        condition: (row) => row.age < 31,
+        key: "age",
+        style: "text-red-500 font-bold text-lg bg-red-100",
+      },
+      {
+        condition: (row) => row.role === "2",
+        key: "role",
+        style: "text-blue-500 font-bold text-lg shadow-inner shadow-blue-500",
+      },
+      {
+        condition: (row) => row.age < 35,
+        key: "age",
+        style: "text-green-500 font-bold text-lg bg-green-100",
+      },
+    ],
   },
   render: (props) => (
     <div className=" w-screen px-5">

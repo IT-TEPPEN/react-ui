@@ -166,6 +166,24 @@ const App = () => {
           onChecked: (row) => console.log("checked", row.id),
           onUnchecked: (row) => console.log("unchecked", row.id),
         }}
+        conditionalFormattings={[
+          {
+            condition: (row) => row.age < 31,
+            key: "age",
+            style: "text-red-500 font-bold text-lg bg-red-100",
+          },
+          {
+            condition: (row) => row.role === "2",
+            key: "role",
+            style:
+              "text-blue-500 font-bold text-lg shadow-inner shadow-blue-500",
+          },
+          {
+            condition: (row) => row.age < 35,
+            key: "age",
+            style: "text-green-500 font-bold text-lg bg-green-100",
+          },
+        ]}
       />
     </div>
   );
@@ -184,10 +202,11 @@ A component that displays a table based on the row and column information passed
 - Editing function (only when `editable` is true and `onCellBlur` is set in the column information)
 - Checkbox function
 - Paste function
+- Conditional formatting function
 
 #### Arguments
 
-The table component only accepts the arguments `rows`, `cols`, `initialCondition`, `onClickRow`, `onUpdateRow`, `applyRowFormatting`. Details for each argument are described below.
+The table component only accepts the arguments `rows`, `cols`, `initialCondition`, `onClickRow`, `onUpdateRow`, `applyRowFormatting`, `conditionalFormattings`. Details for each argument are described below.
 
 ##### rows
 
@@ -296,6 +315,18 @@ type TCheckbox = {
   checked: (row: DataObject) => boolean;
   onChecked: (row: DataObject) => void;
   onUnchecked: (row: DataObject) => void;
+};
+```
+
+##### conditionalFormattings
+
+In `conditionalFormattings`, you can define the format of the cell based on the status of each row. The format is defined using TailwindCSS classes. In principle, TailwindCSS classes other than background and text color are not guaranteed to work, but any class can be specified.
+
+```ts
+type TConditionalFormatting = {
+  condition: (row: DataObject) => boolean;
+  key: string;
+  style: string;
 };
 ```
 
