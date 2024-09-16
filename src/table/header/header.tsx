@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { TableFilter } from "../filter";
 import { useColumnContext } from "../sheet";
 import { SortButton } from "../sort";
@@ -16,23 +17,32 @@ export function TableHeaderElement(props: TPropsTableHeader) {
     initialWidth: col.initialWidth,
     minWidth: col.minWidth,
   });
+  const ref = useRef<HTMLDivElement>(null);
+
+  const maxWidthLabel = ref.current
+    ? colWidth - ref.current.clientWidth
+    : colWidth;
 
   return (
-    <th id={props.id} className="relative" style={{ minWidth: colWidth }}>
+    <th
+      id={props.id}
+      className="relative"
+      style={{ width: colWidth, maxWidth: colWidth }}
+    >
       <div
-        className={`flex justify-between items-center bg-gray-200 text-gray-600 h-[32px] min-w-fit`}
+        className={`flex justify-between items-center bg-gray-200 text-gray-600 h-[32px]`}
       >
-        <div className="px-2">
+        <div className="px-2" style={{ maxWidth: maxWidthLabel }}>
           {col.label && (
             <p
-              className={`text-left font-bold text-nowrap overflow-hidden text-ellipsis w-[70%] min-w-20`}
+              className={`text-left font-bold text-nowrap overflow-hidden text-ellipsis`}
             >
               {col.label}
             </p>
           )}
         </div>
 
-        <div className="flex items-center gap-1 px-1">
+        <div ref={ref} className="flex items-center w-fit shrink-0 gap-1 px-1">
           {!col.disableSort && <SortButton columnKey={props.columnKey} />}
           {!col.disableFilter && <TableFilter columnKey={props.columnKey} />}
         </div>
