@@ -59,7 +59,7 @@ export function TableTestComponent() {
         },
         {
           key: "name",
-          label: "名前",
+          label: "名前(カタカナでもひらがなでも)",
           initialWidth: 500,
           minWidth: 100,
           type: "string",

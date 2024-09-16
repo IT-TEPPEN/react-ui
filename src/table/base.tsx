@@ -22,7 +22,6 @@ import { KeyboardSetting } from "./operation/components/keyboard-setting";
 import { AutoSwitchEditMode } from "./table/components/auto-switch-edit-mode";
 import { Row } from "./sheet/components";
 import { PasteProvider } from "./paste/provider";
-import { RenderingCheck } from "../temp/rendering-check";
 
 export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   return (
