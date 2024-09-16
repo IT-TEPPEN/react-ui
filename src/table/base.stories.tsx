@@ -116,6 +116,18 @@ export const Default: Story = {
         rowCountPerPage: "all",
       },
     },
+    conditionalFormattings: [
+      {
+        condition: (row) => row.age > 24,
+        key: "age",
+        style: "bg-red-600 text-white",
+      },
+      {
+        condition: (row) => row.role === "admin",
+        key: "role",
+        style: "bg-blue-600 text-white",
+      },
+    ],
   },
   render: (props) => (
     <div className=" w-screen px-5">

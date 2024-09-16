@@ -34,6 +34,7 @@ const CellData = memo(function CD(props: {
 const WithEditor = memo(function WE(props: {
   id: string;
   editable: boolean;
+  cellFormatClassName?: string;
   focusAtCell: () => void;
   onDoubleClickCellToEdit: React.MouseEventHandler<HTMLDivElement>;
   preventPropagation: React.MouseEventHandler<HTMLDivElement>;
@@ -54,6 +55,7 @@ const WithEditor = memo(function WE(props: {
         }
         props.pasteData(e.clipboardData.getData("text"));
       }}
+      className={`${props.cellFormatClassName}`}
     >
       <div
         className={`relative`}
@@ -109,6 +111,7 @@ export function TableCell<T extends DataRecord>(props: {
   colIndex: number;
   columnKey: string;
   isExistOnClickRow: boolean;
+  cellFormatClassName?: string;
   onUpdateRow?: (newRow: DataObject<T>, oldRow: DataObject<T>) => void;
 }) {
   const {
@@ -124,6 +127,7 @@ export function TableCell<T extends DataRecord>(props: {
       <WithEditor
         id={IdGenerator.getTableCellId(props.rowIndex, props.colIndex)}
         editable={col.editable ?? false}
+        cellFormatClassName={props.cellFormatClassName}
         focusAtCell={focusAtCell}
         onDoubleClickCellToEdit={onDoubleClickCellToEdit}
         preventPropagation={preventPropagation}

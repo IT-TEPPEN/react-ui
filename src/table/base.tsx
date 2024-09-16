@@ -2,7 +2,12 @@
 
 import { useTable } from "./hook";
 import { TableHeaderElement } from "./header/header";
-import { DataRecord, TPropsTable, TTableColumn } from "./type";
+import {
+  DataRecord,
+  TConditionalFormatting,
+  TPropsTable,
+  TTableColumn,
+} from "./type";
 import { PagenationProvider, DisplayRange, Pagenation } from "./pagenation";
 import {
   FilterProvider,
@@ -22,6 +27,7 @@ import { KeyboardSetting } from "./operation/components/keyboard-setting";
 import { AutoSwitchEditMode } from "./table/components/auto-switch-edit-mode";
 import { Row } from "./sheet/components";
 import { PasteProvider } from "./paste/provider";
+import { generateFormattingString } from "./libs/conditional-formatting";
 
 export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   return (
@@ -121,6 +127,11 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
                 cols={props.cols as TTableColumn<DataRecord>[]}
                 onClickRow={props.onClickRow}
                 applyRowFormatting={props.applyRowFormatting}
+                conditionalFormattingString={generateFormattingString(
+                  rowMaps[rowId].data,
+                  cols as TTableColumn<DataRecord>[],
+                  props.conditionalFormattings as TConditionalFormatting<DataRecord>[]
+                )}
                 onUpdateRow={props.onUpdateRow}
               />
             ))}
