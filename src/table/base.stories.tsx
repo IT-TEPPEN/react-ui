@@ -54,7 +54,6 @@ export const Default: Story = {
       {
         key: "age",
         label: "年齢",
-        initialWidth: 50,
         type: "number",
         editable: true,
         onCellBlur: (id, value, current, completeEditing) => {
@@ -69,7 +68,6 @@ export const Default: Story = {
       {
         key: "role",
         label: "役割",
-        initialWidth: 100,
         type: "select",
         editable: true,
         options: [
@@ -85,7 +83,6 @@ export const Default: Story = {
       {
         key: "button",
         label: "ボタン",
-        initialWidth: 50,
         type: "number",
         disableFilter: true,
         render: (value, row) => (
