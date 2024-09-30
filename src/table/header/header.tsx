@@ -27,7 +27,7 @@ export function TableHeaderElement(props: TPropsTableHeader) {
     <th
       id={props.id}
       className="relative"
-      style={{ width: colWidth, maxWidth: colWidth }}
+      style={{ width: colWidth, maxWidth: colWidth, minWidth: colWidth }}
     >
       <div
         className={`flex justify-between items-center bg-gray-200 text-gray-600 h-[32px]`}

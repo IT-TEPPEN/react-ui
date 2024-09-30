@@ -55,7 +55,6 @@ export function TableTestComponent() {
         {
           key: "id",
           type: "number",
-          initialWidth: 12,
         },
         {
           key: "name",
@@ -80,7 +79,6 @@ export function TableTestComponent() {
         {
           key: "age",
           label: "年齢",
-          initialWidth: 50,
           type: "number",
           editable: true,
           onCellBlur: (id, value, current, completeEditing) => {
@@ -98,7 +96,6 @@ export function TableTestComponent() {
         {
           key: "role",
           label: "役割",
-          initialWidth: 100,
           type: "select",
           editable: true,
           options: [
@@ -117,7 +114,6 @@ export function TableTestComponent() {
         {
           key: "button",
           label: "ボタン",
-          initialWidth: 50,
           type: "number",
           disableFilter: true,
           render: (value, row) => (
