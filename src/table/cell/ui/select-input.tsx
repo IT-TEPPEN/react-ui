@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useEditActionContext } from "../../edit/provider";
 import { useColumnContext } from "../../sheet/providers";
 import { CancelIcon } from "../../cancel-icon";
@@ -15,6 +15,10 @@ export function SelectCellInput() {
   if (!col.editable || col.type !== "select") {
     throw new Error("Invalid condition");
   }
+
+  useEffect(() => {
+    setValue(cell.value as string);
+  }, [cell.value]);
 
   return (
     <div className="flex justify-between gap-1 w-full items-center">

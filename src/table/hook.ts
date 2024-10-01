@@ -113,10 +113,11 @@ export function useCell(rowIndex: number, colIndex: number) {
   const pasteData = useCallback(
     (text: string) => {
       const tableData = text
+        .replace(/\t/g, ",")
         .trim()
         .replace(/\r\n/g, "\n")
         .split("\n")
-        .map((row) => row.split("\t"));
+        .map((row) => row.split(","));
 
       onPaste(rowIndex, colIndex, tableData);
     },
