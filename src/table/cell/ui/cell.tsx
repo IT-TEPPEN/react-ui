@@ -5,7 +5,7 @@ import { EditButton } from "./edit-button";
 import { StringCellInput } from "./string-input";
 import { NumberCellInput } from "./number-input";
 import { SelectCellInput } from "./select-input";
-import { memo } from "react";
+import { memo, useRef } from "react";
 import { DataObject, DataRecord, TColumnType } from "../../type";
 import { IdGenerator } from "../../libs";
 import { CellProvider, useCellContext } from "../provider";
@@ -43,11 +43,19 @@ const WithEditor = memo(function WE(props: {
   isExistOnUpdateRow: boolean;
 }) {
   const cell = useCellContext();
+  const ref = useRef<HTMLDivElement>(null);
 
   return (
     <td
       id={props.id}
       onPaste={(e) => {
+        if (ref.current === null) {
+          return;
+        }
+
+        if (ref.current.contains(document.activeElement)) {
+          return;
+        }
         e.preventDefault();
         if (!props.isExistOnUpdateRow) {
           alert("ペースト機能が有効化されていません。");
@@ -92,6 +100,7 @@ const WithEditor = memo(function WE(props: {
         {props.editable && (
           <div
             id={`${props.id}-editor`}
+            ref={ref}
             className="absolute top-0 left-0 w-full h-full grid place-items-center z-10 pr-2"
             onClick={props.preventPropagation}
             style={{ opacity: 0, pointerEvents: "none" }}
