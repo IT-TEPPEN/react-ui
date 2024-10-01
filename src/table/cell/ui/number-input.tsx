@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useColumnContext,
   useColumnValidateContext,
@@ -19,6 +19,10 @@ export function NumberCellInput() {
   if (!col.editable || col.type !== "number") {
     throw new Error("Invalid condition");
   }
+
+  useEffect(() => {
+    setValue((cell.value as number).toString());
+  }, [cell.value]);
 
   return (
     <CellInput

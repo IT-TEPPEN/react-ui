@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { useEditActionContext } from "../../edit/provider";
 import {
   useColumnContext,
@@ -19,6 +19,10 @@ export const StringCellInput = memo(function SCI() {
   if (!col.editable || col.type !== "string") {
     throw new Error("Invalid condition");
   }
+
+  useEffect(() => {
+    setValue(cell.value as string);
+  }, [cell.value]);
 
   return (
     <CellInput
