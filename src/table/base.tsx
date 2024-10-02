@@ -39,7 +39,10 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
         >
           <CheckboxProvider checkbox={props.checkbox}>
             <CheckboxStatusProvider checkboxCount={props.rows.length}>
-              <ColumnsProvider cols={props.cols}>
+              <ColumnsProvider
+                cols={props.cols}
+                errorHandler={props.errorHandler}
+              >
                 <FocusProvider>
                   <EditProvider>
                     <TablePropertyProvider>

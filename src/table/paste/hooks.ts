@@ -65,11 +65,6 @@ const reducer: TPasteReducer = (state, action) => {
           const validate = colValidators[col.key as string];
 
           if (!validate(pasteValue)) {
-            alert(
-              `[${
-                col.label ?? (col.key as string)
-              }]列に次の不正なデータが含まれています。\n${pasteValue}`
-            );
             return state;
           }
         }
