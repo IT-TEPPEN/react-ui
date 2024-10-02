@@ -56,6 +56,7 @@ const WithEditor = memo(function WE(props: {
         if (ref.current.contains(document.activeElement)) {
           return;
         }
+
         e.preventDefault();
         if (!props.isExistOnUpdateRow) {
           alert("ペースト機能が有効化されていません。");

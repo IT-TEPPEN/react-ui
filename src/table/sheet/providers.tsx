@@ -2,7 +2,10 @@
 
 import React, { createContext, useContext, useMemo } from "react";
 import { DataObject, DataRecord, TTableColumn } from "../type";
-import { generateValidateFunction } from "../libs/generate-validate-function";
+import {
+  generateValidateFunction,
+  TErrorValidation,
+} from "../libs/generate-validate-function";
 // import { useFocusContext } from "../edit/provider";
 
 const RowContext = createContext<DataObject<DataRecord>>({
@@ -38,9 +41,11 @@ const ColsContext = createContext<{
 export function ColumnsProvider<T extends DataRecord>({
   children,
   cols,
+  errorHandler,
 }: {
   children: React.ReactNode;
   cols: TTableColumn<T>[];
+  errorHandler?: (errors: TErrorValidation[]) => void;
 }) {
   const colMaps = useMemo(
     () =>
@@ -57,7 +62,7 @@ export function ColumnsProvider<T extends DataRecord>({
       cols.reduce((acc, col) => {
         const { key } = col;
 
-        acc[key] = generateValidateFunction(col);
+        acc[key] = generateValidateFunction(col as any, errorHandler);
 
         return acc;
       }, {} as { [key in keyof T]: (value: any) => boolean }),

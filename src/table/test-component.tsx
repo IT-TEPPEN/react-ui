@@ -170,6 +170,22 @@ export function TableTestComponent() {
           style: "text-blue-500",
         },
       ]}
+      errorHandler={(errors) => {
+        switch (errors[0].type) {
+          case "STRING_IS_TOO_LONG":
+            alert("文字数が長すぎます");
+            break;
+          case "STRING_IS_TOO_SHORT":
+            alert("文字数が短すぎます");
+            break;
+          case "STRING_PATTERN_NOT_MATCH":
+            alert("パターンが一致しません");
+            break;
+          default:
+            alert("エラーが発生しました");
+            break;
+        }
+      }}
     />
   );
 }
