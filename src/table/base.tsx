@@ -24,10 +24,10 @@ import { IdGenerator } from "./libs";
 import { EditProvider } from "./edit/provider";
 import { TablePropertyProvider } from "./table-property/provider";
 import { KeyboardSetting } from "./operation/components/keyboard-setting";
-import { AutoSwitchEditMode } from "./table/components/auto-switch-edit-mode";
 import { Row } from "./sheet/components";
-import { PasteProvider } from "./paste/provider";
+import { PasteProvider, usePasteActionContext } from "./paste/provider";
 import { generateFormattingString } from "./libs/conditional-formatting";
+import { Editor } from "./edit/ui/editor";
 
 export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   return (
@@ -52,7 +52,6 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
                         colValidators={{}}
                         onUpdateRowFunction={props.onUpdateRow}
                       >
-                        <AutoSwitchEditMode />
                         <KeyboardSetting />
                         <BaseTable {...props} />
                       </PasteProvider>
@@ -71,6 +70,7 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
 function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { cols, rowMaps, pageRowIds } = useTable<T>(props);
   const { selectedFilterKey } = useFilterContext();
+  const { onPaste } = usePasteActionContext();
 
   return (
     <div className="w-full">
@@ -86,7 +86,22 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
         id="table-frame"
         className="relative h-full max-w-full max-h-[80vh] border border-gray-200 rounded-md overflow-auto"
       >
-        <table className={`table`}>
+        <Editor rowMaps={rowMaps} pageRowIds={pageRowIds} />
+        <table
+          className={`table`}
+          onPaste={(e) => {
+            e.preventDefault();
+            const pastedData = e.clipboardData.getData("Text");
+            onPaste(
+              pastedData
+                .replace(/\t/g, ",")
+                .trim()
+                .replace(/\r\n/g, "\n")
+                .split("\n")
+                .map((row) => row.split(","))
+            );
+          }}
+        >
           <thead>
             <tr className="sticky top-0 border-gray-200 z-20 bg-gray-200 text-gray-600 h-[32px]">
               {props.checkbox && (

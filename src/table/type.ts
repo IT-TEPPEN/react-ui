@@ -74,14 +74,17 @@ export type TCellEditingCondition<T extends DataRecord> =
   | TNumberCellEditingCondition<T>
   | TSelectCellEditingCondition<T>;
 
-export type TTableColumn<T extends DataRecord> = {
+export type TColumnProperty<T extends DataRecord> = {
   key: keyof T;
   label?: string;
   disableSort?: boolean;
   disableFilter?: boolean;
   initialWidth?: number;
   minWidth?: number;
-} & TCellEditingCondition<T>;
+};
+
+export type TTableColumn<T extends DataRecord> = TColumnProperty<T> &
+  TCellEditingCondition<T>;
 
 export type TColumnType = Exclude<TTableColumn<{}>["type"], undefined>;
 
