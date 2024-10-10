@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useReducer } from "react";
+import { useCallback, useEffect, useMemo, useReducer } from "react";
 import { TPasteReducer, TPasteReducerReturn } from "./types";
 import { useColumnValidatesContext } from "../sheet/providers";
+import { useFocusStateContext } from "../focus/provider";
 
 const reducer: TPasteReducer = (state, action) => {
   switch (action.type) {
@@ -16,8 +17,19 @@ const reducer: TPasteReducer = (state, action) => {
         onUpdateRowFunction: action.payload.onUpdateRowFunction,
       };
     case "onPaste":
-      const { rowIndex, colIndex, pasteData } = action.payload;
-      const { rows, cols, colValidators, onUpdateRowFunction } = state;
+      if (!state.isFocused) {
+        return state;
+      }
+
+      const { pasteData } = action.payload;
+      const {
+        rows,
+        cols,
+        colValidators,
+        rowIndex,
+        colIndex,
+        onUpdateRowFunction,
+      } = state;
 
       if (!onUpdateRowFunction) {
         return state;
@@ -104,6 +116,15 @@ const reducer: TPasteReducer = (state, action) => {
       } else {
         return state;
       }
+    case "focus":
+      return {
+        ...state,
+        isFocused: true,
+        rowIndex: action.payload.rowIndex,
+        colIndex: action.payload.colIndex,
+      };
+    case "unfocus":
+      return { ...state, isFocused: false };
   }
 };
 
@@ -115,9 +136,22 @@ export function usePasteReducer(initial: {
 }): TPasteReducerReturn {
   const [state, dispatch] = useReducer(reducer, {
     ...initial,
+    isFocused: false,
     updateParameters: { arguments: [], timing: 0 },
   });
   const validators = useColumnValidatesContext();
+  const focus = useFocusStateContext();
+
+  useEffect(() => {
+    if (focus.isFocus) {
+      dispatch({
+        type: "focus",
+        payload: { rowIndex: focus.rowIndex, colIndex: focus.colIndex },
+      });
+    } else {
+      dispatch({ type: "unfocus" });
+    }
+  }, [focus]);
 
   const setRows = useCallback((rows: any[]) => {
     dispatch({ type: "setRows", payload: { rows } });
@@ -148,12 +182,9 @@ export function usePasteReducer(initial: {
     []
   );
 
-  const onPaste = useCallback(
-    (rowIndex: number, colIndex: number, pasteData: string[][]) => {
-      dispatch({ type: "onPaste", payload: { rowIndex, colIndex, pasteData } });
-    },
-    []
-  );
+  const onPaste = useCallback((pasteData: string[][]) => {
+    dispatch({ type: "onPaste", payload: { pasteData } });
+  }, []);
 
   useEffect(() => {
     if (state.updateParameters.arguments.length > 0) {
@@ -163,11 +194,16 @@ export function usePasteReducer(initial: {
     }
   }, [state.updateParameters.timing, state.onUpdateRowFunction]);
 
-  return {
-    setRows,
-    setCols,
-    setColValidators,
-    setOnUpdateRowFunction,
-    onPaste,
-  };
+  const actions: TPasteReducerReturn = useMemo(
+    () => ({
+      setRows,
+      setCols,
+      setColValidators,
+      setOnUpdateRowFunction,
+      onPaste,
+    }),
+    []
+  );
+
+  return actions;
 }

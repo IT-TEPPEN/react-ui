@@ -1,24 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useEditActionContext } from "../../edit/provider";
-import { useColumnContext } from "../../sheet/providers";
+import { useState } from "react";
+import { useEditActionContext } from "../provider";
 import { CancelIcon } from "../../cancel-icon";
-import { useCellContext } from "../provider";
+import {
+  DataObject,
+  DataRecord,
+  TColumnProperty,
+  TSelectCellEditingCondition,
+} from "../../type";
 
-export function SelectCellInput() {
-  const cell = useCellContext();
-  const col = useColumnContext(cell.columnKey);
+type TPropsCellInput = {
+  col: TColumnProperty<DataRecord> & TSelectCellEditingCondition<DataRecord>;
+  row: DataObject<DataRecord>;
+};
+
+export function SelectCellInput(props: TPropsCellInput) {
+  const col = props.col;
   const { endEditing } = useEditActionContext();
-  const [value, setValue] = useState(cell.value as string);
+  const prevValue = props.row[col.key] as string;
+  const [value, setValue] = useState(prevValue);
 
-  if (!col.editable || col.type !== "select") {
-    throw new Error("Invalid condition");
-  }
+  const updateCellValue = (value: string) => {
+    if (col.editable) {
+      col.onCellBlur(col.key, value, props.row, endEditing);
+    }
+  };
 
-  useEffect(() => {
-    setValue(cell.value as string);
-  }, [cell.value]);
+  if (!col.editable) return <></>;
 
   return (
     <div className="flex justify-between gap-1 w-full items-center">
@@ -32,12 +41,12 @@ export function SelectCellInput() {
         onBlur={(e) => {
           e.preventDefault();
 
-          if (value === cell.value) {
+          if (value === prevValue) {
             endEditing();
             return;
           }
 
-          cell.updateCellValue(value);
+          updateCellValue(value);
         }}
         onKeyDown={(e: React.KeyboardEvent<HTMLSelectElement>) => {
           if (e.key === "Enter") {
@@ -49,14 +58,14 @@ export function SelectCellInput() {
           if (e.key === "Enter") {
             (e.target as HTMLSelectElement).blur();
           } else if (e.key === "Escape") {
-            setValue(cell.value as string);
+            setValue(prevValue as string);
             endEditing();
           }
         }}
       >
         {col.allowEmpty && (
           <option key="TEPPEN/ReactUI Empty Option" value="">
-            {cell.value == "" ? "-- 未選択 --" : "-- 選択解除 --"}
+            {prevValue == "" ? "-- 未選択 --" : "-- 選択解除 --"}
           </option>
         )}
         {col.options.map((option) => (
@@ -70,7 +79,7 @@ export function SelectCellInput() {
           e.preventDefault();
           e.stopPropagation();
           setTimeout(() => {
-            setValue(cell.value as string);
+            setValue(prevValue);
             endEditing();
           }, 300);
         }}

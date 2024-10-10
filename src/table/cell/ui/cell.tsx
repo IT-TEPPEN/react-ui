@@ -2,9 +2,6 @@
 
 import { useCell } from "../../hook";
 import { EditButton } from "./edit-button";
-import { StringCellInput } from "./string-input";
-import { NumberCellInput } from "./number-input";
-import { SelectCellInput } from "./select-input";
 import { memo, useRef } from "react";
 import { DataObject, DataRecord, TColumnType } from "../../type";
 import { IdGenerator } from "../../libs";
@@ -37,35 +34,13 @@ const WithEditor = memo(function WE(props: {
   cellFormatClassName?: string;
   focusAtCell: () => void;
   onDoubleClickCellToEdit: React.MouseEventHandler<HTMLDivElement>;
-  preventPropagation: React.MouseEventHandler<HTMLDivElement>;
-  pasteData: (text: string) => void;
   isExistOnClickRow: boolean;
   isExistOnUpdateRow: boolean;
 }) {
   const cell = useCellContext();
-  const ref = useRef<HTMLDivElement>(null);
 
   return (
-    <td
-      id={props.id}
-      onPaste={(e) => {
-        if (ref.current === null) {
-          return;
-        }
-
-        if (ref.current.contains(document.activeElement)) {
-          return;
-        }
-
-        e.preventDefault();
-        if (!props.isExistOnUpdateRow) {
-          alert("ペースト機能が有効化されていません。");
-          return;
-        }
-        props.pasteData(e.clipboardData.getData("text"));
-      }}
-      className={`${props.cellFormatClassName}`}
-    >
+    <td id={props.id} className={`${props.cellFormatClassName}`}>
       <div
         className={`relative`}
         onClick={
@@ -97,20 +72,6 @@ const WithEditor = memo(function WE(props: {
             {props.editable && <EditButton />}
           </div>
         </div>
-
-        {props.editable && (
-          <div
-            id={`${props.id}-editor`}
-            ref={ref}
-            className="absolute top-0 left-0 w-full h-full grid place-items-center z-10 pr-2"
-            onClick={props.preventPropagation}
-            style={{ opacity: 0, pointerEvents: "none" }}
-          >
-            {cell.type === "string" && <StringCellInput />}
-            {cell.type === "number" && <NumberCellInput />}
-            {cell.type === "select" && <SelectCellInput />}
-          </div>
-        )}
       </div>
     </td>
   );
@@ -124,12 +85,10 @@ export function TableCell<T extends DataRecord>(props: {
   cellFormatClassName?: string;
   onUpdateRow?: (newRow: DataObject<T>, oldRow: DataObject<T>) => void;
 }) {
-  const {
-    focusAtCell,
-    onDoubleClickCellToEdit,
-    preventPropagation,
-    pasteData,
-  } = useCell(props.rowIndex, props.colIndex);
+  const { focusAtCell, onDoubleClickCellToEdit } = useCell(
+    props.rowIndex,
+    props.colIndex
+  );
   const col = useColumnContext(props.columnKey);
 
   return (
@@ -140,8 +99,6 @@ export function TableCell<T extends DataRecord>(props: {
         cellFormatClassName={props.cellFormatClassName}
         focusAtCell={focusAtCell}
         onDoubleClickCellToEdit={onDoubleClickCellToEdit}
-        preventPropagation={preventPropagation}
-        pasteData={pasteData}
         isExistOnClickRow={props.isExistOnClickRow}
         isExistOnUpdateRow={!!props.onUpdateRow}
       />

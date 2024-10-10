@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef } from "react";
 import { CancelIcon } from "../../cancel-icon";
 
 export function CellInput(props: {
@@ -7,6 +10,14 @@ export function CellInput(props: {
   reset: () => void;
   endEditing: () => void;
 }) {
+  const ref = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.focus();
+    }
+  }, [ref]);
+
   return (
     <div
       className={`flex justify-between gap-1 w-full items-center`}
@@ -16,6 +27,7 @@ export function CellInput(props: {
       }}
     >
       <input
+        ref={ref}
         className="w-full py-1 px-2 bg-white text-gray-900"
         type="text"
         value={props.value}

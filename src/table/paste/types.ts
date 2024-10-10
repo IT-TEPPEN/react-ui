@@ -9,7 +9,16 @@ type TPasteState = {
     arguments: { newRow: any; oldRow: any }[];
     timing: number;
   };
-};
+} & (
+  | {
+      isFocused: false;
+    }
+  | {
+      isFocused: true;
+      rowIndex: number;
+      colIndex: number;
+    }
+);
 
 type IPasteAction =
   | {
@@ -39,11 +48,17 @@ type IPasteAction =
   | {
       type: "onPaste";
       payload: {
-        rowIndex: number;
-        colIndex: number;
         pasteData: string[][];
       };
-    };
+    }
+  | {
+      type: "focus";
+      payload: {
+        rowIndex: number;
+        colIndex: number;
+      };
+    }
+  | { type: "unfocus" };
 
 export type TPasteReducer = (
   state: TPasteState,
@@ -59,5 +74,5 @@ export type TPasteReducerReturn = {
   setOnUpdateRowFunction: (
     onUpdateRowFunction?: (newRow: any, oldRow: any) => void
   ) => void;
-  onPaste: (rowIndex: number, colIndex: number, pasteData: string[][]) => void;
+  onPaste: (pasteData: string[][]) => void;
 };

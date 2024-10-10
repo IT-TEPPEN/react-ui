@@ -103,26 +103,11 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
 export function useCell(rowIndex: number, colIndex: number) {
   const focus = useFocusActionContext();
   const editAction = useEditActionContext();
-  const { onPaste } = usePasteActionContext();
 
   const focusAtCell = useCallback(() => {
     focus.move(rowIndex, colIndex);
     focus.focus(rowIndex, colIndex);
   }, [focus, rowIndex, colIndex]);
-
-  const pasteData = useCallback(
-    (text: string) => {
-      const tableData = text
-        .replace(/\t/g, ",")
-        .trim()
-        .replace(/\r\n/g, "\n")
-        .split("\n")
-        .map((row) => row.split(","));
-
-      onPaste(rowIndex, colIndex, tableData);
-    },
-    [rowIndex, colIndex]
-  );
 
   const onDoubleClickCellToEdit: React.MouseEventHandler<HTMLDivElement> =
     useCallback(
@@ -135,16 +120,8 @@ export function useCell(rowIndex: number, colIndex: number) {
       [focus, editAction, rowIndex, colIndex]
     );
 
-  const preventPropagation: React.MouseEventHandler<HTMLDivElement> =
-    useCallback((e) => {
-      e.preventDefault();
-      e.stopPropagation();
-    }, []);
-
   return {
     focusAtCell,
     onDoubleClickCellToEdit,
-    preventPropagation,
-    pasteData,
   };
 }
