@@ -1,1 +1,1 @@
-export { ColumnsProvider, useColumnContext } from "./providers";
+export { ColumnsProvider } from "./providers";

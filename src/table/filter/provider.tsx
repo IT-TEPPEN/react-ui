@@ -3,6 +3,7 @@
 import { createContext, useContext, useState } from "react";
 import { TReturnUseFilterReducer } from "./types";
 import { useFilterReducer } from "./hooks";
+import { FilteringColumnProvider } from "./hooks/selectedFilteringColumn/provider";
 
 const FilterContext = createContext<
   TReturnUseFilterReducer<{ [key: string]: string | number }>
@@ -14,34 +15,20 @@ const FilterContext = createContext<
   filterConditions: [],
 });
 
-const SelectedFilterKey = createContext<{
-  selectedFilterKey: string | null;
-  setSelectedFilterKey: (key: string | null) => void;
-}>({
-  selectedFilterKey: null,
-  setSelectedFilterKey: () => {},
-});
-
 export function FilterProvider({
   children,
 }: {
   children: JSX.Element | JSX.Element[];
 }) {
-  const [selectedFilterKey, setSelectedFilterKey] = useState<string | null>(
-    null
-  );
-
   return (
-    <SelectedFilterKey.Provider
-      value={{ selectedFilterKey, setSelectedFilterKey }}
-    >
+    <FilteringColumnProvider>
       <FilterContext.Provider value={useFilterReducer()}>
         {children}
       </FilterContext.Provider>
-    </SelectedFilterKey.Provider>
+    </FilteringColumnProvider>
   );
 }
 
 export function useFilterContext() {
-  return { ...useContext(FilterContext), ...useContext(SelectedFilterKey) };
+  return { ...useContext(FilterContext) };
 }

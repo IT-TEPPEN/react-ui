@@ -15,35 +15,46 @@ import {
   TSelectFilterOperator,
   TStringFilterOperator,
 } from "./types";
-import { useColumnContext, useColumnsContext } from "../sheet/providers";
+import { useColumnsContext } from "../sheet/providers";
+import { DataRecord, TTableColumn } from "../type";
+import {
+  useFilteringColumnActionContext,
+  useFilteringColumnStateContext,
+} from "./hooks/selectedFilteringColumn/provider";
 
-type TPropsTableFilter = {
-  columnKey: string;
+type TPropsTableFilter<T extends DataRecord> = {
+  col: TTableColumn<T>;
 };
 
-export function TableFilter(props: TPropsTableFilter) {
-  const col = useColumnContext(props.columnKey);
-  const { filterConditions, setSelectedFilterKey, selectedFilterKey } =
-    useFilterContext();
-
-  if (!col.label) return <></>;
+export function TableFilter<T extends DataRecord>(props: TPropsTableFilter<T>) {
+  const { filterConditions } = useFilterContext();
+  const filteringColumn = useFilteringColumnStateContext();
+  const { setFilteringColumn, clearFilteringColumn } =
+    useFilteringColumnActionContext();
 
   return (
     <div
       className="relative cursor-pointer"
       onClick={(e) => {
         e.preventDefault();
-        if (selectedFilterKey === props.columnKey) {
-          setSelectedFilterKey(null);
+        if (!filteringColumn) {
+          setFilteringColumn(props.col as TTableColumn<DataRecord>);
+          return;
+        }
+
+        if (filteringColumn.key === props.col.key) {
+          clearFilteringColumn();
         } else {
-          setSelectedFilterKey(props.columnKey);
+          setFilteringColumn(props.col as TTableColumn<DataRecord>);
         }
       }}
     >
       <FIlterIcon
-        isFilterTarget={selectedFilterKey === props.columnKey}
+        isFilterTarget={
+          !!filteringColumn && filteringColumn.key === props.col.key
+        }
         isFilterActive={
-          filterConditions.filter((f) => f.key === props.columnKey).length > 0
+          filterConditions.filter((f) => f.key === props.col.key).length > 0
         }
       />
     </div>
@@ -78,11 +89,12 @@ export function TableSpecifyKeyFilterRemoveButton({
 }: {
   children: React.ReactNode;
 }) {
-  const { removeFilter, filterConditions, selectedFilterKey } =
-    useFilterContext();
+  const { removeFilter, filterConditions } = useFilterContext();
+  const filteringColumn = useFilteringColumnStateContext();
 
   if (
-    filterConditions.filter((f) => f.key === selectedFilterKey).length === 0
+    filteringColumn === null ||
+    filterConditions.filter((f) => f.key === filteringColumn.key).length === 0
   ) {
     return;
   }
@@ -90,7 +102,7 @@ export function TableSpecifyKeyFilterRemoveButton({
   const onClick: React.MouseEventHandler<HTMLButtonElement> = (e) => {
     e.preventDefault();
     filterConditions
-      .filter((f) => f.key === selectedFilterKey)
+      .filter((f) => f.key === filteringColumn.key)
       .forEach((f) => {
         removeFilter(f.id);
       });
@@ -106,27 +118,30 @@ function SelectFilterType({
   value: string;
   onChange: React.ChangeEventHandler<HTMLSelectElement>;
 }) {
-  const { selectedFilterKey } = useFilterContext();
-  const filterColumn = useColumnContext(selectedFilterKey as string);
+  const filteringColumn = useFilteringColumnStateContext();
+
+  if (!filteringColumn) return <></>;
 
   return (
     <select value={value} onChange={onChange} className="px-2 py-1 rounded-md">
       <option value="">
-        {selectedFilterKey ? "-- 条件を選択 --" : "-- 列を選択してください --"}
+        {filteringColumn.key
+          ? "-- 条件を選択 --"
+          : "-- 列を選択してください --"}
       </option>
-      {filterColumn.type === "string" &&
+      {filteringColumn.type === "string" &&
         STRING_FILTER_OPERATOR.map((op) => (
           <option key={op.key} value={op.key}>
             {op.label}
           </option>
         ))}
-      {filterColumn.type === "number" &&
+      {filteringColumn.type === "number" &&
         NUMBER_FILTER_OPERATOR.map((op) => (
           <option key={op.key} value={op.key}>
             {op.label}
           </option>
         ))}
-      {filterColumn.type === "select" &&
+      {filteringColumn.type === "select" &&
         SELECT_FILTER_OPERATOR.map((op) => (
           <option key={op.key} value={op.key}>
             {op.label}
@@ -179,8 +194,10 @@ function InputString(props: {
 }
 
 function AddFilterButton(props: { value: string; selectingOperator: string }) {
-  const { selectedFilterKey, addFilter } = useFilterContext();
-  const filterColumn = useColumnContext(selectedFilterKey as string);
+  const { addFilter } = useFilterContext();
+  const filteringColumn = useFilteringColumnStateContext();
+
+  if (!filteringColumn) return <></>;
 
   return (
     <button
@@ -188,32 +205,32 @@ function AddFilterButton(props: { value: string; selectingOperator: string }) {
       onClick={(e) => {
         e.preventDefault();
         if (
-          !selectedFilterKey ||
+          !filteringColumn.key ||
           !props.selectingOperator ||
-          (filterColumn.type !== "select" && !props.value)
+          (filteringColumn.type !== "select" && !props.value)
         ) {
           alert("全ての項目を入力してください");
           return;
         }
 
         addFilter(
-          filterColumn.type === "string"
+          filteringColumn.type === "string"
             ? {
-                key: selectedFilterKey,
+                key: filteringColumn.key,
                 operator: props.selectingOperator as TStringFilterOperator,
                 value: [props.value],
               }
-            : filterColumn.type === "select"
+            : filteringColumn.type === "select"
             ? {
-                key: selectedFilterKey,
+                key: filteringColumn.key,
                 operator: props.selectingOperator as TSelectFilterOperator,
                 value: props.value,
-                label: filterColumn.options.find(
+                label: filteringColumn.options.find(
                   (op) => op.value === props.value
                 )?.label,
               }
             : {
-                key: selectedFilterKey,
+                key: filteringColumn.key,
                 operator: props.selectingOperator as TNumberFilterOperator,
                 value: Number(props.value),
               }
@@ -226,21 +243,20 @@ function AddFilterButton(props: { value: string; selectingOperator: string }) {
 }
 
 export function TableFilterForm() {
+  const filteringColumn = useFilteringColumnStateContext();
+  const { setFilteringColumn, clearFilteringColumn } =
+    useFilteringColumnActionContext();
   const cols = useColumnsContext();
-  const {
-    removeFilter,
-    filterConditions,
-    selectedFilterKey,
-    setSelectedFilterKey,
-  } = useFilterContext();
+  const { removeFilter, filterConditions } = useFilterContext();
   const [selectingOperator, setSelectingOperator] = useState<string>("");
   const [value, setValue] = useState<string>("");
-  let filterColumn = useColumnContext(selectedFilterKey as string);
 
   useEffect(() => {
     setValue("");
     setSelectingOperator("");
-  }, [selectedFilterKey]);
+  }, [filteringColumn]);
+
+  if (!filteringColumn) return <></>;
 
   const onSelectingOperator: React.ChangeEventHandler<HTMLSelectElement> =
     useCallback((e) => {
@@ -257,18 +273,18 @@ export function TableFilterForm() {
             <li
               key={col.key}
               className={`relative pl-2 pr-8 md:px-8 py-3 w-full cursor-pointer border-y border-gray-300 ${
-                selectedFilterKey === col.key
+                filteringColumn.key === col.key
                   ? "bg-gray-200"
                   : "hover:bg-gray-100"
               }`}
               onClick={(e) => {
                 e.preventDefault();
-                setSelectedFilterKey(col.key);
+                setFilteringColumn(col);
               }}
             >
               <p
                 className={`text-right text-nowrap ${
-                  selectedFilterKey === col.key
+                  filteringColumn.key === col.key
                     ? "underline underline-offset-2 decoration-2 decoration-neutral-500"
                     : ""
                 }`}
@@ -292,7 +308,7 @@ export function TableFilterForm() {
           <button
             onClick={(e) => {
               e.preventDefault();
-              setSelectedFilterKey(null);
+              clearFilteringColumn();
             }}
           >
             閉じる
@@ -301,16 +317,16 @@ export function TableFilterForm() {
         <p className="font-bold text-xl">フィルタリング条件</p>
         <div className="flex items-center gap-3 max-w-6xl">
           <p className="text-gray-600 text-lg text-nowrap">
-            「<strong>{filterColumn.label}</strong>」 は
+            「<strong>{filteringColumn.label}</strong>」 は
           </p>
           <SelectFilterType
             value={selectingOperator}
             onChange={onSelectingOperator}
           />
-          {filterColumn.type === "select" ? (
+          {filteringColumn.type === "select" ? (
             <SelectOptions
               value={value}
-              options={filterColumn.options}
+              options={filteringColumn.options}
               setValue={setValue}
             />
           ) : (
@@ -324,7 +340,7 @@ export function TableFilterForm() {
 
         <ul className="flex flex-col gap-1 my-5 max-h-32 overflow-auto">
           {filterConditions
-            .filter((f) => f.key === selectedFilterKey)
+            .filter((f) => f.key === filteringColumn.key)
             .map((f) => (
               <li key={f.id} className="flex justify-between mr-5">
                 <p>
@@ -352,7 +368,7 @@ export function TableFilterForm() {
         <div className="flex justify-center">
           <TableSpecifyKeyFilterRemoveButton>
             <p className="text-xs text-gray-600 underline hover:text-gray-800">
-              「{filterColumn.label}」のフィルタを全て解除
+              「{filteringColumn.label}」のフィルタを全て解除
             </p>
           </TableSpecifyKeyFilterRemoveButton>
         </div>
