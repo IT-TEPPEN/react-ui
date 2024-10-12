@@ -49,7 +49,6 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
                       <PasteProvider
                         rows={props.rows}
                         cols={props.cols}
-                        colValidators={{}}
                         onUpdateRowFunction={props.onUpdateRow}
                       >
                         <KeyboardSetting />

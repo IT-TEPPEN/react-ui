@@ -14,13 +14,11 @@ export function PasteProvider({
   children,
   rows,
   cols,
-  colValidators,
   onUpdateRowFunction = () => {},
 }: {
   children: JSX.Element | JSX.Element[];
   rows: any[];
   cols: any[];
-  colValidators: { [key: string]: (value: any) => boolean };
   onUpdateRowFunction?: (newRow: any, oldRow: any) => void;
 }) {
   return (
@@ -28,7 +26,6 @@ export function PasteProvider({
       value={usePasteReducer({
         rows,
         cols,
-        colValidators,
         onUpdateRowFunction,
       })}
     >
