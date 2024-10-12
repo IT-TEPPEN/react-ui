@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { CancelIcon } from "../../cancel-icon";
+import { CancelIcon } from "../../../icon/cancel-icon";
 
 export function CellInput(props: {
   value: string | number;

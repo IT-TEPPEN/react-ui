@@ -8,12 +8,16 @@ export function useResizeColWidthHook(options?: {
   const [colWidth, setColWidth] = useState(
     options?.initialWidth ?? DEFAULT_COL_WIDTH
   );
+  const [isDragging, setIsDragging] = useState(false);
+  const minWidth = options?.minWidth ?? DEFAULT_MIN_COL_WIDTH;
 
   const cursorStyle = "col-resize";
 
   const onMouseDownResizeWidth: React.MouseEventHandler<HTMLDivElement> =
     useCallback(
       (e) => {
+        if (isDragging) return;
+
         const startX = e.clientX;
         const startWidth = colWidth;
 
@@ -21,15 +25,13 @@ export function useResizeColWidthHook(options?: {
         document.body.style.userSelect = "none";
 
         const onMouseMove = (moveEvent: MouseEvent) => {
+          setIsDragging(true);
           const newWidth = startWidth + (moveEvent.clientX - startX);
-          setColWidth(
-            newWidth > (options?.minWidth ?? DEFAULT_MIN_COL_WIDTH)
-              ? newWidth
-              : options?.minWidth ?? DEFAULT_MIN_COL_WIDTH
-          );
+          setColWidth(newWidth > minWidth ? newWidth : minWidth);
         };
 
         const onMouseUp = () => {
+          setIsDragging(false);
           document.removeEventListener("mousemove", onMouseMove);
           document.removeEventListener("mouseup", onMouseUp);
           document.body.style.cursor = "default";
@@ -39,7 +41,7 @@ export function useResizeColWidthHook(options?: {
         document.addEventListener("mousemove", onMouseMove);
         document.addEventListener("mouseup", onMouseUp);
       },
-      [colWidth, options?.minWidth]
+      [isDragging, minWidth]
     );
 
   return {

@@ -13,7 +13,6 @@ import {
   FilterProvider,
   TableFilterForm,
   TableFilterRemoveButton,
-  useFilterContext,
 } from "./filter";
 import { SortProvider } from "./sort";
 import { ColumnsProvider } from "./sheet/providers";
@@ -28,6 +27,7 @@ import { Row } from "./sheet/components";
 import { PasteProvider, usePasteActionContext } from "./paste/provider";
 import { generateFormattingString } from "./libs/conditional-formatting";
 import { Editor } from "./edit/ui/editor";
+import { useFilteringColumnStateContext } from "./filter/hooks/selectedFilteringColumn/provider";
 
 export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   return (
@@ -49,7 +49,6 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
                       <PasteProvider
                         rows={props.rows}
                         cols={props.cols}
-                        colValidators={{}}
                         onUpdateRowFunction={props.onUpdateRow}
                       >
                         <KeyboardSetting />
@@ -69,7 +68,7 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
 
 function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { cols, rowMaps, pageRowIds } = useTable<T>(props);
-  const { selectedFilterKey } = useFilterContext();
+  const filteringColumn = useFilteringColumnStateContext();
   const { onPaste } = usePasteActionContext();
 
   return (
@@ -112,14 +111,14 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
               {cols.map((col, i) => (
                 <TableHeaderElement
                   id={IdGenerator.getTableColId(i)}
-                  key={col.key as string}
-                  columnKey={col.key as string}
+                  key={col.key.toString()}
+                  col={col}
                 />
               ))}
             </tr>
           </thead>
           <tbody>
-            {!!selectedFilterKey && (
+            {!!filteringColumn && (
               <tr>
                 <td
                   colSpan={cols.length}

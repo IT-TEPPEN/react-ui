@@ -1,14 +1,17 @@
 "use client";
 
 import { memo, useEffect, useMemo, useRef } from "react";
-import { useRowContext } from "../sheet";
 import { useCheckboxContext, useCheckboxStatusContext } from "./provider";
 import { DataObject, DataRecord } from "../type";
 
-export const Checkbox = memo(function CB() {
+type TPropsCheckbox = {
+  row: DataObject<DataRecord>;
+};
+
+export const Checkbox = memo(function CB(props: TPropsCheckbox) {
   const checkbox = useCheckboxContext();
   const { checkboxStatusState } = useCheckboxStatusContext();
-  const row = useRowContext();
+  const row = props.row;
 
   const checkboxIds = useMemo(() => {
     return checkboxStatusState.checkedRecords.map((record) => record.id);

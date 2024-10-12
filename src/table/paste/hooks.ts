@@ -131,11 +131,11 @@ const reducer: TPasteReducer = (state, action) => {
 export function usePasteReducer(initial: {
   rows: any[];
   cols: any[];
-  colValidators: { [key: string]: (value: any) => boolean };
   onUpdateRowFunction?: (newRow: any, oldRow: any) => void;
 }): TPasteReducerReturn {
   const [state, dispatch] = useReducer(reducer, {
     ...initial,
+    colValidators: {},
     isFocused: false,
     updateParameters: { arguments: [], timing: 0 },
   });

@@ -3,10 +3,12 @@
 import { useCell } from "../../hook";
 import { EditButton } from "./edit-button";
 import { IdGenerator } from "../../libs";
+import { DataObject, DataRecord } from "../../type";
 
 export function TableCell(props: {
   rowIndex: number;
   colIndex: number;
+  row: DataObject<DataRecord>;
   columnKey: string;
   editable: boolean;
   cellFormatClassName?: string;
@@ -15,7 +17,8 @@ export function TableCell(props: {
 }) {
   const { type, component, focusAtCell, onDoubleClickCellToEdit } = useCell(
     props.rowIndex,
-    props.colIndex
+    props.colIndex,
+    props.row
   );
 
   const id = IdGenerator.getTableCellId(props.rowIndex, props.colIndex);

@@ -2,17 +2,19 @@
 
 import { useRef } from "react";
 import { TableFilter } from "../filter";
-import { useColumnContext } from "../sheet";
 import { SortButton } from "../sort";
 import { useResizeColWidthHook } from "./resize-col-width-hook";
+import { DataRecord, TTableColumn } from "../type";
 
-type TPropsTableHeader = {
+type TPropsTableHeader<T extends DataRecord> = {
   id: string;
-  columnKey: string;
+  col: TTableColumn<T>;
 };
 
-export function TableHeaderElement(props: TPropsTableHeader) {
-  const col = useColumnContext(props.columnKey);
+export function TableHeaderElement<T extends DataRecord>(
+  props: TPropsTableHeader<T>
+) {
+  const col = props.col;
   const { colWidth, onMouseDownResizeWidth } = useResizeColWidthHook({
     initialWidth: col.initialWidth,
     minWidth: col.minWidth,
@@ -43,8 +45,8 @@ export function TableHeaderElement(props: TPropsTableHeader) {
         </div>
 
         <div ref={ref} className="flex items-center w-fit shrink-0 gap-1 px-1">
-          {!col.disableSort && <SortButton columnKey={props.columnKey} />}
-          {!col.disableFilter && <TableFilter columnKey={props.columnKey} />}
+          {!col.disableSort && <SortButton columnKey={col.key.toString()} />}
+          {!col.disableFilter && !!col.label && <TableFilter col={col} />}
         </div>
       </div>
       <div
