@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { useFocusActionContext } from "../focus/provider";
-import { DataRecord, TTableColumn } from "../type";
+import { DataRecord, TTableColumn } from "../table/type";
 import { Checkbox } from "../checkbox/components";
 import { TableCell } from "../cell/ui/cell";
 

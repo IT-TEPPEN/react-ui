@@ -1,4 +1,4 @@
-import { DataObject, DataRecord } from "../type";
+import { DataObject, DataRecord } from "../table/type";
 import {
   NUMBER_FILTER_OPERATOR,
   SELECT_FILTER_OPERATOR,

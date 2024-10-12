@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useReducer } from "react";
 import { TPageAction, TPageState } from "./types";
 import { INITIAL_PAGE_STATE } from "./constants";
-import { DataObject, DataRecord } from "../type";
+import { DataObject, DataRecord } from "../table/type";
 
 function pagenationReducer(state: TPageState, action: TPageAction): TPageState {
   switch (action.type) {

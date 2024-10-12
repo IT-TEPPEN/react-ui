@@ -3,7 +3,7 @@
 import { createContext, useContext } from "react";
 import { TReturnSortReducer } from "./types";
 import { useSortReducer } from "./hooks";
-import { DataRecord } from "../type";
+import { DataRecord } from "../table/type";
 
 const SortTimingContext = createContext<number>(0);
 

@@ -16,7 +16,7 @@ import {
   TStringFilterOperator,
 } from "./types";
 import { useColumnsContext } from "../sheet/providers";
-import { DataRecord, TTableColumn } from "../type";
+import { DataRecord, TTableColumn } from "../table/type";
 import {
   useFilteringColumnActionContext,
   useFilteringColumnStateContext,

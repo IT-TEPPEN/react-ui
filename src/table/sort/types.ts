@@ -1,5 +1,5 @@
 import { Reducer } from "react";
-import { DataObject, DataRecord } from "../type";
+import { DataObject, DataRecord } from "../table/type";
 
 type TSortState = {
   key: string;

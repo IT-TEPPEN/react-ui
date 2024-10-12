@@ -9,7 +9,7 @@ import {
   DataRecord,
   TColumnProperty,
   TNumberCellEditingCondition,
-} from "../../type";
+} from "../../table/type";
 
 type TPropsCellInput = {
   col: TColumnProperty<DataRecord> & TNumberCellEditingCondition<DataRecord>;

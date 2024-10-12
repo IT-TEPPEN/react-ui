@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { TableFilter } from "../filter";
 import { SortButton } from "../sort";
 import { useResizeColWidthHook } from "./resize-col-width-hook";
-import { DataRecord, TTableColumn } from "../type";
+import { DataRecord, TTableColumn } from "../table/type";
 
 type TPropsTableHeader<T extends DataRecord> = {
   id: string;

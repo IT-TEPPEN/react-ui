@@ -1,4 +1,4 @@
-import { DataObject, TTableColumn } from "../type";
+import { DataObject, TTableColumn } from "../table/type";
 
 type TPasteState = {
   rows: DataObject<any>[];

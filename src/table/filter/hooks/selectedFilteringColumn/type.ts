@@ -1,4 +1,4 @@
-import { DataRecord, TTableColumn } from "../../../type";
+import { DataRecord, TTableColumn } from "../../../table/type";
 
 export type TFilteringColumnState =
   | {

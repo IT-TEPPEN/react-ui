@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useMemo } from "react";
-import { DataRecord, TTableColumn } from "../type";
+import { DataRecord, TTableColumn } from "../table/type";
 import {
   generateValidateFunction,
   TErrorValidation,

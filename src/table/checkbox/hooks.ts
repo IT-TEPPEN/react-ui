@@ -1,6 +1,6 @@
 import { useReducer } from "react";
 import { CheckboxStatusReducer } from "./types";
-import { DataRecord } from "../type";
+import { DataRecord } from "../table/type";
 
 const checkboxReducer: CheckboxStatusReducer<DataRecord> = (state, action) => {
   switch (action.type) {

@@ -6,7 +6,7 @@ import { NumberCellInput } from "./number-input";
 import { SelectCellInput } from "./select-input";
 import { StringCellInput } from "./string-input";
 import { IdGenerator } from "../../libs";
-import { DataObject, DataRecord } from "../../type";
+import { DataObject, DataRecord } from "../../table/type";
 
 type TPropsEditor = {
   pageRowIds: (string | number)[];

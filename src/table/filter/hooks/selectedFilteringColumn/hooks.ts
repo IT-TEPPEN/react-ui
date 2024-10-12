@@ -1,6 +1,6 @@
 import { useMemo, useReducer } from "react";
 import { TFilteringColumnReducer, TReturnFilteringColumnReducer } from "./type";
-import { DataRecord, TTableColumn } from "../../../type";
+import { DataRecord, TTableColumn } from "../../../table/type";
 
 const filteringColumnReducer: TFilteringColumnReducer = (state, action) => {
   switch (action.type) {

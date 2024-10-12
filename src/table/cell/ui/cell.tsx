@@ -1,9 +1,9 @@
 "use client";
 
-import { useCell } from "../../hook";
 import { EditButton } from "./edit-button";
 import { IdGenerator } from "../../libs";
-import { DataObject, DataRecord } from "../../type";
+import { DataObject, DataRecord } from "../../table/type";
+import { useCell } from "../hooks";
 
 export function TableCell(props: {
   rowIndex: number;

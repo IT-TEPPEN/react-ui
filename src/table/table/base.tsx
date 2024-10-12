@@ -1,33 +1,33 @@
 "use client";
 
 import { useTable } from "./hook";
-import { TableHeaderElement } from "./header/header";
+import { TableHeaderElement } from "../header/header";
 import {
   DataRecord,
   TConditionalFormatting,
   TPropsTable,
   TTableColumn,
 } from "./type";
-import { PagenationProvider, DisplayRange, Pagenation } from "./pagenation";
+import { PagenationProvider, DisplayRange, Pagenation } from "../pagenation";
 import {
   FilterProvider,
   TableFilterForm,
   TableFilterRemoveButton,
-} from "./filter";
-import { SortProvider } from "./sort";
-import { ColumnsProvider } from "./sheet/providers";
-import { FocusProvider } from "./focus/provider";
-import { CheckboxProvider, CheckboxStatusProvider } from "./checkbox/provider";
-import { AllCheckbox } from "./checkbox/components";
-import { IdGenerator } from "./libs";
-import { EditProvider } from "./edit/provider";
-import { TablePropertyProvider } from "./table-property/provider";
-import { KeyboardSetting } from "./operation/components/keyboard-setting";
-import { Row } from "./sheet/components";
-import { PasteProvider, usePasteActionContext } from "./paste/provider";
-import { generateFormattingString } from "./libs/conditional-formatting";
-import { Editor } from "./edit/ui/editor";
-import { useFilteringColumnStateContext } from "./filter/hooks/selectedFilteringColumn/provider";
+} from "../filter";
+import { SortProvider } from "../sort";
+import { ColumnsProvider } from "../sheet/providers";
+import { FocusProvider } from "../focus/provider";
+import { CheckboxProvider, CheckboxStatusProvider } from "../checkbox/provider";
+import { AllCheckbox } from "../checkbox/components";
+import { IdGenerator } from "../libs";
+import { EditProvider } from "../edit/provider";
+import { TablePropertyProvider } from "../table-property/provider";
+import { KeyboardSetting } from "../operation/components/keyboard-setting";
+import { Row } from "../sheet/components";
+import { PasteProvider, usePasteActionContext } from "../paste/provider";
+import { generateFormattingString } from "../libs/conditional-formatting";
+import { Editor } from "../edit/ui/editor";
+import { useFilteringColumnStateContext } from "../filter/hooks/selectedFilteringColumn/provider";
 
 export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   return (

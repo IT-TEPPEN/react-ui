@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useReducer } from "react";
 import { TReturnSortReducer, TSortReducer } from "./types";
-import { DataObject, DataRecord } from "../type";
+import { DataObject, DataRecord } from "../table/type";
 
 const reducer: TSortReducer = (state, action) => {
   switch (action.type) {
