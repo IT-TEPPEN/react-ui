@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import { useEditActionContext } from "../../edit/provider";
-import { EditIcon } from "../../edit-icon";
+import { EditIcon } from "../../../icon/edit-icon";
 
 export const EditButton = memo(function EB() {
   const { startEditing } = useEditActionContext();

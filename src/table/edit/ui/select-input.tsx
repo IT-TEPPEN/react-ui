@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useEditActionContext } from "../provider";
-import { CancelIcon } from "../../cancel-icon";
+import { CancelIcon } from "../../../icon/cancel-icon";
 import {
   DataObject,
   DataRecord,
