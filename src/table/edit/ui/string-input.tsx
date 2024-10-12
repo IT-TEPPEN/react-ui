@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useEditActionContext } from "../provider";
 import { useColumnValidateContext } from "../../sheet/providers";
-import { CellInput } from "../../cell/ui/base-input";
+import { CellInput } from "./base-input";
 import {
   DataObject,
   DataRecord,
