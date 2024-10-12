@@ -1,6 +1,1 @@
-export {
-  RowProvider,
-  ColumnsProvider,
-  useRowContext,
-  useColumnContext,
-} from "./providers";
+export { ColumnsProvider, useColumnContext } from "./providers";

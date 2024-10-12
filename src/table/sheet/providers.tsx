@@ -1,30 +1,11 @@
 "use client";
 
 import React, { createContext, useContext, useMemo } from "react";
-import { DataObject, DataRecord, TTableColumn } from "../type";
+import { DataRecord, TTableColumn } from "../type";
 import {
   generateValidateFunction,
   TErrorValidation,
 } from "../libs/generate-validate-function";
-// import { useFocusContext } from "../edit/provider";
-
-const RowContext = createContext<DataObject<DataRecord>>({
-  id: "",
-});
-
-export function RowProvider({
-  children,
-  row,
-}: {
-  children: React.ReactNode;
-  row: DataObject<DataRecord>;
-}) {
-  return <RowContext.Provider value={row}>{children}</RowContext.Provider>;
-}
-
-export function useRowContext() {
-  return useContext(RowContext);
-}
 
 const ColsContext = createContext<{
   cols: TTableColumn<DataRecord>[];

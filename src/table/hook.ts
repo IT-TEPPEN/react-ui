@@ -8,7 +8,7 @@ import { useEditActionContext } from "./edit/provider";
 import { useSortActionContext, useSortTimingContext } from "./sort/provider";
 import { useTablePropertyActionContext } from "./table-property/provider";
 import { usePasteActionContext } from "./paste/provider";
-import { useColumnsContext, useRowContext } from "./sheet/providers";
+import { useColumnsContext } from "./sheet/providers";
 
 export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { filter } = useFilterContext();
@@ -101,11 +101,14 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
   };
 }
 
-export function useCell(rowIndex: number, colIndex: number) {
+export function useCell(
+  rowIndex: number,
+  colIndex: number,
+  row: DataObject<DataRecord>
+) {
   const focus = useFocusActionContext();
   const editAction = useEditActionContext();
   const col = useColumnsContext()[colIndex];
-  const row = useRowContext();
   const value = row[col.key as string];
 
   const label =

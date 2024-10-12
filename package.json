@@ -10,7 +10,8 @@
     "rollup": "npm run clean && rollup -c --bundleConfigAsCjs --forceExit",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "test": "jest"
+    "test": "jest",
+    "test:lint": "tsc --noEmit"
   },
   "author": "Yasufumi Kamiyama <yk.iteppen@gmail.com>",
   "license": "MIT",
