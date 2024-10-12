@@ -51,7 +51,8 @@ export const Row = memo(function R<T extends DataRecord>(props: TPropsRow<T>) {
               columnKey={col.key as string}
               isExistOnClickRow={!!props.onClickRow}
               cellFormatClassName={conditionalFormatting[j]}
-              onUpdateRow={props.onUpdateRow}
+              isExistOnUpdateRow={!!props.onUpdateRow}
+              editable={col.editable ?? false}
             />
           );
         })}

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo } from "react";
-import { DataObject, DataRecord, TPropsTable } from "./type";
+import { DataObject, DataRecord, TColumnType, TPropsTable } from "./type";
 import { usePageContext } from "./pagenation/providers";
 import { useFilterContext } from "./filter";
 import { useFocusActionContext } from "./focus/provider";
@@ -8,6 +8,7 @@ import { useEditActionContext } from "./edit/provider";
 import { useSortActionContext, useSortTimingContext } from "./sort/provider";
 import { useTablePropertyActionContext } from "./table-property/provider";
 import { usePasteActionContext } from "./paste/provider";
+import { useColumnsContext, useRowContext } from "./sheet/providers";
 
 export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { filter } = useFilterContext();
@@ -103,6 +104,25 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
 export function useCell(rowIndex: number, colIndex: number) {
   const focus = useFocusActionContext();
   const editAction = useEditActionContext();
+  const col = useColumnsContext()[colIndex];
+  const row = useRowContext();
+  const value = row[col.key as string];
+
+  const label =
+    col.type === "select"
+      ? col.options?.find((op) => op.value === value)?.label
+      : value;
+
+  const component = useMemo(() => {
+    if (col.editable) {
+      return label;
+    } else {
+      return col.render ? col.render(value as never, row) : label;
+    }
+  }, [col.editable, label, value, row]);
+
+  const type: TColumnType | "component" =
+    !col.editable && col.render ? "component" : col.type;
 
   const focusAtCell = useCallback(() => {
     focus.move(rowIndex, colIndex);
@@ -121,6 +141,8 @@ export function useCell(rowIndex: number, colIndex: number) {
     );
 
   return {
+    type,
+    component,
     focusAtCell,
     onDoubleClickCellToEdit,
   };

@@ -2,106 +2,60 @@
 
 import { useCell } from "../../hook";
 import { EditButton } from "./edit-button";
-import { memo, useRef } from "react";
-import { DataObject, DataRecord, TColumnType } from "../../type";
 import { IdGenerator } from "../../libs";
-import { CellProvider, useCellContext } from "../provider";
-import { useColumnContext } from "../../sheet";
 
-const CellData = memo(function CD(props: {
-  type: TColumnType | "component";
-  onDoubleClick: React.MouseEventHandler<HTMLDivElement>;
-  component?: React.ReactNode;
-}) {
-  return (
-    <>
-      {props.type === "component" ? (
-        props.component
-      ) : (
-        <div onDoubleClick={props.onDoubleClick}>
-          <p className="cell-data text-left whitespace-nowrap">
-            {props.component}
-          </p>
-        </div>
-      )}
-    </>
-  );
-});
-
-const WithEditor = memo(function WE(props: {
-  id: string;
+export function TableCell(props: {
+  rowIndex: number;
+  colIndex: number;
+  columnKey: string;
   editable: boolean;
   cellFormatClassName?: string;
-  focusAtCell: () => void;
-  onDoubleClickCellToEdit: React.MouseEventHandler<HTMLDivElement>;
   isExistOnClickRow: boolean;
   isExistOnUpdateRow: boolean;
 }) {
-  const cell = useCellContext();
+  const { type, component, focusAtCell, onDoubleClickCellToEdit } = useCell(
+    props.rowIndex,
+    props.colIndex
+  );
+
+  const id = IdGenerator.getTableCellId(props.rowIndex, props.colIndex);
 
   return (
-    <td id={props.id} className={`${props.cellFormatClassName}`}>
+    <td id={id} className={`${props.cellFormatClassName}`}>
       <div
         className={`relative`}
         onClick={
           !props.isExistOnClickRow
             ? (e) => {
                 e.preventDefault();
-                props.focusAtCell();
+                focusAtCell();
               }
             : undefined
         }
         onDoubleClick={
-          !props.isExistOnClickRow ? props.onDoubleClickCellToEdit : undefined
+          !props.isExistOnClickRow ? onDoubleClickCellToEdit : undefined
         }
       >
-        <div id={`${props.id}-display`}>
-          <div
-            className={`flex items-center gap-3 w-fit p-2 cursor-default`}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              props.focusAtCell();
-            }}
-          >
-            <CellData
-              type={cell.type}
-              component={cell.component}
-              onDoubleClick={props.onDoubleClickCellToEdit}
-            />
-            {props.editable && <EditButton />}
-          </div>
+        <div
+          className={`flex items-center gap-3 w-f-displayit p-2 cursor-default`}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            focusAtCell();
+          }}
+        >
+          {type === "component" ? (
+            component
+          ) : (
+            <div onDoubleClick={onDoubleClickCellToEdit}>
+              <p className="cell-data text-left whitespace-nowrap">
+                {component}
+              </p>
+            </div>
+          )}
+          {props.editable && <EditButton />}
         </div>
       </div>
     </td>
-  );
-});
-
-export function TableCell<T extends DataRecord>(props: {
-  rowIndex: number;
-  colIndex: number;
-  columnKey: string;
-  isExistOnClickRow: boolean;
-  cellFormatClassName?: string;
-  onUpdateRow?: (newRow: DataObject<T>, oldRow: DataObject<T>) => void;
-}) {
-  const { focusAtCell, onDoubleClickCellToEdit } = useCell(
-    props.rowIndex,
-    props.colIndex
-  );
-  const col = useColumnContext(props.columnKey);
-
-  return (
-    <CellProvider columnKey={props.columnKey}>
-      <WithEditor
-        id={IdGenerator.getTableCellId(props.rowIndex, props.colIndex)}
-        editable={col.editable ?? false}
-        cellFormatClassName={props.cellFormatClassName}
-        focusAtCell={focusAtCell}
-        onDoubleClickCellToEdit={onDoubleClickCellToEdit}
-        isExistOnClickRow={props.isExistOnClickRow}
-        isExistOnUpdateRow={!!props.onUpdateRow}
-      />
-    </CellProvider>
   );
 }
