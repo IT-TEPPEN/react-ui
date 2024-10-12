@@ -1,14 +1,12 @@
-import { createContext, useContext, useMemo } from "react";
-import { TFocusState, TReturnFocusReducer } from "./types";
+import { createContext, useContext } from "react";
+import { TFocusActionContext, TFocusStateContext } from "./types";
 import { useFocusReducer } from "./hooks";
 
-const FocusStateContext = createContext<TFocusState>({
+const FocusStateContext = createContext<TFocusStateContext>({
   isFocus: false,
 });
 
-const FocusActionContext = createContext<
-  Omit<TReturnFocusReducer, "isFocus" | "rowIndex" | "colIndex">
->({
+const FocusActionContext = createContext<TFocusActionContext>({
   focus: () => {},
   unfocus: () => {},
   move: () => {},
@@ -19,34 +17,11 @@ const FocusActionContext = createContext<
 });
 
 export function FocusProvider(props: { children: React.ReactNode }) {
-  const focus = useFocusReducer();
-
-  const state: TFocusState = focus.isFocus
-    ? {
-        isFocus: true,
-        rowIndex: focus.rowIndex,
-        colIndex: focus.colIndex,
-      }
-    : {
-        isFocus: false,
-      };
-
-  const action: Omit<TReturnFocusReducer, "isFocus" | "rowIndex" | "colIndex"> =
-    useMemo(() => {
-      return {
-        focus: focus.focus,
-        unfocus: focus.unfocus,
-        move: focus.move,
-        moveLeft: focus.moveLeft,
-        moveRight: focus.moveRight,
-        moveUp: focus.moveUp,
-        moveDown: focus.moveDown,
-      };
-    }, []);
+  const { state, actions } = useFocusReducer();
 
   return (
     <FocusStateContext.Provider value={state}>
-      <FocusActionContext.Provider value={action}>
+      <FocusActionContext.Provider value={actions}>
         {props.children}
       </FocusActionContext.Provider>
     </FocusStateContext.Provider>

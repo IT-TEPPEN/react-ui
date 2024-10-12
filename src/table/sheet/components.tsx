@@ -3,6 +3,7 @@ import { useFocusActionContext } from "../focus/provider";
 import { DataRecord, TTableColumn } from "../table/type";
 import { Checkbox } from "../checkbox/components";
 import { TableCell } from "../cell/ui/cell";
+import { IdGenerator } from "../libs";
 
 interface TPropsRow<T extends DataRecord> {
   dataString: string;
@@ -12,7 +13,6 @@ interface TPropsRow<T extends DataRecord> {
   conditionalFormattingString: string;
   onClickRow?: (row: any) => void;
   applyRowFormatting?: (row: any) => string;
-  onUpdateRow?: (newRow: any, oldRow: any) => void;
 }
 
 export const Row = memo(function R<T extends DataRecord>(props: TPropsRow<T>) {
@@ -44,13 +44,10 @@ export const Row = memo(function R<T extends DataRecord>(props: TPropsRow<T>) {
         return (
           <TableCell
             key={col.key as string}
-            rowIndex={props.rowIndex}
-            colIndex={j}
+            id={IdGenerator.getTableCellId(props.rowIndex, j)}
             row={row}
-            columnKey={col.key as string}
             isExistOnClickRow={!!props.onClickRow}
             cellFormatClassName={conditionalFormatting[j]}
-            isExistOnUpdateRow={!!props.onUpdateRow}
             editable={col.editable ?? false}
           />
         );

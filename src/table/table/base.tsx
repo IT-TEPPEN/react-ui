@@ -149,7 +149,6 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
                   cols as TTableColumn<DataRecord>[],
                   props.conditionalFormattings as TConditionalFormatting<DataRecord>[]
                 )}
-                onUpdateRow={props.onUpdateRow}
               />
             ))}
           </tbody>
