@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useEditActionContext } from "../provider";
 import { CancelIcon } from "../../../icon/cancel-icon";
 import {
@@ -20,6 +20,13 @@ export function SelectCellInput(props: TPropsCellInput) {
   const { endEditing } = useEditActionContext();
   const prevValue = props.row[col.key] as string;
   const [value, setValue] = useState(prevValue);
+  const ref = useRef<HTMLSelectElement>(null);
+
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.focus();
+    }
+  }, [ref]);
 
   const updateCellValue = (value: string) => {
     if (col.editable) {
@@ -32,6 +39,7 @@ export function SelectCellInput(props: TPropsCellInput) {
   return (
     <div className="flex justify-between gap-1 w-full items-center">
       <select
+        ref={ref}
         className="w-full py-1 px-2 bg-white text-gray-900"
         value={value}
         onChange={(e) => {

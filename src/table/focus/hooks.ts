@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer } from "react";
+import { useEffect, useMemo, useReducer } from "react";
 import { TFocusReducer, TReturnFocusReducer } from "./types";
 import { IdGenerator } from "../libs";
 
@@ -76,40 +76,39 @@ export function useFocusReducer(): TReturnFocusReducer {
     isFocus: false,
   });
 
-  const focus = useCallback((rowIndex: number, colIndex: number) => {
-    dispatch({ type: "focus", payload: { rowIndex, colIndex } });
-  }, []);
-
-  const unfocus = useCallback(() => {
-    dispatch({ type: "unfocus" });
-  }, []);
-
-  const move = useCallback((rowIndex: number, colIndex: number) => {
-    dispatch({ type: "move", payload: { rowIndex, colIndex } });
-  }, []);
-
-  const moveLeft = useCallback(() => {
-    dispatch({ type: "moveLeft" });
-  }, []);
-
-  const moveRight = useCallback(() => {
-    dispatch({ type: "moveRight" });
-  }, []);
-
-  const moveUp = useCallback(() => {
-    dispatch({ type: "moveUp" });
-  }, []);
-
-  const moveDown = useCallback(() => {
-    dispatch({ type: "moveDown" });
-  }, []);
+  const actions = useMemo(
+    () => ({
+      focus: (rowIndex: number, colIndex: number) => {
+        dispatch({ type: "focus", payload: { rowIndex, colIndex } });
+      },
+      unfocus: () => {
+        dispatch({ type: "unfocus" });
+      },
+      move: (rowIndex: number, colIndex: number) => {
+        dispatch({ type: "move", payload: { rowIndex, colIndex } });
+      },
+      moveLeft: () => {
+        dispatch({ type: "moveLeft" });
+      },
+      moveRight: () => {
+        dispatch({ type: "moveRight" });
+      },
+      moveUp: () => {
+        dispatch({ type: "moveUp" });
+      },
+      moveDown: () => {
+        dispatch({ type: "moveDown" });
+      },
+    }),
+    []
+  );
 
   useEffect(() => {
     const onClickOutOfTable = (e: MouseEvent) => {
       const element = document.getElementById("table-frame");
       const ele = e.target;
       if (ele instanceof Node && element?.contains(ele)) return;
-      unfocus();
+      actions.unfocus();
     };
 
     document.addEventListener("click", onClickOutOfTable);
@@ -147,29 +146,8 @@ export function useFocusReducer(): TReturnFocusReducer {
     };
   }, [state]);
 
-  if (state.isFocus) {
-    return {
-      isFocus: true,
-      rowIndex: state.rowIndex,
-      colIndex: state.colIndex,
-      focus,
-      unfocus,
-      move,
-      moveLeft,
-      moveRight,
-      moveUp,
-      moveDown,
-    };
-  } else {
-    return {
-      isFocus: false,
-      focus,
-      unfocus,
-      move,
-      moveLeft,
-      moveRight,
-      moveUp,
-      moveDown,
-    };
-  }
+  return {
+    state,
+    actions,
+  };
 }

@@ -1,16 +1,14 @@
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { useEditActionContext } from "../edit/provider";
 import { useFocusActionContext } from "../focus/provider";
 import { useColumnsContext } from "../sheet/providers";
 import { DataObject, DataRecord, TColumnType } from "../table/type";
+import { IdGenerator } from "../libs";
 
-export function useCell(
-  rowIndex: number,
-  colIndex: number,
-  row: DataObject<DataRecord>
-) {
-  const focus = useFocusActionContext();
-  const editAction = useEditActionContext();
+export function useCell(id: string, row: DataObject<DataRecord>) {
+  const { move, focus } = useFocusActionContext();
+  const { startEditing } = useEditActionContext();
+  const [rowIndex, colIndex] = IdGenerator.getCellIndex(id);
   const col = useColumnsContext()[colIndex];
   const value = row[col.key as string];
 
@@ -30,26 +28,24 @@ export function useCell(
   const type: TColumnType | "component" =
     !col.editable && col.render ? "component" : col.type;
 
-  const focusAtCell = useCallback(() => {
-    focus.move(rowIndex, colIndex);
-    focus.focus(rowIndex, colIndex);
-  }, [focus, rowIndex, colIndex]);
+  const onDoubleClick: React.MouseEventHandler<HTMLDivElement> = (e) => {
+    e.preventDefault();
+    focus(rowIndex, colIndex);
+    move(rowIndex, colIndex);
+    startEditing();
+  };
 
-  const onDoubleClickCellToEdit: React.MouseEventHandler<HTMLDivElement> =
-    useCallback(
-      (e) => {
-        e.preventDefault();
-        focus.move(rowIndex, colIndex);
-        focus.focus(rowIndex, colIndex);
-        editAction.startEditing();
-      },
-      [focus, editAction, rowIndex, colIndex]
-    );
+  const onClickCell: React.MouseEventHandler<HTMLDivElement> = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    focus(rowIndex, colIndex);
+    move(rowIndex, colIndex);
+  };
 
   return {
     type,
     component,
-    focusAtCell,
-    onDoubleClickCellToEdit,
+    onClickCell,
+    onDoubleClick,
   };
 }

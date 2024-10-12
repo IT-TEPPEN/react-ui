@@ -19,7 +19,8 @@ type TFocusAction =
 
 export type TFocusReducer = Reducer<TFocusState, TFocusAction>;
 
-export type TReturnFocusReducer = {
+export type TFocusStateContext = TFocusState;
+export type TFocusActionContext = {
   focus: (rowIndex: number, colIndex: number) => void;
   unfocus: () => void;
   move: (rowIndex: number, colIndex: number) => void;
@@ -27,13 +28,9 @@ export type TReturnFocusReducer = {
   moveRight: () => void;
   moveUp: () => void;
   moveDown: () => void;
-} & (
-  | {
-      isFocus: false;
-    }
-  | {
-      isFocus: true;
-      rowIndex: number;
-      colIndex: number;
-    }
-);
+};
+
+export type TReturnFocusReducer = {
+  state: TFocusState;
+  actions: TFocusActionContext;
+};
