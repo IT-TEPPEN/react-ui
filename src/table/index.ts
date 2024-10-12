@@ -1,3 +1,3 @@
-import Table from "./base";
+import Table from "./table/base";
 
 export { Table };

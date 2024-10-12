@@ -2,7 +2,7 @@
 
 import { memo, useEffect, useMemo, useRef } from "react";
 import { useCheckboxContext, useCheckboxStatusContext } from "./provider";
-import { DataObject, DataRecord } from "../type";
+import { DataObject, DataRecord } from "../table/type";
 
 type TPropsCheckbox = {
   row: DataObject<DataRecord>;

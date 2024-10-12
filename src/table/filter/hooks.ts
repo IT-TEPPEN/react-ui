@@ -5,7 +5,7 @@ import {
   TFilterState,
   TReturnUseFilterReducer,
 } from "./types";
-import { DataObject, DataRecord } from "../type";
+import { DataObject, DataRecord } from "../table/type";
 
 function reducer<T extends DataRecord>(
   state: TFilterState<T>,

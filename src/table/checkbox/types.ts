@@ -1,4 +1,4 @@
-import { DataObject, DataRecord } from "../type";
+import { DataObject, DataRecord } from "../table/type";
 
 export type CheckboxStatusState<T extends DataRecord> = {
   checkedRecords: DataObject<T>[];

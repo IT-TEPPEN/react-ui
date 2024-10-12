@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { TCheckboxProperty } from "../type";
+import { TCheckboxProperty } from "../table/type";
 import { useCheckboxStatusReducer } from "./hooks";
 
 const CheckboxStatusContext = createContext<

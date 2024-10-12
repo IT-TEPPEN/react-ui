@@ -3,7 +3,7 @@ import {
   DataRecord,
   TConditionalFormatting,
   TTableColumn,
-} from "../type";
+} from "../table/type";
 
 export function generateFormattingString(
   row: DataObject<DataRecord>,

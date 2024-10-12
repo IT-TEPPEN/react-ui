@@ -2,7 +2,7 @@ import {
   TErrorValidation,
   TNumberValidateOption,
   TStringValidateOption,
-} from "./libs/generate-validate-function";
+} from "../libs/generate-validate-function";
 
 export type DataRecord = Record<string, string | number>;
 
