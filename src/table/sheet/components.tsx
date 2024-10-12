@@ -12,7 +12,6 @@ interface TPropsRow<T extends DataRecord> {
   conditionalFormattingString: string;
   onClickRow?: (row: any) => void;
   applyRowFormatting?: (row: any) => string;
-  onUpdateRow?: (newRow: any, oldRow: any) => void;
 }
 
 export const Row = memo(function R<T extends DataRecord>(props: TPropsRow<T>) {
@@ -47,10 +46,8 @@ export const Row = memo(function R<T extends DataRecord>(props: TPropsRow<T>) {
             rowIndex={props.rowIndex}
             colIndex={j}
             row={row}
-            columnKey={col.key as string}
             isExistOnClickRow={!!props.onClickRow}
             cellFormatClassName={conditionalFormatting[j]}
-            isExistOnUpdateRow={!!props.onUpdateRow}
             editable={col.editable ?? false}
           />
         );

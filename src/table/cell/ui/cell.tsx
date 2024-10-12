@@ -9,11 +9,9 @@ export function TableCell(props: {
   rowIndex: number;
   colIndex: number;
   row: DataObject<DataRecord>;
-  columnKey: string;
   editable: boolean;
   cellFormatClassName?: string;
   isExistOnClickRow: boolean;
-  isExistOnUpdateRow: boolean;
 }) {
   const { type, component, focusAtCell, onDoubleClickCellToEdit } = useCell(
     props.rowIndex,
@@ -26,7 +24,6 @@ export function TableCell(props: {
   return (
     <td id={id} className={`${props.cellFormatClassName}`}>
       <div
-        className={`relative`}
         onClick={
           !props.isExistOnClickRow
             ? (e) => {
