@@ -7,9 +7,13 @@ export function useHeaderElement(colIndex: number) {
   const [returnValue, setReturnValue] = useState<{
     id: string;
     label: string;
+    initialWidth?: number;
+    minWidth?: number;
   }>({
     id: ref.getColId(colIndex),
     label: ref.getColLabel(colIndex),
+    initialWidth: ref.getColInitialWidth(colIndex),
+    minWidth: ref.getColMinWidth(colIndex),
   });
 
   const update = () => {
@@ -25,6 +29,7 @@ export function useHeaderElement(colIndex: number) {
 
   useEffect(() => {
     setReturnValue({
+      ...returnValue,
       id: ref.getColId(colIndex),
       label: ref.getColLabel(colIndex),
     });

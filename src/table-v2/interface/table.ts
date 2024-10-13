@@ -8,6 +8,8 @@ export interface ITable {
   getColLabel(colIndex: number): string;
   getColType(colIndex: number): "string" | "number" | "select" | "component";
   getColEditable(colIndex: number): boolean;
+  getColInitialWidth(colIndex: number): number | undefined;
+  getColMinWidth(colIndex: number): number | undefined;
   getCellComponent(rowIndex: number, colIndex: number): React.ReactNode;
   getCellDesign(rowIndex: number, colIndex: number): string;
   getRowDesign(rowIndex: number): string;

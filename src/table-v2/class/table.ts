@@ -63,6 +63,14 @@ export class CTable implements ITable {
     return this.cols[colIndex].label ?? "";
   }
 
+  getColInitialWidth(colIndex: number): number | undefined {
+    return this.cols[colIndex].initialWidth;
+  }
+
+  getColMinWidth(colIndex: number): number | undefined {
+    return this.cols[colIndex].minWidth;
+  }
+
   getCellComponent(rowIndex: number, colIndex: number) {
     const col = this.cols[colIndex];
     if (col.editable) {
