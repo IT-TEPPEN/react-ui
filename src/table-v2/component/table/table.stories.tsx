@@ -98,9 +98,6 @@ export const Default: Story = {
         ),
       },
     ],
-    // onClickRow: (row) => {
-    //   alert(row.id);
-    // },
     onUpdateRow: (newRow, oldRow) => {
       console.log({ newRow, oldRow });
     },
@@ -127,8 +124,14 @@ export const Default: Story = {
     ],
   },
   render: (props) => (
-    <div className=" w-screen px-5">
-      <Table {...props} />
+    <div className="w-screen px-5">
+      <Table
+        rows={props.rows}
+        cols={props.cols}
+        onUpdateRow={props.onUpdateRow}
+        initialCondition={props.initialCondition}
+        conditionalFormattings={props.conditionalFormattings}
+      />
     </div>
   ),
 };

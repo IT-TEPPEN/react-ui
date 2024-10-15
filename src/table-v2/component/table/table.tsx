@@ -1,9 +1,10 @@
 "use client";
 
-import { DataRecord, TPropsTable } from "../../../table/table/type";
+import { DataRecord, TPropsTable } from "./type";
 import { TablePropertyProvider, useTablePropertyContext } from "./provider";
 import { Row } from "../row/row";
 import { TableHeaderElement } from "../header/header";
+import { Editor } from "../editor/editor";
 
 export function TableContent() {
   const t = useTablePropertyContext();
@@ -22,7 +23,7 @@ export function TableContent() {
         id="table-frame"
         className="relative h-full max-w-full max-h-[80vh] border border-gray-200 rounded-md overflow-auto"
       >
-        {/* <Editor rowMaps={rowMaps} pageRowIds={pageRowIds} /> */}
+        <Editor />
         <table
           className={`table`}
           // onPaste={(e) => {
