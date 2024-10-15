@@ -27,6 +27,7 @@ export function CellInput(props: {
       }}
     >
       <input
+        id={"edit-input"}
         ref={ref}
         className="w-full py-1 px-2 bg-white text-gray-900"
         type="text"

@@ -4,6 +4,23 @@ import { useFocusContext } from "../../focus/provider";
 import { useEditContext } from "../../edit/provider";
 import { useColumnsContext } from "../../sheet/providers";
 
+const setInitialValueToInputForm = (key: string) => {
+  const inputElement = document.getElementById("edit-input");
+  if (inputElement) {
+    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      "value"
+    )?.set;
+
+    if (nativeInputValueSetter) {
+      nativeInputValueSetter.call(inputElement, key);
+    }
+
+    const ev = new Event("input", { bubbles: true });
+    inputElement.dispatchEvent(ev);
+  }
+};
+
 export function KeyboardSetting() {
   const focus = useFocusContext();
   const edit = useEditContext();
@@ -55,6 +72,22 @@ export function KeyboardSetting() {
         } else if (e.key === "F2") {
           e.preventDefault();
           edit.startEditing();
+        } else if (/^[a-zA-Z0-9]$/.test(e.key)) {
+          e.preventDefault();
+          e.stopPropagation();
+          edit.startEditing();
+
+          setTimeout(() => {
+            setInitialValueToInputForm(e.key);
+          }, 10);
+        } else if (e.key === "Backspace" || e.key === "Delete") {
+          e.preventDefault();
+          e.stopPropagation();
+          edit.startEditing();
+
+          setTimeout(() => {
+            setInitialValueToInputForm("");
+          }, 10);
         }
       }
     };
