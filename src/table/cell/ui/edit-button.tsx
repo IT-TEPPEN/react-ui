@@ -4,7 +4,7 @@ import { memo } from "react";
 import { useEditActionContext } from "../../edit/provider";
 import { EditIcon } from "../../../icon/edit-icon";
 
-export const EditButton = memo(function EB() {
+const EditButton = memo(function EB() {
   const { startEditing } = useEditActionContext();
 
   return (
@@ -19,3 +19,5 @@ export const EditButton = memo(function EB() {
     </button>
   );
 });
+
+export default EditButton;

@@ -1,8 +1,10 @@
 "use client";
 
-import { EditButton } from "./edit-button";
+import { lazy, Suspense } from "react";
 import { DataObject, DataRecord } from "../../table/type";
 import { useCell } from "../hooks";
+
+const EditButton = lazy(() => import("./edit-button"));
 
 export function TableCell(props: {
   id: string;
@@ -34,7 +36,7 @@ export function TableCell(props: {
             <p className="cell-data text-left whitespace-nowrap">{component}</p>
           </div>
         )}
-        {props.editable && <EditButton />}
+        <Suspense fallback={null}>{props.editable && <EditButton />}</Suspense>
       </div>
     </td>
   );
