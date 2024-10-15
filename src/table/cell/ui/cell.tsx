@@ -23,7 +23,7 @@ export function TableCell(props: {
       onDoubleClick={!props.isExistOnClickRow ? onDoubleClick : undefined}
     >
       <div
-        className={`flex items-center gap-3 min-h-12 w-fit p-2 cursor-default`}
+        className={`flex items-center gap-3 min-h-10 w-fit p-2 cursor-default`}
         onClick={onClickCell}
       >
         {type === "component" ? (
