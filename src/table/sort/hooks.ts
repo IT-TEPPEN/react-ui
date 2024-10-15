@@ -52,6 +52,14 @@ export function useSortReducer<T extends DataRecord>(initial?: {
   const sort = useCallback(
     <U extends DataRecord>(rows: DataObject<U>[]) =>
       [...rows].sort((a, b) => {
+        if (a[state.key] === "" && b[state.key] === "") {
+          return 0;
+        } else if (a[state.key] === "") {
+          return 1;
+        } else if (b[state.key] === "") {
+          return -1;
+        }
+
         if (a[state.key] < b[state.key]) {
           return state.asc ? -1 : 1;
         }
