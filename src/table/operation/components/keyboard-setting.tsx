@@ -72,7 +72,7 @@ export function KeyboardSetting() {
         } else if (e.key === "F2") {
           e.preventDefault();
           edit.startEditing();
-        } else if (/^[a-zA-Z0-9]$/.test(e.key)) {
+        } else if (!e.altKey && !e.ctrlKey && /^[a-zA-Z0-9]$/.test(e.key)) {
           e.preventDefault();
           e.stopPropagation();
           edit.startEditing();
