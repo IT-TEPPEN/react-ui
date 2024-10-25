@@ -16,7 +16,7 @@ import {
 } from "../filter";
 import { SortProvider } from "../sort";
 import { ColumnsProvider } from "../sheet/providers";
-import { FocusProvider } from "../focus/provider";
+import { FocusProvider, useFocusActionContext } from "../focus/provider";
 import { CheckboxProvider, CheckboxStatusProvider } from "../checkbox/provider";
 import { AllCheckbox } from "../checkbox/components";
 import { IdGenerator } from "../libs";
@@ -70,6 +70,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { cols, rowMaps, pageRowIds } = useTable<T>(props);
   const filteringColumn = useFilteringColumnStateContext();
   const { onPaste } = usePasteActionContext();
+  const { unfocus } = useFocusActionContext();
 
   return (
     <div className="w-full">
@@ -102,7 +103,13 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
           }}
         >
           <thead>
-            <tr className="sticky top-0 border-gray-200 z-20 bg-gray-200 text-gray-600 h-[32px]">
+            <tr
+              className="sticky top-0 border-gray-200 z-20 bg-gray-200 text-gray-600 h-[32px]"
+              onClick={(e) => {
+                e.stopPropagation();
+                unfocus();
+              }}
+            >
               {props.checkbox && (
                 <th>
                   <AllCheckbox rows={props.rows} />
@@ -119,7 +126,12 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
           </thead>
           <tbody>
             {!!filteringColumn && (
-              <tr>
+              <tr
+                onClick={(e) => {
+                  e.stopPropagation();
+                  unfocus();
+                }}
+              >
                 <td
                   colSpan={cols.length}
                   className="sticky top-8 left-0 bg-gray-300 w-full shadow-lg rounded-b-2xl z-20 p-0 overflow-hidden"
