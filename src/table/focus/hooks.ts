@@ -105,7 +105,7 @@ export function useFocusReducer(): TReturnFocusReducer {
 
   useEffect(() => {
     const onClickOutOfTable = (e: MouseEvent) => {
-      const element = document.getElementById("table-frame");
+      const element = document.getElementById(IdGenerator.getTableId());
       const ele = e.target;
       if (ele instanceof Node && element?.contains(ele)) return;
       actions.unfocus();

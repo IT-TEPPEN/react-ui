@@ -28,6 +28,7 @@ import { PasteProvider, usePasteActionContext } from "../paste/provider";
 import { generateFormattingString } from "../libs/conditional-formatting";
 import { Editor } from "../edit/ui/editor";
 import { useFilteringColumnStateContext } from "../filter/hooks/selectedFilteringColumn/provider";
+import { RangeProvider, TestRange } from "../range/provider";
 
 export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   return (
@@ -46,14 +47,16 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
                 <FocusProvider>
                   <EditProvider>
                     <TablePropertyProvider>
-                      <PasteProvider
-                        rows={props.rows}
-                        cols={props.cols}
-                        onUpdateRowFunction={props.onUpdateRow}
-                      >
-                        <KeyboardSetting />
-                        <BaseTable {...props} />
-                      </PasteProvider>
+                      <RangeProvider>
+                        <PasteProvider
+                          rows={props.rows}
+                          cols={props.cols}
+                          onUpdateRowFunction={props.onUpdateRow}
+                        >
+                          <KeyboardSetting />
+                          <BaseTable {...props} />
+                        </PasteProvider>
+                      </RangeProvider>
                     </TablePropertyProvider>
                   </EditProvider>
                 </FocusProvider>
@@ -83,9 +86,10 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
       </div>
 
       <div
-        id="table-frame"
+        id={IdGenerator.getTableId()}
         className="relative h-full max-w-full max-h-[80vh] border border-gray-200 rounded-md overflow-auto"
       >
+        <TestRange />
         <Editor rowMaps={rowMaps} pageRowIds={pageRowIds} />
         <table
           className={`table`}

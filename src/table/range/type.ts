@@ -18,6 +18,7 @@ export type TRangeState = {
     }
   | {
       isSelecting: true;
+      inProgress: boolean;
       start: IIndex;
       end: IIndex;
     }
@@ -25,8 +26,12 @@ export type TRangeState = {
 
 export type TRangeAction =
   | { type: "setMax"; payload: { maxRowIndex: number; maxColIndex: number } }
-  | { type: "start"; payload: { rowIndex: number; colIndex: number } }
-  | { type: "end"; payload: { rowIndex: number; colIndex: number } }
+  | {
+      type: "startSelectRange";
+      payload: { rowIndex: number; colIndex: number };
+    }
+  | { type: "moveSelectRange"; payload: { rowIndex: number; colIndex: number } }
+  | { type: "endSelectRange"; payload: { rowIndex: number; colIndex: number } }
   | { type: "moveUp" }
   | { type: "moveDown" }
   | { type: "moveLeft" }
@@ -39,11 +44,36 @@ export type TRangeAction =
 
 export type TRangeReducer = Reducer<TRangeState, TRangeAction>;
 
-export type TRangeStateContext = TRangeState;
+export interface IPoint {
+  rowIndex: number;
+  colIndex: number;
+  xStart: number;
+  xEnd: number;
+  yStart: number;
+  yEnd: number;
+}
+
+export type TRangeStateContext =
+  | {
+      isSelecting: false;
+    }
+  | {
+      isSelecting: true;
+      start: IPoint;
+      end: IPoint;
+      rangeBox: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+      };
+    };
 
 export type TRangeActionContext = {
-  start: (rowIndex: number, colIndex: number) => void;
-  end: (rowIndex: number, colIndex: number) => void;
+  setMax: (payload: { maxRowIndex: number; maxColIndex: number }) => void;
+  startSelectRange: (payload: { rowIndex: number; colIndex: number }) => void;
+  moveSelectRange: (payload: { rowIndex: number; colIndex: number }) => void;
+  endSelectRange: (payload: { rowIndex: number; colIndex: number }) => void;
   moveUp: () => void;
   moveDown: () => void;
   moveLeft: () => void;

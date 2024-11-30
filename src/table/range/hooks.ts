@@ -1,4 +1,4 @@
-import { useMemo, useReducer } from "react";
+import { useEffect, useMemo, useReducer } from "react";
 import { InvalidOperationError, OutOfRangeError } from "./errors";
 import {
   IIndex,
@@ -6,6 +6,7 @@ import {
   IRangeConstraint,
   TReturnRangeReducer,
 } from "./type";
+import { IdGenerator } from "../libs";
 
 function newRangeConstraint({
   maxColIndex,
@@ -14,7 +15,7 @@ function newRangeConstraint({
   maxColIndex: number;
   maxRowIndex: number;
 }): IRangeConstraint {
-  if (maxColIndex < 0) {
+  if (maxColIndex < -1) {
     throw new OutOfRangeError(
       "001",
       "maxColIndex must be 0 or greater",
@@ -22,7 +23,7 @@ function newRangeConstraint({
     );
   }
 
-  if (maxRowIndex < 0) {
+  if (maxRowIndex < -1) {
     throw new OutOfRangeError(
       "002",
       "maxRowIndex must be 0 or greater",
@@ -142,7 +143,7 @@ export const rangeReducer: TRangeReducer = (state, action) => {
      * - payloadのrowIndexとcolIndexが範囲外の場合、OutOfRangeErrorをスローします。
      * - 範囲内の場合、isSelectingをtrueに設定し、startとendの位置をpayloadの位置に設定します。
      */
-    case "start": {
+    case "startSelectRange": {
       const startIndex = newIndex({
         rowIndex: action.payload.rowIndex,
         colIndex: action.payload.colIndex,
@@ -160,8 +161,30 @@ export const rangeReducer: TRangeReducer = (state, action) => {
       return {
         ...state,
         isSelecting: true,
+        inProgress: true,
         start: startIndex,
         end: startIndex,
+      };
+    }
+
+    case "moveSelectRange": {
+      if (!state.isSelecting || !state.inProgress) {
+        return state;
+      }
+
+      const endIndex = newIndex({
+        rowIndex: action.payload.rowIndex,
+        colIndex: action.payload.colIndex,
+        constraint: state.constraint,
+      });
+
+      if (equalIndex(state.end, endIndex)) {
+        return state;
+      }
+
+      return {
+        ...state,
+        end: endIndex,
       };
     }
 
@@ -172,7 +195,7 @@ export const rangeReducer: TRangeReducer = (state, action) => {
      * - 範囲内の場合、endの位置をpayloadの位置に設定します。
      * - この場合、isSelectingはtrueのままです。
      */
-    case "end": {
+    case "endSelectRange": {
       if (!state.isSelecting) {
         throw new InvalidOperationError(
           "001",
@@ -181,15 +204,13 @@ export const rangeReducer: TRangeReducer = (state, action) => {
         );
       }
 
-      const endIndex = newIndex({
-        rowIndex: action.payload.rowIndex,
-        colIndex: action.payload.colIndex,
-        constraint: state.constraint,
-      });
+      if (!state.inProgress) {
+        return state;
+      }
 
       return {
         ...state,
-        end: endIndex,
+        inProgress: false,
       };
     }
 
@@ -486,11 +507,17 @@ export function useRangeReducer(): TReturnRangeReducer {
 
   const actions = useMemo(
     () => ({
-      start: (rowIndex: number, colIndex: number) => {
-        dispatch({ type: "start", payload: { rowIndex, colIndex } });
+      setMax: (payload: { maxRowIndex: number; maxColIndex: number }) => {
+        dispatch({ type: "setMax", payload });
       },
-      end: (rowIndex: number, colIndex: number) => {
-        dispatch({ type: "end", payload: { rowIndex, colIndex } });
+      startSelectRange: (payload: { rowIndex: number; colIndex: number }) => {
+        dispatch({ type: "startSelectRange", payload });
+      },
+      moveSelectRange: (payload: { rowIndex: number; colIndex: number }) => {
+        dispatch({ type: "moveSelectRange", payload });
+      },
+      endSelectRange: (payload: { rowIndex: number; colIndex: number }) => {
+        dispatch({ type: "endSelectRange", payload });
       },
       moveUp: () => {
         dispatch({ type: "moveUp" });
@@ -519,12 +546,91 @@ export function useRangeReducer(): TReturnRangeReducer {
       reset: () => {
         dispatch({ type: "reset" });
       },
-      setMax: (maxRowIndex: number, maxColIndex: number) => {
-        dispatch({ type: "setMax", payload: { maxRowIndex, maxColIndex } });
-      },
     }),
     []
   );
 
-  return { state, actions };
+  useEffect(() => {
+    const onClickOutOfTable = (e: MouseEvent) => {
+      const element = document.getElementById(IdGenerator.getTableId());
+      const ele = e.target;
+      if (ele instanceof Node && element?.contains(ele)) return;
+      dispatch({ type: "reset" });
+    };
+
+    document.addEventListener("click", onClickOutOfTable);
+
+    return () => {
+      document.removeEventListener("click", onClickOutOfTable);
+    };
+  }, []);
+
+  if (!state.isSelecting) {
+    return { state, actions };
+  }
+
+  const startElement = document.getElementById(
+    IdGenerator.getTableCellId(state.start.rowIndex, state.start.colIndex)
+  );
+  const endElement = document.getElementById(
+    IdGenerator.getTableCellId(state.end.rowIndex, state.end.colIndex)
+  );
+  const tableElement = document.getElementById(IdGenerator.getTableId());
+
+  if (!startElement || !endElement || !tableElement) {
+    dispatch({ type: "reset" });
+    return { state: { isSelecting: false }, actions };
+  }
+
+  const startRect = startElement.getBoundingClientRect();
+  const endRect = endElement.getBoundingClientRect();
+  const rectTable = tableElement.getBoundingClientRect();
+
+  const adjustSize = {
+    y: rectTable.top - tableElement.scrollTop - window.scrollY,
+    x: rectTable.left - tableElement.scrollLeft - window.scrollX,
+  };
+
+  const startDivProps = {
+    top: startRect.top - adjustSize.y,
+    left: startRect.left - adjustSize.x,
+    width: startRect.width,
+    height: startRect.height,
+  };
+
+  const endDivProps = {
+    top: endRect.top - adjustSize.y,
+    left: endRect.left - adjustSize.x,
+    width: endRect.width,
+    height: endRect.height,
+  };
+
+  return {
+    state: {
+      isSelecting: true,
+      start: {
+        ...state.start,
+        xStart: startDivProps.left,
+        xEnd: startDivProps.left + startDivProps.width,
+        yStart: startDivProps.top,
+        yEnd: startDivProps.top + startDivProps.height,
+      },
+      end: {
+        ...state.end,
+        xStart: endDivProps.left,
+        xEnd: endDivProps.left + endDivProps.width,
+        yStart: endDivProps.top,
+        yEnd: endDivProps.top + endDivProps.height,
+      },
+      rangeBox: {
+        top: Math.min(startDivProps.top, endDivProps.top),
+        left: Math.min(startDivProps.left, endDivProps.left),
+        width:
+          Math.abs(startDivProps.left - endDivProps.left) + endDivProps.width,
+        height:
+          Math.abs(startDivProps.top - endDivProps.top) + endDivProps.height,
+      },
+    },
+    actions,
+  };
 }

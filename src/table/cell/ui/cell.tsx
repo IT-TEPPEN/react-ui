@@ -10,10 +10,15 @@ export function TableCell(props: {
   cellFormatClassName?: string;
   isExistOnClickRow: boolean;
 }) {
-  const { type, component, onClickCell, onDoubleClick } = useCell(
-    props.id,
-    props.row
-  );
+  const {
+    type,
+    component,
+    onClickCell,
+    onDoubleClick,
+    onMouseDown,
+    onMouseEnter,
+    onMouseUp,
+  } = useCell(props.id, props.row);
 
   return (
     <td
@@ -21,6 +26,9 @@ export function TableCell(props: {
       className={`${props.cellFormatClassName}`}
       onClick={!props.isExistOnClickRow ? onClickCell : undefined}
       onDoubleClick={!props.isExistOnClickRow ? onDoubleClick : undefined}
+      onMouseDown={onMouseDown}
+      onMouseEnter={onMouseEnter}
+      onMouseUp={onMouseUp}
     >
       <div
         className={`flex items-center gap-3 min-h-10 w-fit p-2 cursor-default`}

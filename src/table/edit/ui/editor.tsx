@@ -57,7 +57,7 @@ export function Editor(props: TPropsEditor) {
 
   if (!size) return <></>;
 
-  const tableElement = document.getElementById("table-frame");
+  const tableElement = document.getElementById(IdGenerator.getTableId());
   if (!tableElement) return <></>;
   const rectTable = tableElement.getBoundingClientRect();
 
