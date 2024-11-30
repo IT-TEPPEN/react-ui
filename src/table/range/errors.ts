@@ -6,3 +6,10 @@ export class OutOfRangeError extends TableError {
     this.name = "OutOfRangeError";
   }
 }
+
+export class InvalidOperationError extends TableError {
+  constructor(errorNumber: string, message: string, detail: string) {
+    super(message, `RUTBL-IO${errorNumber}`, detail);
+    this.name = "InvalidOperationError";
+  }
+}

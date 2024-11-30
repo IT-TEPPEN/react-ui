@@ -1,22 +1,25 @@
 import { Reducer } from "react";
 
-export type TRangeState = {
+export interface IIndex {
+  rowIndex: number;
+  colIndex: number;
+}
+
+export interface IRangeConstraint {
   maxRowIndex: number;
   maxColIndex: number;
+}
+
+export type TRangeState = {
+  constraint: IRangeConstraint;
 } & (
   | {
       isSelecting: false;
     }
   | {
       isSelecting: true;
-      start: {
-        rowIndex: number;
-        colIndex: number;
-      };
-      end: {
-        rowIndex: number;
-        colIndex: number;
-      };
+      start: IIndex;
+      end: IIndex;
     }
 );
 
@@ -53,6 +56,6 @@ export type TRangeActionContext = {
 };
 
 export type TReturnRangeReducer = {
-  state: TRangeState;
+  state: TRangeStateContext;
   actions: TRangeActionContext;
 };
