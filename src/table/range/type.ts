@@ -31,7 +31,7 @@ export type TRangeAction =
       payload: { rowIndex: number; colIndex: number };
     }
   | { type: "moveSelectRange"; payload: { rowIndex: number; colIndex: number } }
-  | { type: "endSelectRange"; payload: { rowIndex: number; colIndex: number } }
+  | { type: "endSelectRange" }
   | { type: "moveUp" }
   | { type: "moveDown" }
   | { type: "moveLeft" }
@@ -73,7 +73,7 @@ export type TRangeActionContext = {
   setMax: (payload: { maxRowIndex: number; maxColIndex: number }) => void;
   startSelectRange: (payload: { rowIndex: number; colIndex: number }) => void;
   moveSelectRange: (payload: { rowIndex: number; colIndex: number }) => void;
-  endSelectRange: (payload: { rowIndex: number; colIndex: number }) => void;
+  endSelectRange: () => void;
   moveUp: () => void;
   moveDown: () => void;
   moveLeft: () => void;

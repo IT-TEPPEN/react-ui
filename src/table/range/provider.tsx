@@ -3,6 +3,7 @@ import { TRangeActionContext, TRangeStateContext } from "./type";
 import { NoImplementeFunction } from "../lib/errors";
 import { useRangeReducer } from "./hooks";
 import { useTablePropertyStateContext } from "../table-property/provider";
+import { IdGenerator } from "../libs";
 
 const RangeStateContext = createContext<TRangeStateContext>({
   isSelecting: false,
@@ -32,6 +33,10 @@ export function useRangeActionContext() {
   return useContext(RangeActionContext);
 }
 
+export function useRangeContext() {
+  return { ...useRangeStateContext(), ...useRangeActionContext() };
+}
+
 function EffectSetMax() {
   const { setMax } = useRangeActionContext();
   const { maxDisplayRowCount, maxDisplayColCount } =
@@ -47,27 +52,62 @@ function EffectSetMax() {
   return <></>;
 }
 
-export function TestRange() {
+export function TestRange(props: { isCopied?: boolean }) {
   const state = useRangeStateContext();
+
+  useEffect(() => {
+    if (state.isSelecting) {
+      const endElement = document.getElementById(
+        IdGenerator.getTableCellId(state.end.rowIndex, state.end.colIndex)
+      );
+
+      if (endElement) {
+        endElement.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+          inline: "nearest",
+        });
+        endElement.focus();
+      }
+    }
+  }, [state]);
 
   if (!state.isSelecting) {
     return <></>;
   }
 
-  const { rangeBox } = state;
+  const { rangeBox, start, end } = state;
+
+  const clickboxPoint = {
+    x: start.xEnd < end.xEnd ? end.xEnd : start.xEnd,
+    y: start.yEnd < end.yEnd ? end.yEnd : start.yEnd,
+  };
 
   return (
-    <div
-      style={{
-        position: "absolute",
-        top: rangeBox.top,
-        left: rangeBox.left,
-        width: rangeBox.width,
-        height: rangeBox.height,
-        border: "1px solid blue",
-        pointerEvents: "none",
-      }}
-    ></div>
+    <>
+      <div
+        className={`absolute border border-gray-500 ${
+          props.isCopied ? "border-dashed" : "border-solid"
+        }`}
+        style={{
+          top: rangeBox.top,
+          left: rangeBox.left,
+          width: rangeBox.width,
+          height: rangeBox.height,
+          pointerEvents: "none",
+        }}
+      ></div>
+      <div
+        className="absolute bg-gray-700"
+        style={{
+          top: clickboxPoint.y - 5,
+          left: clickboxPoint.x - 5,
+          width: 10,
+          height: 10,
+          pointerEvents: "none",
+        }}
+      />
+    </>
   );
 }
 
@@ -77,8 +117,6 @@ export function RangeProvider({
   children: JSX.Element | JSX.Element[];
 }) {
   const { state, actions } = useRangeReducer();
-
-  console.log(state);
 
   return (
     <RangeStateContext.Provider value={state}>

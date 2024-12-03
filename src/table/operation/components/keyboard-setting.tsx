@@ -1,8 +1,9 @@
+"use client";
+
 import { useEffect } from "react";
-import { useTablePropertyStateContext } from "../../table-property/provider";
-import { useFocusContext } from "../../focus/provider";
 import { useEditContext } from "../../edit/provider";
 import { useColumnsContext } from "../../sheet/providers";
+import { useRangeContext } from "../../range/provider";
 
 const setInitialValueToInputForm = (key: string) => {
   const inputElement = document.getElementById("edit-input");
@@ -22,14 +23,9 @@ const setInitialValueToInputForm = (key: string) => {
 };
 
 export function KeyboardSetting() {
-  const focus = useFocusContext();
   const edit = useEditContext();
-  const { maxDisplayColCount, maxDisplayRowCount } =
-    useTablePropertyStateContext();
-  const col = useColumnsContext()[focus.isFocus ? focus.colIndex : 0];
-
-  const rowIndex = focus.isFocus ? focus.rowIndex : -1;
-  const colIndex = focus.isFocus ? focus.colIndex : -1;
+  const range = useRangeContext();
+  const col = useColumnsContext()[range.isSelecting ? range.start.colIndex : 0];
 
   useEffect(() => {
     const listener = (e: KeyboardEvent) => {
@@ -38,37 +34,46 @@ export function KeyboardSetting() {
           e.preventDefault();
           edit.endEditing();
         }
-      } else if (focus.isFocus) {
+      } else if (range.isSelecting) {
         if (e.key === "Enter") {
           e.preventDefault();
-          focus.moveDown();
+          range.moveDown();
         } else if (e.key === "Escape") {
           e.preventDefault();
-          focus.unfocus();
+          range.reset();
         } else if (e.key === "ArrowRight") {
+          console.log("ArrowRight");
           e.preventDefault();
 
-          if (focus.colIndex === maxDisplayColCount - 1) return;
-
-          focus.moveRight();
+          if (e.shiftKey) {
+            range.extendRight();
+          } else {
+            range.moveRight();
+          }
         } else if (e.key === "ArrowLeft") {
           e.preventDefault();
 
-          if (focus.colIndex === 0) return;
-
-          focus.moveLeft();
+          if (e.shiftKey) {
+            range.extendLeft();
+          } else {
+            range.moveLeft();
+          }
         } else if (e.key === "ArrowUp") {
           e.preventDefault();
 
-          if (focus.rowIndex === 0) return;
-
-          focus.moveUp();
+          if (e.shiftKey) {
+            range.extendUp();
+          } else {
+            range.moveUp();
+          }
         } else if (e.key === "ArrowDown") {
           e.preventDefault();
 
-          if (focus.rowIndex === maxDisplayRowCount - 1) return;
-
-          focus.moveDown();
+          if (e.shiftKey) {
+            range.extendDown();
+          } else {
+            range.moveDown();
+          }
         } else if (e.key === "F2") {
           e.preventDefault();
           edit.startEditing();
@@ -97,7 +102,7 @@ export function KeyboardSetting() {
     return () => {
       document.removeEventListener("keydown", listener);
     };
-  }, [edit.isEditing, focus.isFocus, rowIndex, colIndex]);
+  }, [range.isSelecting, edit.isEditing]);
 
   useEffect(() => {
     if (edit.isEditing && !col.editable) {

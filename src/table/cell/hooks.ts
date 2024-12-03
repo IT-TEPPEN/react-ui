@@ -1,13 +1,11 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useEditActionContext } from "../edit/provider";
-import { useFocusActionContext } from "../focus/provider";
 import { useColumnsContext } from "../sheet/providers";
 import { DataObject, DataRecord, TColumnType } from "../table/type";
 import { IdGenerator } from "../libs";
 import { useRangeActionContext } from "../range/provider";
 
 export function useCell(id: string, row: DataObject<DataRecord>) {
-  const { move, focus } = useFocusActionContext();
   const { startSelectRange, moveSelectRange, endSelectRange } =
     useRangeActionContext();
   const { startEditing } = useEditActionContext();
@@ -33,40 +31,42 @@ export function useCell(id: string, row: DataObject<DataRecord>) {
 
   const onDoubleClick: React.MouseEventHandler<HTMLDivElement> = (e) => {
     e.preventDefault();
-    focus(rowIndex, colIndex);
-    move(rowIndex, colIndex);
     startEditing();
   };
 
-  const onClickCell: React.MouseEventHandler<HTMLDivElement> = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    focus(rowIndex, colIndex);
-    move(rowIndex, colIndex);
-  };
-
+  /**
+   * onBlurよりも先に発火するため、onBlurでendEditingを呼ぶと
+   * すぐにstartEditingが呼ばれてしまうため、setTimeoutで遅延させる
+   * これにより、endEditingが先に呼ばれるようになる
+   */
   const onMouseDown: React.MouseEventHandler<HTMLDivElement> = (e) => {
-    e.preventDefault();
-    startSelectRange({ rowIndex, colIndex });
+    e.stopPropagation();
+
+    setTimeout(() => {
+      startSelectRange({ rowIndex, colIndex });
+
+      const onMouseUp = (e: MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        endSelectRange();
+        document.removeEventListener("mouseup", onMouseUp);
+      };
+
+      document.addEventListener("mouseup", onMouseUp);
+    }, 0);
   };
 
   const onMouseEnter: React.MouseEventHandler<HTMLDivElement> = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     moveSelectRange({ rowIndex, colIndex });
-  };
-
-  const onMouseUp: React.MouseEventHandler<HTMLDivElement> = (e) => {
-    e.preventDefault();
-    endSelectRange({ rowIndex, colIndex });
   };
 
   return {
     type,
     component,
-    onClickCell,
     onDoubleClick,
     onMouseDown,
     onMouseEnter,
-    onMouseUp,
   };
 }

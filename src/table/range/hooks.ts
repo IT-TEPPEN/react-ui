@@ -153,7 +153,8 @@ export const rangeReducer: TRangeReducer = (state, action) => {
       if (
         state.isSelecting &&
         equalIndex(state.start, startIndex) &&
-        equalIndex(state.end, startIndex)
+        equalIndex(state.end, startIndex) &&
+        state.inProgress
       ) {
         return state;
       }
@@ -330,6 +331,7 @@ export const rangeReducer: TRangeReducer = (state, action) => {
      * - それ以外の場合、endの位置を1つ右に移動します。
      */
     case "moveRight": {
+      console.log("moveRight");
       if (!state.isSelecting) {
         throw new InvalidOperationError(
           "005",
@@ -348,6 +350,7 @@ export const rangeReducer: TRangeReducer = (state, action) => {
         equalIndex(startIndex, state.start) &&
         equalIndex(startIndex, state.end)
       ) {
+        console.log("equalIndex");
         return state;
       }
 
@@ -516,8 +519,8 @@ export function useRangeReducer(): TReturnRangeReducer {
       moveSelectRange: (payload: { rowIndex: number; colIndex: number }) => {
         dispatch({ type: "moveSelectRange", payload });
       },
-      endSelectRange: (payload: { rowIndex: number; colIndex: number }) => {
-        dispatch({ type: "endSelectRange", payload });
+      endSelectRange: () => {
+        dispatch({ type: "endSelectRange" });
       },
       moveUp: () => {
         dispatch({ type: "moveUp" });
@@ -558,55 +561,55 @@ export function useRangeReducer(): TReturnRangeReducer {
       dispatch({ type: "reset" });
     };
 
-    document.addEventListener("click", onClickOutOfTable);
+    document.addEventListener("mousedown", onClickOutOfTable);
 
     return () => {
-      document.removeEventListener("click", onClickOutOfTable);
+      document.removeEventListener("mousedown", onClickOutOfTable);
     };
   }, []);
 
-  if (!state.isSelecting) {
-    return { state, actions };
-  }
+  const exState = useMemo<TReturnRangeReducer["state"]>(() => {
+    if (!state.isSelecting) {
+      return state;
+    }
 
-  const startElement = document.getElementById(
-    IdGenerator.getTableCellId(state.start.rowIndex, state.start.colIndex)
-  );
-  const endElement = document.getElementById(
-    IdGenerator.getTableCellId(state.end.rowIndex, state.end.colIndex)
-  );
-  const tableElement = document.getElementById(IdGenerator.getTableId());
+    const startElement = document.getElementById(
+      IdGenerator.getTableCellId(state.start.rowIndex, state.start.colIndex)
+    );
+    const endElement = document.getElementById(
+      IdGenerator.getTableCellId(state.end.rowIndex, state.end.colIndex)
+    );
+    const tableElement = document.getElementById(IdGenerator.getTableId());
 
-  if (!startElement || !endElement || !tableElement) {
-    dispatch({ type: "reset" });
-    return { state: { isSelecting: false }, actions };
-  }
+    if (!startElement || !endElement || !tableElement) {
+      dispatch({ type: "reset" });
+      return { isSelecting: false };
+    }
 
-  const startRect = startElement.getBoundingClientRect();
-  const endRect = endElement.getBoundingClientRect();
-  const rectTable = tableElement.getBoundingClientRect();
+    const startRect = startElement.getBoundingClientRect();
+    const endRect = endElement.getBoundingClientRect();
+    const rectTable = tableElement.getBoundingClientRect();
 
-  const adjustSize = {
-    y: rectTable.top - tableElement.scrollTop - window.scrollY,
-    x: rectTable.left - tableElement.scrollLeft - window.scrollX,
-  };
+    const adjustSize = {
+      y: rectTable.top - tableElement.scrollTop - window.scrollY,
+      x: rectTable.left - tableElement.scrollLeft - window.scrollX,
+    };
 
-  const startDivProps = {
-    top: startRect.top - adjustSize.y,
-    left: startRect.left - adjustSize.x,
-    width: startRect.width,
-    height: startRect.height,
-  };
+    const startDivProps = {
+      top: startRect.top - adjustSize.y,
+      left: startRect.left - adjustSize.x,
+      width: startRect.width,
+      height: startRect.height,
+    };
 
-  const endDivProps = {
-    top: endRect.top - adjustSize.y,
-    left: endRect.left - adjustSize.x,
-    width: endRect.width,
-    height: endRect.height,
-  };
+    const endDivProps = {
+      top: endRect.top - adjustSize.y,
+      left: endRect.left - adjustSize.x,
+      width: endRect.width,
+      height: endRect.height,
+    };
 
-  return {
-    state: {
+    return {
       isSelecting: true,
       start: {
         ...state.start,
@@ -626,11 +629,21 @@ export function useRangeReducer(): TReturnRangeReducer {
         top: Math.min(startDivProps.top, endDivProps.top),
         left: Math.min(startDivProps.left, endDivProps.left),
         width:
-          Math.abs(startDivProps.left - endDivProps.left) + endDivProps.width,
+          Math.abs(startDivProps.left - endDivProps.left) +
+          (startDivProps.left <= endDivProps.left
+            ? endDivProps.width
+            : startDivProps.width),
         height:
-          Math.abs(startDivProps.top - endDivProps.top) + endDivProps.height,
+          Math.abs(startDivProps.top - endDivProps.top) +
+          (startDivProps.top <= endDivProps.top
+            ? endDivProps.height
+            : startDivProps.height),
       },
-    },
+    };
+  }, [state]);
+
+  return {
+    state: exState,
     actions,
   };
 }
