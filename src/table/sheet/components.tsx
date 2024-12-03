@@ -1,9 +1,9 @@
 import { memo } from "react";
-import { useFocusActionContext } from "../focus/provider";
 import { DataRecord, TTableColumn } from "../table/type";
 import { Checkbox } from "../checkbox/components";
 import { TableCell } from "../cell/ui/cell";
 import { IdGenerator } from "../libs";
+import { useRangeActionContext } from "../range/provider";
 
 interface TPropsRow<T extends DataRecord> {
   dataString: string;
@@ -16,7 +16,7 @@ interface TPropsRow<T extends DataRecord> {
 }
 
 export const Row = memo(function R<T extends DataRecord>(props: TPropsRow<T>) {
-  const { unfocus } = useFocusActionContext();
+  const { reset } = useRangeActionContext();
   const row = JSON.parse(props.dataString);
   const conditionalFormatting = props.conditionalFormattingString.split(",");
 
@@ -30,7 +30,7 @@ export const Row = memo(function R<T extends DataRecord>(props: TPropsRow<T>) {
 
         if (!!props.onClickRow) {
           props.onClickRow(row);
-          unfocus();
+          reset();
         }
       }}
       data-testid={row.id}

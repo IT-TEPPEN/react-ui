@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { useFocusStateContext } from "../../focus/provider";
 import { useColumnsContext } from "../../sheet/providers";
 import { useEditActionContext, useEditStateContext } from "../provider";
 import { NumberCellInput } from "./number-input";
@@ -7,6 +6,7 @@ import { SelectCellInput } from "./select-input";
 import { StringCellInput } from "./string-input";
 import { IdGenerator } from "../../libs";
 import { DataObject, DataRecord } from "../../table/type";
+import { useRangeStateContext } from "../../range/provider";
 
 type TPropsEditor = {
   pageRowIds: (string | number)[];
@@ -23,26 +23,29 @@ type TPropsEditor = {
 };
 
 export function Editor(props: TPropsEditor) {
-  const focus = useFocusStateContext();
+  const range = useRangeStateContext();
   const edit = useEditStateContext();
   const editActions = useEditActionContext();
   const cols = useColumnsContext();
 
   useEffect(() => {
-    if (focus.isFocus && !cols[focus.colIndex].editable) {
+    if (range.isSelecting && !cols[range.start.colIndex].editable) {
       editActions.endEditing();
     }
-  }, [edit, focus]);
+  }, [edit, range]);
 
   if (!edit.isEditing) return <></>;
-  if (!focus.isFocus) return <></>;
+  if (!range.isSelecting) return <></>;
 
-  const col = cols[focus.colIndex];
-  const row = props.rowMaps[props.pageRowIds[focus.rowIndex]].data;
+  const col = cols[range.start.colIndex];
+  const row = props.rowMaps[props.pageRowIds[range.start.rowIndex]].data;
 
   if (!col.editable) return <></>;
 
-  const id = IdGenerator.getTableCellId(focus.rowIndex, focus.colIndex);
+  const id = IdGenerator.getTableCellId(
+    range.start.rowIndex,
+    range.start.colIndex
+  );
   const cellElement = document.getElementById(id);
   const rect = cellElement?.getBoundingClientRect();
 
@@ -57,7 +60,7 @@ export function Editor(props: TPropsEditor) {
 
   if (!size) return <></>;
 
-  const tableElement = document.getElementById("table-frame");
+  const tableElement = document.getElementById(IdGenerator.getTableId());
   if (!tableElement) return <></>;
   const rectTable = tableElement.getBoundingClientRect();
 

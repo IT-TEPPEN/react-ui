@@ -16,7 +16,6 @@ import {
 } from "../filter";
 import { SortProvider } from "../sort";
 import { ColumnsProvider } from "../sheet/providers";
-import { FocusProvider, useFocusActionContext } from "../focus/provider";
 import { CheckboxProvider, CheckboxStatusProvider } from "../checkbox/provider";
 import { AllCheckbox } from "../checkbox/components";
 import { IdGenerator } from "../libs";
@@ -28,6 +27,11 @@ import { PasteProvider, usePasteActionContext } from "../paste/provider";
 import { generateFormattingString } from "../libs/conditional-formatting";
 import { Editor } from "../edit/ui/editor";
 import { useFilteringColumnStateContext } from "../filter/hooks/selectedFilteringColumn/provider";
+import {
+  RangeProvider,
+  TestRange,
+  useRangeActionContext,
+} from "../range/provider";
 
 export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   return (
@@ -43,9 +47,9 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
                 cols={props.cols}
                 errorHandler={props.errorHandler}
               >
-                <FocusProvider>
-                  <EditProvider>
-                    <TablePropertyProvider>
+                <EditProvider>
+                  <TablePropertyProvider>
+                    <RangeProvider>
                       <PasteProvider
                         rows={props.rows}
                         cols={props.cols}
@@ -54,9 +58,9 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
                         <KeyboardSetting />
                         <BaseTable {...props} />
                       </PasteProvider>
-                    </TablePropertyProvider>
-                  </EditProvider>
-                </FocusProvider>
+                    </RangeProvider>
+                  </TablePropertyProvider>
+                </EditProvider>
               </ColumnsProvider>
             </CheckboxStatusProvider>
           </CheckboxProvider>
@@ -70,7 +74,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { cols, rowMaps, pageRowIds } = useTable<T>(props);
   const filteringColumn = useFilteringColumnStateContext();
   const { onPaste } = usePasteActionContext();
-  const { unfocus } = useFocusActionContext();
+  const { reset } = useRangeActionContext();
 
   return (
     <div className="w-full">
@@ -83,9 +87,10 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
       </div>
 
       <div
-        id="table-frame"
+        id={IdGenerator.getTableId()}
         className="relative h-full max-w-full max-h-[80vh] border border-gray-200 rounded-md overflow-auto"
       >
+        <TestRange />
         <Editor rowMaps={rowMaps} pageRowIds={pageRowIds} />
         <table
           className={`table`}
@@ -107,7 +112,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
               className="sticky top-0 border-gray-200 z-20 bg-gray-200 text-gray-600 h-[32px]"
               onClick={(e) => {
                 e.stopPropagation();
-                unfocus();
+                reset();
               }}
             >
               {props.checkbox && (
@@ -129,7 +134,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
               <tr
                 onClick={(e) => {
                   e.stopPropagation();
-                  unfocus();
+                  reset();
                 }}
               >
                 <td

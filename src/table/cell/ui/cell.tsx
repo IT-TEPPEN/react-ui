@@ -10,7 +10,7 @@ export function TableCell(props: {
   cellFormatClassName?: string;
   isExistOnClickRow: boolean;
 }) {
-  const { type, component, onClickCell, onDoubleClick } = useCell(
+  const { type, component, onDoubleClick, onMouseDown, onMouseEnter } = useCell(
     props.id,
     props.row
   );
@@ -18,13 +18,13 @@ export function TableCell(props: {
   return (
     <td
       id={props.id}
-      className={`${props.cellFormatClassName}`}
-      onClick={!props.isExistOnClickRow ? onClickCell : undefined}
+      className={`${props.cellFormatClassName} select-none`}
       onDoubleClick={!props.isExistOnClickRow ? onDoubleClick : undefined}
+      onMouseDown={onMouseDown}
+      onMouseEnter={onMouseEnter}
     >
       <div
         className={`flex items-center gap-3 min-h-10 w-fit p-2 cursor-default`}
-        onClick={onClickCell}
       >
         {type === "component" ? (
           component
@@ -33,7 +33,6 @@ export function TableCell(props: {
             <p className="cell-data text-left whitespace-nowrap">{component}</p>
           </div>
         )}
-        {/* <Suspense fallback={null}>{props.editable && <EditButton />}</Suspense> */}
       </div>
     </td>
   );

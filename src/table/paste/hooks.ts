@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useReducer } from "react";
 import { TPasteReducer, TPasteReducerReturn } from "./types";
 import { useColumnValidatesContext } from "../sheet/providers";
-import { useFocusStateContext } from "../focus/provider";
+import { useRangeStateContext } from "../range/provider";
 
 const reducer: TPasteReducer = (state, action) => {
   switch (action.type) {
@@ -140,18 +140,21 @@ export function usePasteReducer(initial: {
     updateParameters: { arguments: [], timing: 0 },
   });
   const validators = useColumnValidatesContext();
-  const focus = useFocusStateContext();
+  const range = useRangeStateContext();
 
   useEffect(() => {
-    if (focus.isFocus) {
+    if (range.isSelecting) {
       dispatch({
         type: "focus",
-        payload: { rowIndex: focus.rowIndex, colIndex: focus.colIndex },
+        payload: {
+          rowIndex: range.start.rowIndex,
+          colIndex: range.start.colIndex,
+        },
       });
     } else {
       dispatch({ type: "unfocus" });
     }
-  }, [focus]);
+  }, [range]);
 
   const setRows = useCallback((rows: any[]) => {
     dispatch({ type: "setRows", payload: { rows } });

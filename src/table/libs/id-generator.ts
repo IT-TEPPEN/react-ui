@@ -1,4 +1,6 @@
 export const IdGenerator = {
+  getTableId: (option?: { id?: string }) =>
+    `react-ui:table${option?.id ? `-${option.id}` : ""}`,
   getTableCellId: (rowIndex: number, columnIndex: number) =>
     `table-cell-${rowIndex}-${columnIndex}`,
   getCellIndex: (id: string) => {
