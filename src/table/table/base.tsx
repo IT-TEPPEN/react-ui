@@ -32,6 +32,7 @@ import {
   TestRange,
   useRangeActionContext,
 } from "../range/provider";
+import { CopyProvider } from "../copy/provider";
 
 export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   return (
@@ -50,14 +51,16 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
                 <EditProvider>
                   <TablePropertyProvider>
                     <RangeProvider>
-                      <PasteProvider
-                        rows={props.rows}
-                        cols={props.cols}
-                        onUpdateRowFunction={props.onUpdateRow}
-                      >
-                        <KeyboardSetting />
-                        <BaseTable {...props} />
-                      </PasteProvider>
+                      <CopyProvider rows={props.rows} cols={props.cols}>
+                        <PasteProvider
+                          rows={props.rows}
+                          cols={props.cols}
+                          onUpdateRowFunction={props.onUpdateRow}
+                        >
+                          <KeyboardSetting />
+                          <BaseTable {...props} />
+                        </PasteProvider>
+                      </CopyProvider>
                     </RangeProvider>
                   </TablePropertyProvider>
                 </EditProvider>
@@ -73,8 +76,8 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
 function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { cols, rowMaps, pageRowIds } = useTable<T>(props);
   const filteringColumn = useFilteringColumnStateContext();
-  const { onPaste } = usePasteActionContext();
   const { reset } = useRangeActionContext();
+  const { onPaste } = usePasteActionContext();
 
   return (
     <div className="w-full">

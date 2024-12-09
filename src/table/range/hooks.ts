@@ -331,7 +331,6 @@ export const rangeReducer: TRangeReducer = (state, action) => {
      * - それ以外の場合、endの位置を1つ右に移動します。
      */
     case "moveRight": {
-      console.log("moveRight");
       if (!state.isSelecting) {
         throw new InvalidOperationError(
           "005",
@@ -350,7 +349,6 @@ export const rangeReducer: TRangeReducer = (state, action) => {
         equalIndex(startIndex, state.start) &&
         equalIndex(startIndex, state.end)
       ) {
-        console.log("equalIndex");
         return state;
       }
 
