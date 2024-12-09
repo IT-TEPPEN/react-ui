@@ -5,7 +5,6 @@ import { useEditContext } from "../../edit/provider";
 import { useColumnsContext } from "../../sheet/providers";
 import { useRangeContext } from "../../range/provider";
 import { useCopyActionContext } from "../../copy/provider";
-import { usePasteActionContext } from "../../paste/provider";
 
 const setInitialValueToInputForm = (key: string) => {
   const inputElement = document.getElementById("edit-input");

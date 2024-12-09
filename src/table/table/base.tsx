@@ -23,7 +23,7 @@ import { EditProvider } from "../edit/provider";
 import { TablePropertyProvider } from "../table-property/provider";
 import { KeyboardSetting } from "../operation/components/keyboard-setting";
 import { Row } from "../sheet/components";
-import { PasteProvider, usePasteActionContext } from "../paste/provider";
+import { PasteProvider } from "../paste/provider";
 import { generateFormattingString } from "../libs/conditional-formatting";
 import { Editor } from "../edit/ui/editor";
 import { useFilteringColumnStateContext } from "../filter/hooks/selectedFilteringColumn/provider";
@@ -77,7 +77,6 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { cols, rowMaps, pageRowIds } = useTable<T>(props);
   const filteringColumn = useFilteringColumnStateContext();
   const { reset } = useRangeActionContext();
-  const { onPaste } = usePasteActionContext();
 
   return (
     <div className="w-full">
@@ -95,21 +94,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
       >
         <TestRange />
         <Editor rowMaps={rowMaps} pageRowIds={pageRowIds} />
-        <table
-          className={`table`}
-          onPaste={(e) => {
-            e.preventDefault();
-            const pastedData = e.clipboardData.getData("Text");
-            onPaste(
-              pastedData
-                .replace(/\t/g, ",")
-                .trim()
-                .replace(/\r\n/g, "\n")
-                .split("\n")
-                .map((row) => row.split(","))
-            );
-          }}
-        >
+        <table className={`table`}>
           <thead>
             <tr
               className="sticky top-0 border-gray-200 z-20 bg-gray-200 text-gray-600 h-[32px]"
