@@ -6,6 +6,7 @@ import { useCheckboxStatusContext } from "../checkbox/provider";
 import { useSortActionContext, useSortTimingContext } from "../sort/provider";
 import { useTablePropertyActionContext } from "../table-property/provider";
 import { usePasteActionContext } from "../paste/provider";
+import { useCopyActionContext } from "../copy/provider";
 
 export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { filter } = useFilterContext();
@@ -13,7 +14,8 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
   const sortTiming = useSortTimingContext();
   const { setRowCount, pageFilter } = usePageContext();
   const { dispatchCheckboxStatus } = useCheckboxStatusContext();
-  const { setRows } = usePasteActionContext();
+  const { setRows: setRowsForPaste } = usePasteActionContext();
+  const { setRows: setRowsForCopy } = useCopyActionContext();
   const { setMaxDisplayColCount, setMaxDisplayRowCount } =
     useTablePropertyActionContext();
 
@@ -88,7 +90,9 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
   }, [pageRowIds.length]);
 
   useEffect(() => {
-    setRows(pageRowIds.map((id) => rowMaps[id].data));
+    const rows = pageRowIds.map((id) => rowMaps[id].data);
+    setRowsForCopy(rows);
+    setRowsForPaste(rows);
   }, [rowMaps]);
 
   return {

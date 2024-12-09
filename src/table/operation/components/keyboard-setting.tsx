@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { useEditContext } from "../../edit/provider";
 import { useColumnsContext } from "../../sheet/providers";
 import { useRangeContext } from "../../range/provider";
+import { useCopyActionContext } from "../../copy/provider";
+import { usePasteActionContext } from "../../paste/provider";
 
 const setInitialValueToInputForm = (key: string) => {
   const inputElement = document.getElementById("edit-input");
@@ -25,6 +27,7 @@ const setInitialValueToInputForm = (key: string) => {
 export function KeyboardSetting() {
   const edit = useEditContext();
   const range = useRangeContext();
+  const { copy } = useCopyActionContext();
   const col = useColumnsContext()[range.isSelecting ? range.start.colIndex : 0];
 
   useEffect(() => {
@@ -42,7 +45,6 @@ export function KeyboardSetting() {
           e.preventDefault();
           range.reset();
         } else if (e.key === "ArrowRight") {
-          console.log("ArrowRight");
           e.preventDefault();
 
           if (e.shiftKey) {
@@ -77,6 +79,9 @@ export function KeyboardSetting() {
         } else if (e.key === "F2") {
           e.preventDefault();
           edit.startEditing();
+        } else if (e.ctrlKey && e.key === "c") {
+          e.preventDefault();
+          copy();
         } else if (!e.altKey && !e.ctrlKey && /^[a-zA-Z0-9]$/.test(e.key)) {
           e.preventDefault();
           e.stopPropagation();
@@ -102,7 +107,7 @@ export function KeyboardSetting() {
     return () => {
       document.removeEventListener("keydown", listener);
     };
-  }, [range.isSelecting, edit.isEditing]);
+  }, [range, edit.isEditing]);
 
   useEffect(() => {
     if (edit.isEditing && !col.editable) {
