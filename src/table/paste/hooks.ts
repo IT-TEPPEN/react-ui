@@ -197,6 +197,34 @@ export function usePasteReducer(initial: {
     }
   }, [state.updateParameters.timing, state.onUpdateRowFunction]);
 
+  useEffect(() => {
+    const paste = (e: ClipboardEvent) => {
+      if (!range.isSelecting) {
+        return;
+      }
+
+      if (e.clipboardData) {
+        e.preventDefault();
+        const pastedData = e.clipboardData.getData("Text");
+
+        onPaste(
+          pastedData
+            .replace(/\t/g, ",")
+            .trim()
+            .replace(/\r\n/g, "\n")
+            .split("\n")
+            .map((row) => row.split(","))
+        );
+      }
+    };
+
+    document.addEventListener("paste", paste);
+
+    return () => {
+      document.removeEventListener("paste", paste);
+    };
+  }, [range.isSelecting]);
+
   const actions: TPasteReducerReturn = useMemo(
     () => ({
       setRows,
