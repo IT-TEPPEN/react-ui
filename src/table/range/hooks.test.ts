@@ -1,4 +1,3 @@
-import { InvalidOperationError, OutOfRangeError } from "./errors";
 import { rangeReducer } from "./hooks";
 import { TRangeAction, TRangeState } from "./type";
 
@@ -17,51 +16,42 @@ describe("rangeReducer", () => {
   });
 
   /**
-   * setMaxの異常系
-   */
-  test.each<[TRangeState, TRangeAction]>([
-    [
-      { isSelecting: false, constraint: { maxRowIndex: 5, maxColIndex: 5 } },
-      { type: "setMax", payload: { maxRowIndex: -1, maxColIndex: 10 } },
-    ],
-    [
-      { isSelecting: false, constraint: { maxRowIndex: 5, maxColIndex: 5 } },
-      { type: "setMax", payload: { maxRowIndex: 10, maxColIndex: -1 } },
-    ],
-  ])("setMaxの異常系(OutOfRangeError)", (prevState, action) => {
-    expect(() => rangeReducer(prevState, action)).toThrow(OutOfRangeError);
-  });
-
-  /**
-   * startの正常系
+   * startSelectRangeの正常系
    */
   test.each<[TRangeState, TRangeAction, TRangeState]>([
     /**
      * Actionが"start"で、前状態がisSelecting: falseの場合
      */
     [
-      { isSelecting: false, constraint: { maxRowIndex: 10, maxColIndex: 3 } },
-      { type: "start", payload: { rowIndex: 2, colIndex: 1 } },
+      {
+        isSelecting: false,
+        constraint: { maxRowIndex: 10, maxColIndex: 3 },
+      },
+      { type: "startSelectRange", payload: { rowIndex: 2, colIndex: 1 } },
       {
         isSelecting: true,
+        inProgress: true,
         constraint: { maxRowIndex: 10, maxColIndex: 3 },
         start: { rowIndex: 2, colIndex: 1 },
         end: { rowIndex: 2, colIndex: 1 },
       },
     ],
+
     /**
      * Actionが"start"で、前状態がisSelecting: trueの場合
      */
     [
       {
         isSelecting: true,
+        inProgress: false,
         constraint: { maxRowIndex: 10, maxColIndex: 3 },
         start: { rowIndex: 2, colIndex: 1 },
         end: { rowIndex: 4, colIndex: 3 },
       },
-      { type: "start", payload: { rowIndex: 5, colIndex: 0 } },
+      { type: "startSelectRange", payload: { rowIndex: 5, colIndex: 0 } },
       {
         isSelecting: true,
+        inProgress: true,
         constraint: { maxRowIndex: 10, maxColIndex: 3 },
         start: { rowIndex: 5, colIndex: 0 },
         end: { rowIndex: 5, colIndex: 0 },
@@ -72,79 +62,28 @@ describe("rangeReducer", () => {
   });
 
   /**
-   * startの異常系
-   */
-  test.each<[TRangeState, TRangeAction]>([
-    /**
-     * Actionが"start"で、payloadのrowIndexが-1の場合
-     */
-    [
-      { isSelecting: false, constraint: { maxRowIndex: 10, maxColIndex: 3 } },
-      { type: "start", payload: { rowIndex: -1, colIndex: 0 } },
-    ],
-    /**
-     * Actionが"start"で、payloadのcolIndexが-1の場合
-     */
-    [
-      { isSelecting: false, constraint: { maxRowIndex: 10, maxColIndex: 3 } },
-      { type: "start", payload: { rowIndex: 0, colIndex: -1 } },
-    ],
-    /**
-     * Actionが"start"で、payloadのrowIndexがmaxRowIndex以上の場合
-     */
-    [
-      { isSelecting: false, constraint: { maxRowIndex: 10, maxColIndex: 3 } },
-      { type: "start", payload: { rowIndex: 11, colIndex: 0 } },
-    ],
-    /**
-     * Actionが"start"で、payloadのcolIndexがmaxColIndex以上の場合
-     */
-    [
-      { isSelecting: false, constraint: { maxRowIndex: 10, maxColIndex: 3 } },
-      { type: "start", payload: { rowIndex: 0, colIndex: 4 } },
-    ],
-  ])("startの異常系(OutOfRangeError)", (prevState, action) => {
-    expect(() => rangeReducer(prevState, action)).toThrow(OutOfRangeError);
-  });
-
-  /**
-   * endの正常系
+   * endSelectRangeの正常系
    */
   test.each<[TRangeState, TRangeAction, TRangeState]>([
     [
       {
         isSelecting: true,
+        inProgress: true,
         constraint: { maxRowIndex: 10, maxColIndex: 3 },
         start: { rowIndex: 2, colIndex: 1 },
         end: { rowIndex: 2, colIndex: 1 },
       },
-      { type: "end", payload: { rowIndex: 4, colIndex: 2 } },
+      { type: "endSelectRange" },
       {
         isSelecting: true,
+        inProgress: false,
         constraint: { maxRowIndex: 10, maxColIndex: 3 },
         start: { rowIndex: 2, colIndex: 1 },
-        end: { rowIndex: 4, colIndex: 2 },
+        end: { rowIndex: 2, colIndex: 1 },
       },
     ],
   ])("endの正常系", (state, action, expectedState) => {
     expect(rangeReducer(state, action)).toEqual(expectedState);
-  });
-
-  /**
-   * endの異常系
-   */
-  test.each<[TRangeState, TRangeAction]>([
-    [
-      {
-        isSelecting: false,
-        constraint: { maxRowIndex: 10, maxColIndex: 3 },
-      },
-      { type: "end", payload: { rowIndex: 4, colIndex: 2 } },
-    ],
-  ])("endの異常系(InvalidOperationError)", (prevState, action) => {
-    expect(() => rangeReducer(prevState, action)).toThrow(
-      InvalidOperationError
-    );
   });
 
   /**
@@ -154,6 +93,7 @@ describe("rangeReducer", () => {
     [
       {
         isSelecting: true,
+        inProgress: false,
         constraint: { maxRowIndex: 10, maxColIndex: 3 },
         start: { rowIndex: 2, colIndex: 1 },
         end: { rowIndex: 2, colIndex: 1 },
@@ -161,6 +101,7 @@ describe("rangeReducer", () => {
       { type: "moveUp" },
       {
         isSelecting: true,
+        inProgress: false,
         constraint: { maxRowIndex: 10, maxColIndex: 3 },
         start: { rowIndex: 1, colIndex: 1 },
         end: { rowIndex: 1, colIndex: 1 },
@@ -171,29 +112,13 @@ describe("rangeReducer", () => {
   });
 
   /**
-   * moveUpの異常系
-   */
-  test.each<[TRangeState, TRangeAction]>([
-    [
-      {
-        isSelecting: false,
-        constraint: { maxRowIndex: 10, maxColIndex: 3 },
-      },
-      { type: "moveUp" },
-    ],
-  ])("moveUpの異常系(InvalidOperationError)", (prevState, action) => {
-    expect(() => rangeReducer(prevState, action)).toThrow(
-      InvalidOperationError
-    );
-  });
-
-  /**
    * moveDownの正常系
    */
   test.each<[TRangeState, TRangeAction, TRangeState]>([
     [
       {
         isSelecting: true,
+        inProgress: false,
         constraint: { maxRowIndex: 10, maxColIndex: 3 },
         start: { rowIndex: 2, colIndex: 1 },
         end: { rowIndex: 2, colIndex: 1 },
@@ -201,6 +126,7 @@ describe("rangeReducer", () => {
       { type: "moveDown" },
       {
         isSelecting: true,
+        inProgress: false,
         constraint: { maxRowIndex: 10, maxColIndex: 3 },
         start: { rowIndex: 3, colIndex: 1 },
         end: { rowIndex: 3, colIndex: 1 },
@@ -211,29 +137,13 @@ describe("rangeReducer", () => {
   });
 
   /**
-   * moveDownの異常系
-   */
-  test.each<[TRangeState, TRangeAction]>([
-    [
-      {
-        isSelecting: false,
-        constraint: { maxRowIndex: 10, maxColIndex: 3 },
-      },
-      { type: "moveDown" },
-    ],
-  ])("moveDownの異常系(InvalidOperationError)", (prevState, action) => {
-    expect(() => rangeReducer(prevState, action)).toThrow(
-      InvalidOperationError
-    );
-  });
-
-  /**
    * moveLeftの正常系
    */
   test.each<[TRangeState, TRangeAction, TRangeState]>([
     [
       {
         isSelecting: true,
+        inProgress: false,
         constraint: { maxRowIndex: 10, maxColIndex: 3 },
         start: { rowIndex: 2, colIndex: 1 },
         end: { rowIndex: 2, colIndex: 1 },
@@ -241,6 +151,7 @@ describe("rangeReducer", () => {
       { type: "moveLeft" },
       {
         isSelecting: true,
+        inProgress: false,
         constraint: { maxRowIndex: 10, maxColIndex: 3 },
         start: { rowIndex: 2, colIndex: 0 },
         end: { rowIndex: 2, colIndex: 0 },
@@ -251,29 +162,13 @@ describe("rangeReducer", () => {
   });
 
   /**
-   * moveLeftの異常系
-   */
-  test.each<[TRangeState, TRangeAction]>([
-    [
-      {
-        isSelecting: false,
-        constraint: { maxRowIndex: 10, maxColIndex: 3 },
-      },
-      { type: "moveLeft" },
-    ],
-  ])("moveLeftの異常系(InvalidOperationError)", (prevState, action) => {
-    expect(() => rangeReducer(prevState, action)).toThrow(
-      InvalidOperationError
-    );
-  });
-
-  /**
    * moveRightの正常系
    */
   test.each<[TRangeState, TRangeAction, TRangeState]>([
     [
       {
         isSelecting: true,
+        inProgress: false,
         constraint: { maxRowIndex: 10, maxColIndex: 3 },
         start: { rowIndex: 2, colIndex: 1 },
         end: { rowIndex: 2, colIndex: 1 },
@@ -281,6 +176,7 @@ describe("rangeReducer", () => {
       { type: "moveRight" },
       {
         isSelecting: true,
+        inProgress: false,
         constraint: { maxRowIndex: 10, maxColIndex: 3 },
         start: { rowIndex: 2, colIndex: 2 },
         end: { rowIndex: 2, colIndex: 2 },
@@ -291,29 +187,13 @@ describe("rangeReducer", () => {
   });
 
   /**
-   * moveRightの異常系
-   */
-  test.each<[TRangeState, TRangeAction]>([
-    [
-      {
-        isSelecting: false,
-        constraint: { maxRowIndex: 10, maxColIndex: 3 },
-      },
-      { type: "moveRight" },
-    ],
-  ])("moveRightの異常系(InvalidOperationError)", (prevState, action) => {
-    expect(() => rangeReducer(prevState, action)).toThrow(
-      InvalidOperationError
-    );
-  });
-
-  /**
    * extendUpの正常系
    */
   test.each<[TRangeState, TRangeAction, TRangeState]>([
     [
       {
         isSelecting: true,
+        inProgress: false,
         constraint: { maxRowIndex: 10, maxColIndex: 3 },
         start: { rowIndex: 2, colIndex: 1 },
         end: { rowIndex: 4, colIndex: 1 },
@@ -321,6 +201,7 @@ describe("rangeReducer", () => {
       { type: "extendUp" },
       {
         isSelecting: true,
+        inProgress: false,
         constraint: { maxRowIndex: 10, maxColIndex: 3 },
         start: { rowIndex: 2, colIndex: 1 },
         end: { rowIndex: 3, colIndex: 1 },
@@ -331,29 +212,13 @@ describe("rangeReducer", () => {
   });
 
   /**
-   * extendUpの異常系
-   */
-  test.each<[TRangeState, TRangeAction]>([
-    [
-      {
-        isSelecting: false,
-        constraint: { maxRowIndex: 10, maxColIndex: 3 },
-      },
-      { type: "extendUp" },
-    ],
-  ])("extendUpの異常系(InvalidOperationError)", (prevState, action) => {
-    expect(() => rangeReducer(prevState, action)).toThrow(
-      InvalidOperationError
-    );
-  });
-
-  /**
    * extendDownの正常系
    */
   test.each<[TRangeState, TRangeAction, TRangeState]>([
     [
       {
         isSelecting: true,
+        inProgress: false,
         constraint: { maxRowIndex: 10, maxColIndex: 3 },
         start: { rowIndex: 2, colIndex: 1 },
         end: { rowIndex: 4, colIndex: 1 },
@@ -361,6 +226,7 @@ describe("rangeReducer", () => {
       { type: "extendDown" },
       {
         isSelecting: true,
+        inProgress: false,
         constraint: { maxRowIndex: 10, maxColIndex: 3 },
         start: { rowIndex: 2, colIndex: 1 },
         end: { rowIndex: 5, colIndex: 1 },
@@ -371,29 +237,13 @@ describe("rangeReducer", () => {
   });
 
   /**
-   * extendDownの異常系
-   */
-  test.each<[TRangeState, TRangeAction]>([
-    [
-      {
-        isSelecting: false,
-        constraint: { maxRowIndex: 10, maxColIndex: 3 },
-      },
-      { type: "extendDown" },
-    ],
-  ])("extendDownの異常系(InvalidOperationError)", (prevState, action) => {
-    expect(() => rangeReducer(prevState, action)).toThrow(
-      InvalidOperationError
-    );
-  });
-
-  /**
    * extendLeftの正常系
    */
   test.each<[TRangeState, TRangeAction, TRangeState]>([
     [
       {
         isSelecting: true,
+        inProgress: false,
         constraint: { maxRowIndex: 10, maxColIndex: 3 },
         start: { rowIndex: 2, colIndex: 1 },
         end: { rowIndex: 2, colIndex: 3 },
@@ -401,6 +251,7 @@ describe("rangeReducer", () => {
       { type: "extendLeft" },
       {
         isSelecting: true,
+        inProgress: false,
         constraint: { maxRowIndex: 10, maxColIndex: 3 },
         start: { rowIndex: 2, colIndex: 1 },
         end: { rowIndex: 2, colIndex: 2 },
@@ -411,29 +262,13 @@ describe("rangeReducer", () => {
   });
 
   /**
-   * extendLeftの異常系
-   */
-  test.each<[TRangeState, TRangeAction]>([
-    [
-      {
-        isSelecting: false,
-        constraint: { maxRowIndex: 10, maxColIndex: 3 },
-      },
-      { type: "extendLeft" },
-    ],
-  ])("extendLeftの異常系(InvalidOperationError)", (prevState, action) => {
-    expect(() => rangeReducer(prevState, action)).toThrow(
-      InvalidOperationError
-    );
-  });
-
-  /**
    * extendRightの正常系
    */
   test.each<[TRangeState, TRangeAction, TRangeState]>([
     [
       {
         isSelecting: true,
+        inProgress: false,
         constraint: { maxRowIndex: 10, maxColIndex: 3 },
         start: { rowIndex: 2, colIndex: 1 },
         end: { rowIndex: 3, colIndex: 2 },
@@ -441,6 +276,7 @@ describe("rangeReducer", () => {
       { type: "extendRight" },
       {
         isSelecting: true,
+        inProgress: false,
         constraint: { maxRowIndex: 10, maxColIndex: 3 },
         start: { rowIndex: 2, colIndex: 1 },
         end: { rowIndex: 3, colIndex: 3 },
@@ -451,29 +287,13 @@ describe("rangeReducer", () => {
   });
 
   /**
-   * extendRightの異常系
-   */
-  test.each<[TRangeState, TRangeAction]>([
-    [
-      {
-        isSelecting: false,
-        constraint: { maxRowIndex: 10, maxColIndex: 3 },
-      },
-      { type: "extendRight" },
-    ],
-  ])("extendRightの異常系(InvalidOperationError)", (prevState, action) => {
-    expect(() => rangeReducer(prevState, action)).toThrow(
-      InvalidOperationError
-    );
-  });
-
-  /**
    * resetの正常系
    */
   test.each<[TRangeState, TRangeAction, TRangeState]>([
     [
       {
         isSelecting: true,
+        inProgress: false,
         constraint: { maxRowIndex: 10, maxColIndex: 3 },
         start: { rowIndex: 2, colIndex: 1 },
         end: { rowIndex: 2, colIndex: 1 },

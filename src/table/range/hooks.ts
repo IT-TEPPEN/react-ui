@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useReducer } from "react";
-import { InvalidOperationError, OutOfRangeError } from "./errors";
 import {
   IIndex,
   TRangeReducer,
@@ -8,74 +7,34 @@ import {
 } from "./type";
 import { IdGenerator } from "../libs";
 
-function newRangeConstraint({
-  maxColIndex,
-  maxRowIndex,
-}: {
+function newRangeConstraint(props: {
   maxColIndex: number;
   maxRowIndex: number;
 }): IRangeConstraint {
-  if (maxColIndex < -1) {
-    throw new OutOfRangeError(
-      "001",
-      "maxColIndex must be 0 or greater",
-      `The provided maxColIndex (${maxColIndex}) is out of range. It must be 0 or greater.`
-    );
-  }
-
-  if (maxRowIndex < -1) {
-    throw new OutOfRangeError(
-      "002",
-      "maxRowIndex must be 0 or greater",
-      `The provided maxRowIndex (${maxRowIndex}) is out of range. It must be 0 or greater.`
-    );
-  }
-
   return {
-    maxColIndex,
-    maxRowIndex,
+    maxColIndex: props.maxColIndex < -1 ? -1 : props.maxColIndex,
+    maxRowIndex: props.maxRowIndex < -1 ? -1 : props.maxRowIndex,
   };
 }
 
-function newIndex({
-  rowIndex,
-  colIndex,
-  constraint: { maxRowIndex, maxColIndex },
-}: {
+function newIndex(props: {
   rowIndex: number;
   colIndex: number;
   constraint: IRangeConstraint;
 }): IIndex {
-  if (rowIndex < 0) {
-    throw new OutOfRangeError(
-      "003",
-      "rowIndex must be 0 or greater",
-      `The provided rowIndex (${rowIndex}) is out of range. It must be 0 or greater.`
-    );
-  }
+  let rowIndex = props.rowIndex;
+  let colIndex = props.colIndex;
 
-  if (maxRowIndex < rowIndex) {
-    throw new OutOfRangeError(
-      "004",
-      "rowIndex must be less than maxRowIndex",
-      `The provided rowIndex (${rowIndex}) is out of range. It must be less than ${maxRowIndex}.`
-    );
+  if (rowIndex < 0) {
+    rowIndex = 0;
+  } else if (props.constraint.maxRowIndex < rowIndex) {
+    rowIndex = props.constraint.maxRowIndex;
   }
 
   if (colIndex < 0) {
-    throw new OutOfRangeError(
-      "005",
-      "colIndex must be 0 or greater",
-      `The provided colIndex (${colIndex}) is out of range. It must be 0 or greater.`
-    );
-  }
-
-  if (maxColIndex < colIndex) {
-    throw new OutOfRangeError(
-      "006",
-      "colIndex must be less than maxColIndex",
-      `The provided colIndex (${colIndex}) is out of range. It must be less than ${maxColIndex}.`
-    );
+    colIndex = 0;
+  } else if (props.constraint.maxColIndex < colIndex) {
+    colIndex = props.constraint.maxColIndex;
   }
 
   return { rowIndex, colIndex };
@@ -108,19 +67,11 @@ function moveIndex({
   const newRow = index.rowIndex + deltaRow;
   const newCol = index.colIndex + deltaCol;
 
-  try {
-    return newIndex({
-      rowIndex: newRow,
-      colIndex: newCol,
-      constraint,
-    });
-  } catch (e) {
-    if (e instanceof OutOfRangeError) {
-      return index;
-    }
-
-    throw e;
-  }
+  return newIndex({
+    rowIndex: newRow,
+    colIndex: newCol,
+    constraint,
+  });
 }
 
 export const rangeReducer: TRangeReducer = (state, action) => {
@@ -197,15 +148,7 @@ export const rangeReducer: TRangeReducer = (state, action) => {
      * - この場合、isSelectingはtrueのままです。
      */
     case "endSelectRange": {
-      if (!state.isSelecting) {
-        throw new InvalidOperationError(
-          "001",
-          "Cannot set end without starting",
-          "Cannot set end without starting"
-        );
-      }
-
-      if (!state.inProgress) {
+      if (!state.isSelecting || !state.inProgress) {
         return state;
       }
 
@@ -224,11 +167,7 @@ export const rangeReducer: TRangeReducer = (state, action) => {
      */
     case "moveUp": {
       if (!state.isSelecting) {
-        throw new InvalidOperationError(
-          "002",
-          "Cannot move without starting",
-          "Cannot move without starting"
-        );
+        return state;
       }
 
       const startIndex = moveIndex({
@@ -260,11 +199,7 @@ export const rangeReducer: TRangeReducer = (state, action) => {
      */
     case "moveDown": {
       if (!state.isSelecting) {
-        throw new InvalidOperationError(
-          "003",
-          "Cannot move without starting",
-          "Cannot move without starting"
-        );
+        return state;
       }
 
       const startIndex = moveIndex({
@@ -296,11 +231,7 @@ export const rangeReducer: TRangeReducer = (state, action) => {
      */
     case "moveLeft": {
       if (!state.isSelecting) {
-        throw new InvalidOperationError(
-          "004",
-          "Cannot move without starting",
-          "Cannot move without starting"
-        );
+        return state;
       }
 
       const startIndex = moveIndex({
@@ -332,11 +263,7 @@ export const rangeReducer: TRangeReducer = (state, action) => {
      */
     case "moveRight": {
       if (!state.isSelecting) {
-        throw new InvalidOperationError(
-          "005",
-          "Cannot move without starting",
-          "Cannot move without starting"
-        );
+        return state;
       }
 
       const startIndex = moveIndex({
@@ -368,11 +295,7 @@ export const rangeReducer: TRangeReducer = (state, action) => {
      */
     case "extendUp": {
       if (!state.isSelecting) {
-        throw new InvalidOperationError(
-          "006",
-          "Cannot extend without starting",
-          "Cannot extend without starting"
-        );
+        return state;
       }
 
       const endIndex = moveIndex({
@@ -400,11 +323,7 @@ export const rangeReducer: TRangeReducer = (state, action) => {
      */
     case "extendDown": {
       if (!state.isSelecting) {
-        throw new InvalidOperationError(
-          "007",
-          "Cannot extend without starting",
-          "Cannot extend without starting"
-        );
+        return state;
       }
 
       const endIndex = moveIndex({
@@ -432,11 +351,7 @@ export const rangeReducer: TRangeReducer = (state, action) => {
      */
     case "extendLeft": {
       if (!state.isSelecting) {
-        throw new InvalidOperationError(
-          "008",
-          "Cannot extend without starting",
-          "Cannot extend without starting"
-        );
+        return state;
       }
 
       const endIndex = moveIndex({
@@ -464,11 +379,7 @@ export const rangeReducer: TRangeReducer = (state, action) => {
      */
     case "extendRight": {
       if (!state.isSelecting) {
-        throw new InvalidOperationError(
-          "009",
-          "Cannot extend without starting",
-          "Cannot extend without starting"
-        );
+        return state;
       }
 
       const endIndex = moveIndex({
