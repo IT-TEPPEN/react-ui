@@ -44,6 +44,8 @@ const ACCEPTED_TYPES = [
   "application/zip", // .zip
 ];
 
+const ALLOWED_EXTENSIONS = [".msg"];
+
 export function useFileUploader(
   props: IPropsFileUploader
 ): IReturnFileUploader {
@@ -57,6 +59,11 @@ export function useFileUploader(
     const rejectedFiles: File[] = [];
 
     files.forEach((file) => {
+      const extension = file.name.split(".").pop();
+      if (extension && ALLOWED_EXTENSIONS.includes(`.${extension}`)) {
+        validFiles.push(file);
+        return;
+      }
       if (ACCEPTED_TYPES.some((type) => file.type.match(type))) {
         validFiles.push(file);
       } else {
