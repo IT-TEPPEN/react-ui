@@ -40,8 +40,6 @@ export function useCell(id: string, row: DataObject<DataRecord>) {
    * これにより、endEditingが先に呼ばれるようになる
    */
   const onMouseDown: React.MouseEventHandler<HTMLDivElement> = (e) => {
-    e.stopPropagation();
-
     setTimeout(() => {
       startSelectRange({ rowIndex, colIndex });
 
