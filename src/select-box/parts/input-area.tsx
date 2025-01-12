@@ -1,5 +1,8 @@
 "use client";
 
+import { useIdContext } from "../id/provider";
+import { IdGenerator } from "../lib";
+
 interface IPropsInputArea {
   inputRef?: React.RefObject<HTMLInputElement>;
   isSelecting: boolean;
@@ -9,8 +12,11 @@ interface IPropsInputArea {
 }
 
 export function InputArea(props: IPropsInputArea) {
+  const id = useIdContext();
+
   return (
     <input
+      id={IdGenerator.generateIdSelectBoxInputArea(id)}
       ref={props.inputRef}
       className="border border-gray-300 px-2 py-1"
       type="text"

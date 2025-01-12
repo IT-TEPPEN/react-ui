@@ -1,4 +1,5 @@
-import { ID_SELECT_BOX_FRAME } from "../constants";
+import { useIdContext } from "../id/provider";
+import { IdGenerator } from "../lib";
 
 interface IPropsSelectBoxFrame {
   onToggle: () => void;
@@ -7,8 +8,10 @@ interface IPropsSelectBoxFrame {
 }
 
 export function SelectBoxFrame(props: IPropsSelectBoxFrame) {
+  const id = useIdContext();
+
   return (
-    <div id={ID_SELECT_BOX_FRAME} className="relative">
+    <div id={IdGenerator.generateIdSelectBoxFrame(id)} className="relative">
       <div
         onClick={(e) => {
           if (!props.isOpen) {
