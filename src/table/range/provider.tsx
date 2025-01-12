@@ -23,6 +23,7 @@ const RangeActionContext = createContext<TRangeActionContext>({
   extendLeft: NoImplementeFunction,
   extendRight: NoImplementeFunction,
   reset: NoImplementeFunction,
+  setRange: NoImplementeFunction,
 });
 
 export function useRangeStateContext() {
@@ -86,7 +87,7 @@ export function TestRange(props: { isCopied?: boolean }) {
   return (
     <>
       <div
-        className={`absolute border border-gray-500 ${
+        className={`absolute border border-gray-500 bg-gray-500 bg-opacity-10 ${
           props.isCopied ? "border-dashed" : "border-solid"
         }`}
         style={{
@@ -97,7 +98,7 @@ export function TestRange(props: { isCopied?: boolean }) {
           pointerEvents: "none",
         }}
       ></div>
-      <div
+      {/* <div
         className="absolute bg-gray-700"
         style={{
           top: clickboxPoint.y - 5,
@@ -106,7 +107,7 @@ export function TestRange(props: { isCopied?: boolean }) {
           height: 10,
           pointerEvents: "none",
         }}
-      />
+      /> */}
     </>
   );
 }

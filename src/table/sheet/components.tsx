@@ -36,7 +36,11 @@ export const Row = memo(function R<T extends DataRecord>(props: TPropsRow<T>) {
       data-testid={row.id}
     >
       {props.existCheckbox && (
-        <td>
+        <td
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
           <Checkbox row={row} />
         </td>
       )}
