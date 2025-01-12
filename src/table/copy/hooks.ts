@@ -30,10 +30,22 @@ export function useCopyReducer(initial: {
       return;
     }
 
-    const startRowIndex = range.start.rowIndex;
-    const endRowIndex = range.end.rowIndex;
-    const startColIndex = range.start.colIndex;
-    const endColIndex = range.end.colIndex;
+    const startRowIndex =
+      range.start.rowIndex <= range.end.rowIndex
+        ? range.start.rowIndex
+        : range.end.rowIndex;
+    const endRowIndex =
+      range.start.rowIndex >= range.end.rowIndex
+        ? range.start.rowIndex
+        : range.end.rowIndex;
+    const startColIndex =
+      range.start.colIndex <= range.end.colIndex
+        ? range.start.colIndex
+        : range.end.colIndex;
+    const endColIndex =
+      range.start.colIndex >= range.end.colIndex
+        ? range.start.colIndex
+        : range.end.colIndex;
 
     const copiedData = state.rows
       .slice(startRowIndex, endRowIndex + 1)
