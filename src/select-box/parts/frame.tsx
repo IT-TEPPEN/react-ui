@@ -12,7 +12,10 @@ export function SelectBoxFrame(props: IPropsSelectBoxFrame) {
   const id = useIdContext();
 
   return (
-    <div id={IdGenerator.generateIdSelectBoxFrame(id)} className="relative">
+    <div
+      id={IdGenerator.generateIdSelectBoxFrame(id)}
+      className="relative w-full"
+    >
       <div
         onClick={(e) => {
           if (!props.isOpen) {

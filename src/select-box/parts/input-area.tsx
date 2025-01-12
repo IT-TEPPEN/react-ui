@@ -18,7 +18,7 @@ export function InputArea(props: IPropsInputArea) {
     <input
       id={IdGenerator.generateIdSelectBoxInputArea(id)}
       ref={props.inputRef}
-      className="border border-gray-300 px-2 py-1"
+      className="border border-gray-300 px-2 py-1 w-full"
       type="text"
       placeholder={
         props.selectedValue === "" ? "選択してください" : props.selectedValue
