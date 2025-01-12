@@ -1,6 +1,10 @@
 import { createContext, useContext } from "react";
-import { TCopyActionContext } from "./types";
+import { TCopyActionContext, TCopyStateContext } from "./types";
 import { useCopyReducer } from "./hooks";
+
+const CopyStateContext = createContext<TCopyStateContext>({
+  copiedAt: new Date(),
+});
 
 const CopyActionContext = createContext<TCopyActionContext>({
   copy: () => {},
@@ -16,18 +20,21 @@ export function CopyProvider({
   rows: any[];
   cols: any[];
 }) {
+  const { states, actions } = useCopyReducer({
+    rows,
+    cols,
+  });
   return (
-    <CopyActionContext.Provider
-      value={
-        useCopyReducer({
-          rows,
-          cols,
-        }).actions
-      }
-    >
-      {children}
-    </CopyActionContext.Provider>
+    <CopyStateContext.Provider value={states}>
+      <CopyActionContext.Provider value={actions}>
+        {children}
+      </CopyActionContext.Provider>
+    </CopyStateContext.Provider>
   );
+}
+
+export function useCopyStateContext() {
+  return useContext(CopyStateContext);
 }
 
 export function useCopyActionContext() {

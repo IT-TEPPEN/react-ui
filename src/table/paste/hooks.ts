@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useReducer } from "react";
 import { TPasteReducer, TPasteReducerReturn } from "./types";
 import { useColumnValidatesContext } from "../sheet/providers";
-import { useRangeStateContext } from "../range/provider";
+import { useRangeActionContext, useRangeStateContext } from "../range/provider";
+import { paste } from "./logic";
 
 const reducer: TPasteReducer = (state, action) => {
   switch (action.type) {
@@ -26,102 +27,59 @@ const reducer: TPasteReducer = (state, action) => {
         rows,
         cols,
         colValidators,
-        rowIndex,
-        colIndex,
+        start,
+        end,
         onUpdateRowFunction,
+        setRange,
       } = state;
 
       if (!onUpdateRowFunction) {
         return state;
       }
 
-      const updateParameters = {
-        arguments: [] as { newRow: any; oldRow: any }[],
-        timing: state.updateParameters.timing + 1,
-      };
-
-      const rowLength = pasteData.length;
-      const colLength = Math.max(...pasteData.map((row) => row.length));
-
-      if (rowLength === 0 || colLength === 0) return state;
-
-      if (pasteData.length + rowIndex > rows.length) {
-        alert("貼り付け先の行数が足りません。");
-        return state;
-      }
-
-      for (let i = 0; i < colLength; i++) {
-        const col = cols[colIndex + i];
-
-        if (!col.editable) {
-          alert(
-            `編集できない列にデータを貼り付けることはできません。\n\n編集不可列: ${
-              col.label ?? (col.key as string)
-            }`
-          );
-          return state;
-        }
-      }
-
-      if (colLength + colIndex > cols.length) {
-        alert("貼り付け先の列数が足りません。");
-        return state;
-      }
-
-      for (let i = 0; i < rowLength; i++) {
-        const pasteRow = pasteData[i];
-
-        for (let j = 0; j < pasteRow.length; j++) {
-          const pasteValue = pasteRow[j];
-          const col = cols[colIndex + j];
-          const validate = colValidators[col.key as string];
-
-          if (!validate(pasteValue)) {
-            return state;
-          }
-        }
-      }
-
-      pasteData.forEach((pasteRow, i) => {
-        const row = { ...rows[rowIndex + i] };
-        let checkUpdatedRow = false;
-
-        pasteRow.forEach((pasteValue, j) => {
-          const col = cols[colIndex + j];
-          const value =
-            col.type === "number"
-              ? Number(pasteValue)
-              : col.type === "select"
-              ? pasteValue === ""
-                ? ""
-                : col.options.find((option) => option.label === pasteValue)!
-                    .value
-              : pasteValue;
-          if (row[col.key] !== value) {
-            checkUpdatedRow = true;
-            row[col.key] = value;
-          }
-        });
-
-        if (checkUpdatedRow) {
-          updateParameters.arguments.push({
-            newRow: row,
-            oldRow: rows[rowIndex + i],
-          });
-        }
+      const res = paste({
+        pasteData,
+        pasteArea: { start, end },
+        currentRows: rows,
+        currentCols: cols,
+        validators: colValidators,
+        tableArea: {
+          start: {
+            rowIndex: 0,
+            colIndex: 0,
+          },
+          end: {
+            rowIndex: rows.length - 1,
+            colIndex: cols.length - 1,
+          },
+        },
       });
 
-      if (updateParameters.arguments.length > 0) {
-        return { ...state, updateParameters };
-      } else {
+      if (res.isError) {
+        if (res.type !== "ValidationError" && res.type !== "NoPasteData") {
+          alert(res.message);
+        }
         return state;
       }
+
+      setRange({
+        start: res.pasteRange.start,
+        end: res.pasteRange.end,
+      });
+
+      return {
+        ...state,
+        updateParameters: {
+          arguments: res.updateArgument,
+          timing: state.updateParameters.timing + 1,
+        },
+      };
     case "focus":
       return {
         ...state,
         isFocused: true,
-        rowIndex: action.payload.rowIndex,
-        colIndex: action.payload.colIndex,
+        start: action.payload.start,
+        end: action.payload.end,
       };
     case "unfocus":
       return { ...state, isFocused: false };
@@ -133,11 +91,13 @@ export function usePasteReducer(initial: {
   cols: any[];
   onUpdateRowFunction?: (newRow: any, oldRow: any) => void;
 }): TPasteReducerReturn {
+  const { setRange } = useRangeActionContext();
   const [state, dispatch] = useReducer(reducer, {
     ...initial,
     colValidators: {},
     isFocused: false,
     updateParameters: { arguments: [], timing: 0 },
+    setRange,
   });
   const validators = useColumnValidatesContext();
   const range = useRangeStateContext();
@@ -147,8 +107,8 @@ export function usePasteReducer(initial: {
       dispatch({
         type: "focus",
         payload: {
-          rowIndex: range.start.rowIndex,
-          colIndex: range.start.colIndex,
+          start: range.start,
+          end: range.end,
         },
       });
     } else {

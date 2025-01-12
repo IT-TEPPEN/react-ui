@@ -40,7 +40,14 @@ export type TRangeAction =
   | { type: "extendDown" }
   | { type: "extendLeft" }
   | { type: "extendRight" }
-  | { type: "reset" };
+  | { type: "reset" }
+  | {
+      type: "setRange";
+      payload: {
+        start: IIndex;
+        end: IIndex;
+      };
+    };
 
 export type TRangeReducer = Reducer<TRangeState, TRangeAction>;
 
@@ -83,6 +90,7 @@ export type TRangeActionContext = {
   extendLeft: () => void;
   extendRight: () => void;
   reset: () => void;
+  setRange: (payload: { start: IIndex; end: IIndex }) => void;
 };
 
 export type TReturnRangeReducer = {

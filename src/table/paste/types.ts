@@ -1,3 +1,4 @@
+import { IIndex } from "../range/type";
 import { DataObject, TTableColumn } from "../table/type";
 
 type TPasteState = {
@@ -5,6 +6,7 @@ type TPasteState = {
   cols: TTableColumn<any>[];
   colValidators: { [key: string]: (value: any) => boolean };
   onUpdateRowFunction?: (newRow: any, oldRow: any) => void;
+  setRange: (payload: { start: IIndex; end: IIndex }) => void;
   updateParameters: {
     arguments: { newRow: any; oldRow: any }[];
     timing: number;
@@ -15,8 +17,8 @@ type TPasteState = {
     }
   | {
       isFocused: true;
-      rowIndex: number;
-      colIndex: number;
+      start: IIndex;
+      end: IIndex;
     }
 );
 
@@ -54,8 +56,8 @@ type IPasteAction =
   | {
       type: "focus";
       payload: {
-        rowIndex: number;
-        colIndex: number;
+        start: IIndex;
+        end: IIndex;
       };
     }
   | { type: "unfocus" };

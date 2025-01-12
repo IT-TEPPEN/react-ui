@@ -408,6 +408,20 @@ export const rangeReducer: TRangeReducer = (state, action) => {
         constraint: state.constraint,
         isSelecting: false,
       };
+
+    /**
+     * Actionが"setRange"の場合の説明:
+     * - Actionのtypeが"setRange"の場合、選択範囲を設定します。
+     * - payloadのstartとendの位置を設定します。
+     */
+    case "setRange":
+      return {
+        ...state,
+        isSelecting: true,
+        inProgress: false,
+        start: action.payload.start,
+        end: action.payload.end,
+      };
   }
 };
 
@@ -457,6 +471,9 @@ export function useRangeReducer(): TReturnRangeReducer {
       },
       reset: () => {
         dispatch({ type: "reset" });
+      },
+      setRange: (payload: { start: IIndex; end: IIndex }) => {
+        dispatch({ type: "setRange", payload });
       },
     }),
     []

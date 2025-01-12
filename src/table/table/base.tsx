@@ -33,6 +33,7 @@ import {
   useRangeActionContext,
 } from "../range/provider";
 import { CopyProvider } from "../copy/provider";
+import { CopiedMessage } from "../copy/components";
 
 export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   return (
@@ -52,6 +53,7 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
                   <TablePropertyProvider>
                     <RangeProvider>
                       <CopyProvider rows={props.rows} cols={props.cols}>
+                        <CopiedMessage />
                         <PasteProvider
                           rows={props.rows}
                           cols={props.cols}

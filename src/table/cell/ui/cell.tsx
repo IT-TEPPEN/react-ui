@@ -25,6 +25,9 @@ export function TableCell(props: {
     >
       <div
         className={`flex items-center gap-3 min-h-10 w-fit p-2 cursor-default`}
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
       >
         {type === "component" ? (
           component
