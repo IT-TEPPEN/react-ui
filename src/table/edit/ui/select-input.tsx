@@ -22,12 +22,13 @@ export function SelectCellInput(props: TPropsCellInput) {
   const prevValue = props.row[col.key] as string;
   const [value, setValue] = useState(prevValue);
   const ref = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (ref.current) {
-      ref.current.focus();
+    if (inputRef.current) {
+      inputRef.current.focus();
     }
-  }, [ref]);
+  }, [inputRef]);
 
   const updateCellValue = (value: string) => {
     if (col.editable) {
@@ -52,20 +53,23 @@ export function SelectCellInput(props: TPropsCellInput) {
       updateCellValue(value);
     };
 
-    document.addEventListener("click", onClickOutOfSelectBox);
+    document.addEventListener("mousedown", onClickOutOfSelectBox);
 
     return () => {
-      document.removeEventListener("click", onClickOutOfSelectBox);
+      document.removeEventListener("mousedown", onClickOutOfSelectBox);
     };
   }, [value, updateCellValue, endEditing, prevValue]);
 
   return (
     <div ref={ref} className="flex justify-between gap-1 w-full items-center">
       <SelectBox
+        inputRef={inputRef}
         value={value}
+        defaultIsOpen={true}
         options={col.options}
         onSelect={(value) => {
           setValue(value);
+          updateCellValue(value);
         }}
       />
       {/* <select

@@ -4,6 +4,8 @@ import { Options } from "./types";
 import { ID_SELECT_BOX_FRAME, ID_SELECT_BOX_OPTIONS_AREA } from "./constants";
 
 interface IPropsSelectBox {
+  inputRef?: React.RefObject<HTMLInputElement>;
+  defaultIsOpen?: boolean;
   options: Options[];
   value?: string;
   onSelect: (value: string) => void;
@@ -11,7 +13,7 @@ interface IPropsSelectBox {
 
 export function SelectBox(props: IPropsSelectBox) {
   const [value, setValue] = useState(props.value ?? "");
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(props.defaultIsOpen ?? false);
   const [searchText, setSearchText] = useState("");
 
   const handleSelect = (value: string) => {
@@ -45,10 +47,10 @@ export function SelectBox(props: IPropsSelectBox) {
       setIsOpen(false);
     };
 
-    document.addEventListener("click", onClickOutOfSelectBox);
+    document.addEventListener("mousedown", onClickOutOfSelectBox);
 
     return () => {
-      document.removeEventListener("click", onClickOutOfSelectBox);
+      document.removeEventListener("mousedown", onClickOutOfSelectBox);
     };
   }, []);
 
@@ -59,6 +61,7 @@ export function SelectBox(props: IPropsSelectBox) {
         onToggle={() => setIsOpen((prev) => !prev)}
       >
         <InputArea
+          inputRef={props.inputRef}
           isSelecting={isOpen}
           selectedValue={label}
           searchText={searchText}

@@ -1,6 +1,7 @@
 "use client";
 
 interface IPropsInputArea {
+  inputRef?: React.RefObject<HTMLInputElement>;
   isSelecting: boolean;
   selectedValue: string;
   searchText: string;
@@ -10,6 +11,7 @@ interface IPropsInputArea {
 export function InputArea(props: IPropsInputArea) {
   return (
     <input
+      ref={props.inputRef}
       className="border border-gray-300 px-2 py-1"
       type="text"
       placeholder={
