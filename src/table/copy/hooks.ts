@@ -8,6 +8,8 @@ const reducer: TCopyReducer = (state, action) => {
       return { ...state, rows: action.payload.rows };
     case "setCols":
       return { ...state, cols: action.payload.cols };
+    case "copied":
+      return { ...state, copiedAt: new Date() };
     default:
       return state;
   }
@@ -62,11 +64,19 @@ export function useCopyReducer(initial: {
     const copiedDataString = copiedData.map((row) => row.join("\t")).join("\n");
 
     navigator.clipboard.writeText(copiedDataString);
+    dispatch({ type: "copied" });
   }, [range, state.rows, state.cols]);
 
   const setRows = useCallback((rows: any[]) => {
     dispatch({ type: "setRows", payload: { rows } });
   }, []);
+
+  const states = useMemo(
+    () => ({
+      copiedAt: state.copiedAt,
+    }),
+    [state.copiedAt]
+  );
 
   const actions = useMemo(
     () => ({
@@ -77,6 +87,7 @@ export function useCopyReducer(initial: {
   );
 
   return {
+    states,
     actions,
   };
 }

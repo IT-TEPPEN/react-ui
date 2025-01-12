@@ -3,6 +3,7 @@ import { DataObject, TTableColumn } from "../table/type";
 type TCopyState = {
   rows: DataObject<any>[];
   cols: TTableColumn<any>[];
+  copiedAt?: Date;
 };
 
 type TCopyAction =
@@ -17,6 +18,9 @@ type TCopyAction =
       payload: {
         cols: TTableColumn<any>[];
       };
+    }
+  | {
+      type: "copied";
     };
 
 export type TCopyReducer = (
@@ -24,11 +28,14 @@ export type TCopyReducer = (
   action: TCopyAction
 ) => TCopyState;
 
+export type TCopyStateContext = Pick<TCopyState, "copiedAt">;
+
 export type TCopyActionContext = {
   copy: () => void;
   setRows: (rows: DataObject<any>[]) => void;
 };
 
 export type TReturnCopyReducer = {
+  states: TCopyStateContext;
   actions: TCopyActionContext;
 };
