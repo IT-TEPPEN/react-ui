@@ -1,5 +1,6 @@
 import { useIdContext } from "../id/provider";
 import { IdGenerator } from "../lib";
+import { MdOutlineKeyboardArrowLeft } from "react-icons/md";
 
 interface IPropsSelectBoxFrame {
   onToggle: () => void;
@@ -28,7 +29,9 @@ export function SelectBoxFrame(props: IPropsSelectBoxFrame) {
           props.onToggle();
         }}
       >
-        {props.isOpen ? <>閉</> : <>開</>}
+        <MdOutlineKeyboardArrowLeft
+          className={`duration-300 ${props.isOpen ? "-rotate-90" : ""}`}
+        />
       </div>
     </div>
   );
