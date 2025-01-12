@@ -32,7 +32,10 @@ export function SelectBox(props: IPropsSelectBox) {
     props.options.find((option) => option.value === value)?.label ?? "";
 
   const searchedOptions = useMemo(
-    () => props.options.filter((option) => option.label.includes(searchText)),
+    () =>
+      props.options.filter((option) =>
+        option.label.toLowerCase().includes(searchText.toLowerCase())
+      ),
     [props.options, searchText]
   );
 

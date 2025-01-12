@@ -52,3 +52,43 @@ export const Default: Story = {
     },
   },
 };
+
+export const English: Story = {
+  args: {
+    id: "select-box",
+    options: [
+      { value: "apple", label: "Apple" },
+      { value: "orange", label: "Orange" },
+      { value: "grape", label: "Grape" },
+      { value: "banana", label: "Banana" },
+      { value: "peach", label: "Peach" },
+      { value: "melon", label: "Melon" },
+      { value: "strawberry", label: "Strawberry" },
+      { value: "kiwi", label: "Kiwi" },
+      { value: "pineapple", label: "Pineapple" },
+      { value: "cherry", label: "Cherry" },
+      { value: "pear", label: "Pear" },
+      { value: "lemon", label: "Lemon" },
+      { value: "blueberry", label: "Blueberry" },
+      { value: "mango", label: "Mango" },
+      { value: "watermelon", label: "Watermelon" },
+      { value: "papaya", label: "Papaya" },
+      { value: "fig", label: "Fig" },
+      { value: "persimmon", label: "Persimmon" },
+      { value: "plum", label: "Plum" },
+      { value: "apricot", label: "Apricot" },
+      { value: "peanut", label: "Peanut" },
+      { value: "almond", label: "Almond" },
+      { value: "walnut", label: "Walnut" },
+      { value: "chestnut", label: "Chestnut" },
+      { value: "hazelnut", label: "Hazelnut" },
+      { value: "cashew", label: "Cashew" },
+      { value: "macadamia", label: "Macadamia" },
+      { value: "pistachio", label: "Pistachio" },
+      { value: "pecan", label: "Pecan" },
+    ],
+    onSelect: (value: string) => {
+      console.log(value);
+    },
+  },
+};

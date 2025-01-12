@@ -15,7 +15,7 @@ export function OptionsArea(props: IPropsSelectArea) {
 
   useEffect(() => {
     const optionElement = document.getElementById(
-      `react-ui:select-box:option:${props.selectingValue}`
+      IdGenerator.generateIdSelectBoxOption(id, props.selectingValue ?? "")
     );
 
     if (!optionElement) return;
@@ -34,9 +34,9 @@ export function OptionsArea(props: IPropsSelectArea) {
     >
       {props.options.map((option) => (
         <div
-          id={`react-ui:select-box:option:${option.value}`}
+          id={IdGenerator.generateIdSelectBoxOption(id, option.value ?? "")}
           className={`hover:bg-gray-200 px-2 py-1 ${
-            !!props.selectingValue
+            typeof props.selectingValue === "string"
               ? props.selectingValue === option.value
                 ? "bg-gray-100"
                 : "bg-white"

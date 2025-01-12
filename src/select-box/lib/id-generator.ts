@@ -24,4 +24,12 @@ export class IdGenerator {
       return `${ID_PREFIX}:${id}:frame`;
     }
   }
+
+  static generateIdSelectBoxOption(id: string, value: string): string {
+    if (id === "") {
+      return `${ID_PREFIX}:option:${value}`;
+    } else {
+      return `${ID_PREFIX}:${id}:option:${value}`;
+    }
+  }
 }

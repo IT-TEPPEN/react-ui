@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useEditActionContext } from "../provider";
 import { CancelIcon } from "../../../icon/cancel-icon";
 import {
@@ -60,6 +60,20 @@ export function SelectCellInput(props: TPropsCellInput) {
     };
   }, [value, updateCellValue, endEditing, prevValue]);
 
+  const options = useMemo(() => {
+    if (col.allowEmpty) {
+      return [
+        {
+          value: "",
+          label: prevValue === "" ? "-- 未選択 --" : "-- 選択解除 --",
+        },
+        ...col.options,
+      ];
+    } else {
+      return col.options;
+    }
+  }, [col.options, col.allowEmpty, prevValue]);
+
   return (
     <div ref={ref} className="flex justify-between gap-1 w-full items-center">
       <SelectBox
@@ -67,7 +81,7 @@ export function SelectCellInput(props: TPropsCellInput) {
         inputRef={inputRef}
         value={value}
         defaultIsOpen={true}
-        options={col.options}
+        options={options}
         onSelect={(value) => {
           setValue(value);
           updateCellValue(value);
