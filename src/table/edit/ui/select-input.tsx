@@ -9,6 +9,7 @@ import {
   TColumnProperty,
   TSelectCellEditingCondition,
 } from "../../table/type";
+import { SelectBox } from "../../../select-box";
 
 type TPropsCellInput = {
   col: TColumnProperty<DataRecord> & TSelectCellEditingCondition<DataRecord>;
@@ -20,7 +21,7 @@ export function SelectCellInput(props: TPropsCellInput) {
   const { endEditing } = useEditActionContext();
   const prevValue = props.row[col.key] as string;
   const [value, setValue] = useState(prevValue);
-  const ref = useRef<HTMLSelectElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (ref.current) {
@@ -36,9 +37,38 @@ export function SelectCellInput(props: TPropsCellInput) {
 
   if (!col.editable) return <></>;
 
+  useEffect(() => {
+    const onClickOutOfSelectBox = (e: MouseEvent) => {
+      const selectInputElement = ref.current;
+      const ele = e.target;
+
+      if (ele instanceof Node && selectInputElement?.contains(ele)) return;
+
+      if (value === prevValue) {
+        endEditing();
+        return;
+      }
+
+      updateCellValue(value);
+    };
+
+    document.addEventListener("click", onClickOutOfSelectBox);
+
+    return () => {
+      document.removeEventListener("click", onClickOutOfSelectBox);
+    };
+  }, [value, updateCellValue, endEditing, prevValue]);
+
   return (
-    <div className="flex justify-between gap-1 w-full items-center">
-      <select
+    <div ref={ref} className="flex justify-between gap-1 w-full items-center">
+      <SelectBox
+        value={value}
+        options={col.options}
+        onSelect={(value) => {
+          setValue(value);
+        }}
+      />
+      {/* <select
         ref={ref}
         className="w-full py-1 px-2 bg-white text-gray-900"
         value={value}
@@ -81,7 +111,7 @@ export function SelectCellInput(props: TPropsCellInput) {
             {option.label}
           </option>
         ))}
-      </select>
+      </select> */}
       <button
         onMouseDown={(e) => {
           e.preventDefault();
