@@ -37,7 +37,7 @@ function reducer(state: TState, action: TAction) {
   }
 }
 
-export function TableTestComponent() {
+export function TableTestComponent(props: { id?: string }) {
   const [state, dispatch] = useReducer(reducer, [
     ...Array.from({ length: 1000 }, (_, i) => ({
       id: i + 1,
@@ -50,6 +50,7 @@ export function TableTestComponent() {
 
   return (
     <Table
+      id={props.id}
       rows={state}
       cols={[
         {

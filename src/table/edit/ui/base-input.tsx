@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { CancelIcon } from "../../../icon/cancel-icon";
+import { useTableIdGenerator } from "../../id";
 
 export function CellInput(props: {
   value: string | number;
@@ -10,6 +11,7 @@ export function CellInput(props: {
   reset: () => void;
   endEditing: () => void;
 }) {
+  const IdGenerator = useTableIdGenerator();
   const ref = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -27,7 +29,7 @@ export function CellInput(props: {
       }}
     >
       <input
-        id={"edit-input"}
+        id={IdGenerator.getEditorId()}
         ref={ref}
         className="w-full py-1 px-2 bg-white text-gray-900"
         type="text"

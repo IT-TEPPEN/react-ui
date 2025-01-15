@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useCopyStateContext } from "./provider";
-import { IdGenerator } from "../libs";
+import { useTableIdGenerator } from "../id";
 
 export function CopiedMessage() {
+  const IdGenerator = useTableIdGenerator();
   const [isDisplay, setIsDisplay] = useState(false);
   const { copiedAt } = useCopyStateContext();
 

@@ -2,8 +2,8 @@ import { memo } from "react";
 import { DataRecord, TTableColumn } from "../table/type";
 import { Checkbox } from "../checkbox/components";
 import { TableCell } from "../cell/ui/cell";
-import { IdGenerator } from "../libs";
 import { useRangeActionContext } from "../range/provider";
+import { useTableIdGenerator } from "../id";
 
 interface TPropsRow<T extends DataRecord> {
   dataString: string;
@@ -16,6 +16,7 @@ interface TPropsRow<T extends DataRecord> {
 }
 
 export const Row = memo(function R<T extends DataRecord>(props: TPropsRow<T>) {
+  const IdGenerator = useTableIdGenerator();
   const { reset } = useRangeActionContext();
   const row = JSON.parse(props.dataString);
   const conditionalFormatting = props.conditionalFormattingString.split(",");
@@ -48,7 +49,10 @@ export const Row = memo(function R<T extends DataRecord>(props: TPropsRow<T>) {
         return (
           <TableCell
             key={col.key as string}
-            id={IdGenerator.getTableCellId(props.rowIndex, j)}
+            id={IdGenerator.getTableCellId({
+              rowIndex: props.rowIndex,
+              columnIndex: j,
+            })}
             row={row}
             isExistOnClickRow={!!props.onClickRow}
             cellFormatClassName={conditionalFormatting[j]}

@@ -5,9 +5,10 @@ import { useEditContext } from "../../edit/provider";
 import { useColumnsContext } from "../../sheet/providers";
 import { useRangeContext } from "../../range/provider";
 import { useCopyActionContext } from "../../copy/provider";
+import { useTableIdGenerator } from "../../id";
 
-const setInitialValueToInputForm = (key: string) => {
-  const inputElement = document.getElementById("edit-input");
+const setInitialValueToInputForm = (key: string, id: string) => {
+  const inputElement = document.getElementById(id);
   if (inputElement) {
     const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
       window.HTMLInputElement.prototype,
@@ -24,6 +25,7 @@ const setInitialValueToInputForm = (key: string) => {
 };
 
 export function KeyboardSetting() {
+  const IdGenerator = useTableIdGenerator();
   const edit = useEditContext();
   const range = useRangeContext();
   const { copy } = useCopyActionContext();
@@ -87,7 +89,7 @@ export function KeyboardSetting() {
           edit.startEditing();
 
           setTimeout(() => {
-            setInitialValueToInputForm(e.key);
+            setInitialValueToInputForm(e.key, IdGenerator.getEditorId());
           }, 10);
         } else if (e.key === "Backspace" || e.key === "Delete") {
           e.preventDefault();
@@ -95,7 +97,7 @@ export function KeyboardSetting() {
           edit.startEditing();
 
           setTimeout(() => {
-            setInitialValueToInputForm("");
+            setInitialValueToInputForm("", IdGenerator.getEditorId());
           }, 10);
         }
       }

@@ -10,6 +10,7 @@ import {
   TSelectCellEditingCondition,
 } from "../../table/type";
 import { SelectBox } from "../../../select-box";
+import { useTableIdGenerator } from "../../id";
 
 type TPropsCellInput = {
   col: TColumnProperty<DataRecord> & TSelectCellEditingCondition<DataRecord>;
@@ -17,6 +18,7 @@ type TPropsCellInput = {
 };
 
 export function SelectCellInput(props: TPropsCellInput) {
+  const IdGenerator = useTableIdGenerator();
   const col = props.col;
   const { endEditing } = useEditActionContext();
   const prevValue = props.row[col.key] as string;
@@ -77,7 +79,7 @@ export function SelectCellInput(props: TPropsCellInput) {
   return (
     <div ref={ref} className="flex justify-between gap-1 w-full items-center">
       <SelectBox
-        id="TEPPEN/ReactUI SelectBox"
+        id={IdGenerator.getEditorId()}
         inputRef={inputRef}
         value={value}
         defaultIsOpen={true}
