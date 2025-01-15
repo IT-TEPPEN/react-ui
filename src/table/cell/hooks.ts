@@ -2,14 +2,15 @@ import { useMemo } from "react";
 import { useEditActionContext } from "../edit/provider";
 import { useColumnsContext } from "../sheet/providers";
 import { DataObject, DataRecord, TColumnType } from "../table/type";
-import { IdGenerator } from "../libs";
 import { useRangeActionContext } from "../range/provider";
+import { useTableIdGenerator } from "../id";
 
 export function useCell(id: string, row: DataObject<DataRecord>) {
+  const IdGenerator = useTableIdGenerator();
   const { startSelectRange, moveSelectRange, endSelectRange } =
     useRangeActionContext();
   const { startEditing } = useEditActionContext();
-  const [rowIndex, colIndex] = IdGenerator.getCellIndex(id);
+  const [rowIndex, colIndex] = IdGenerator.extractCellIndexFromId(id);
   const col = useColumnsContext()[colIndex];
   const value = row[col.key as string];
 

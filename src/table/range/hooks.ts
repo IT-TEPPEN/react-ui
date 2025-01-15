@@ -5,7 +5,7 @@ import {
   IRangeConstraint,
   TReturnRangeReducer,
 } from "./type";
-import { IdGenerator } from "../libs";
+import { useTableIdGenerator } from "../id";
 
 function newRangeConstraint(props: {
   maxColIndex: number;
@@ -426,6 +426,7 @@ export const rangeReducer: TRangeReducer = (state, action) => {
 };
 
 export function useRangeReducer(): TReturnRangeReducer {
+  const IdGenerator = useTableIdGenerator();
   const [state, dispatch] = useReducer(rangeReducer, {
     constraint: newRangeConstraint({ maxColIndex: 0, maxRowIndex: 0 }),
     isSelecting: false,
@@ -500,10 +501,16 @@ export function useRangeReducer(): TReturnRangeReducer {
     }
 
     const startElement = document.getElementById(
-      IdGenerator.getTableCellId(state.start.rowIndex, state.start.colIndex)
+      IdGenerator.getTableCellId({
+        rowIndex: state.start.rowIndex,
+        columnIndex: state.start.colIndex,
+      })
     );
     const endElement = document.getElementById(
-      IdGenerator.getTableCellId(state.end.rowIndex, state.end.colIndex)
+      IdGenerator.getTableCellId({
+        rowIndex: state.end.rowIndex,
+        columnIndex: state.end.colIndex,
+      })
     );
     const tableElement = document.getElementById(IdGenerator.getTableId());
 
@@ -517,8 +524,8 @@ export function useRangeReducer(): TReturnRangeReducer {
     const rectTable = tableElement.getBoundingClientRect();
 
     const adjustSize = {
-      y: rectTable.top - tableElement.scrollTop - window.scrollY,
-      x: rectTable.left - tableElement.scrollLeft - window.scrollX,
+      y: rectTable.top - tableElement.scrollTop,
+      x: rectTable.left - tableElement.scrollLeft,
     };
 
     const startDivProps = {

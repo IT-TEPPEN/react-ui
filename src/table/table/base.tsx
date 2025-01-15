@@ -18,7 +18,6 @@ import { SortProvider } from "../sort";
 import { ColumnsProvider } from "../sheet/providers";
 import { CheckboxProvider, CheckboxStatusProvider } from "../checkbox/provider";
 import { AllCheckbox } from "../checkbox/components";
-import { IdGenerator } from "../libs";
 import { EditProvider } from "../edit/provider";
 import { TablePropertyProvider } from "../table-property/provider";
 import { KeyboardSetting } from "../operation/components/keyboard-setting";
@@ -34,44 +33,47 @@ import {
 } from "../range/provider";
 import { CopyProvider } from "../copy/provider";
 import { CopiedMessage } from "../copy/components";
+import { TableIdGeneratorProvider, useTableIdGenerator } from "../id";
 
 export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   return (
-    <FilterProvider>
-      <SortProvider initialCondition={props.initialCondition?.sort}>
-        <PagenationProvider
-          rowCount={props.rows.length}
-          perPage={props.initialCondition?.pagenation?.rowCountPerPage}
-        >
-          <CheckboxProvider checkbox={props.checkbox}>
-            <CheckboxStatusProvider checkboxCount={props.rows.length}>
-              <ColumnsProvider
-                cols={props.cols}
-                errorHandler={props.errorHandler}
-              >
-                <EditProvider>
-                  <TablePropertyProvider>
-                    <RangeProvider>
-                      <CopyProvider rows={props.rows} cols={props.cols}>
-                        <CopiedMessage />
-                        <PasteProvider
-                          rows={props.rows}
-                          cols={props.cols}
-                          onUpdateRowFunction={props.onUpdateRow}
-                        >
-                          <KeyboardSetting />
-                          <BaseTable {...props} />
-                        </PasteProvider>
-                      </CopyProvider>
-                    </RangeProvider>
-                  </TablePropertyProvider>
-                </EditProvider>
-              </ColumnsProvider>
-            </CheckboxStatusProvider>
-          </CheckboxProvider>
-        </PagenationProvider>
-      </SortProvider>
-    </FilterProvider>
+    <TableIdGeneratorProvider id={props.id}>
+      <FilterProvider>
+        <SortProvider initialCondition={props.initialCondition?.sort}>
+          <PagenationProvider
+            rowCount={props.rows.length}
+            perPage={props.initialCondition?.pagenation?.rowCountPerPage}
+          >
+            <CheckboxProvider checkbox={props.checkbox}>
+              <CheckboxStatusProvider checkboxCount={props.rows.length}>
+                <ColumnsProvider
+                  cols={props.cols}
+                  errorHandler={props.errorHandler}
+                >
+                  <EditProvider>
+                    <TablePropertyProvider>
+                      <RangeProvider>
+                        <CopyProvider rows={props.rows} cols={props.cols}>
+                          <CopiedMessage />
+                          <PasteProvider
+                            rows={props.rows}
+                            cols={props.cols}
+                            onUpdateRowFunction={props.onUpdateRow}
+                          >
+                            <KeyboardSetting />
+                            <BaseTable {...props} />
+                          </PasteProvider>
+                        </CopyProvider>
+                      </RangeProvider>
+                    </TablePropertyProvider>
+                  </EditProvider>
+                </ColumnsProvider>
+              </CheckboxStatusProvider>
+            </CheckboxProvider>
+          </PagenationProvider>
+        </SortProvider>
+      </FilterProvider>
+    </TableIdGeneratorProvider>
   );
 }
 
@@ -79,6 +81,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { cols, rowMaps, pageRowIds } = useTable<T>(props);
   const filteringColumn = useFilteringColumnStateContext();
   const { reset } = useRangeActionContext();
+  const IdGenerator = useTableIdGenerator();
 
   return (
     <div className="w-full">
@@ -92,7 +95,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
 
       <div
         id={IdGenerator.getTableId()}
-        className="relative h-full max-w-full max-h-[80vh] border border-gray-200 rounded-md overflow-auto"
+        className="relative h-full max-w-full max-h-[80vh] border border-gray-200 bg-white rounded-md overflow-auto"
       >
         <TestRange />
         <Editor rowMaps={rowMaps} pageRowIds={pageRowIds} />
@@ -112,7 +115,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
               )}
               {cols.map((col, i) => (
                 <TableHeaderElement
-                  id={IdGenerator.getTableColId(i)}
+                  id={IdGenerator.getTableColId({ columnIndex: i })}
                   key={col.key.toString()}
                   col={col}
                 />

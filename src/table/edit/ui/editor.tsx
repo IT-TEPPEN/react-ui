@@ -4,9 +4,9 @@ import { useEditActionContext, useEditStateContext } from "../provider";
 import { NumberCellInput } from "./number-input";
 import { SelectCellInput } from "./select-input";
 import { StringCellInput } from "./string-input";
-import { IdGenerator } from "../../libs";
 import { DataObject, DataRecord } from "../../table/type";
 import { useRangeStateContext } from "../../range/provider";
+import { useTableIdGenerator } from "../../id";
 
 type TPropsEditor = {
   pageRowIds: (string | number)[];
@@ -23,6 +23,7 @@ type TPropsEditor = {
 };
 
 export function Editor(props: TPropsEditor) {
+  const IdGenerator = useTableIdGenerator();
   const range = useRangeStateContext();
   const edit = useEditStateContext();
   const editActions = useEditActionContext();
@@ -42,10 +43,10 @@ export function Editor(props: TPropsEditor) {
 
   if (!col.editable) return <></>;
 
-  const id = IdGenerator.getTableCellId(
-    range.start.rowIndex,
-    range.start.colIndex
-  );
+  const id = IdGenerator.getTableCellId({
+    rowIndex: range.start.rowIndex,
+    columnIndex: range.start.colIndex,
+  });
   const cellElement = document.getElementById(id);
   const rect = cellElement?.getBoundingClientRect();
 
@@ -64,8 +65,8 @@ export function Editor(props: TPropsEditor) {
   if (!tableElement) return <></>;
   const rectTable = tableElement.getBoundingClientRect();
 
-  size.top -= rectTable.top - tableElement.scrollTop - window.scrollY;
-  size.left -= rectTable.left - tableElement.scrollLeft - window.scrollX;
+  size.top -= rectTable.top - tableElement.scrollTop;
+  size.left -= rectTable.left - tableElement.scrollLeft;
 
   return (
     <div

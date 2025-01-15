@@ -105,6 +105,7 @@ export type TConditionalFormatting<T extends DataRecord> = {
 type TailwindCssStyle = string;
 
 export type TPropsTable<T extends DataRecord> = {
+  id?: string;
   cols: TTableColumn<T>[];
   rows: DataObject<T>[];
   onClickRow?: (row: DataObject<T>) => void;

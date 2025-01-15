@@ -3,7 +3,7 @@ import { TRangeActionContext, TRangeStateContext } from "./type";
 import { NoImplementeFunction } from "../lib/errors";
 import { useRangeReducer } from "./hooks";
 import { useTablePropertyStateContext } from "../table-property/provider";
-import { IdGenerator } from "../libs";
+import { useTableIdGenerator } from "../id";
 
 const RangeStateContext = createContext<TRangeStateContext>({
   isSelecting: false,
@@ -54,12 +54,16 @@ function EffectSetMax() {
 }
 
 export function TestRange(props: { isCopied?: boolean }) {
+  const IdGenerator = useTableIdGenerator();
   const state = useRangeStateContext();
 
   useEffect(() => {
     if (state.isSelecting) {
       const endElement = document.getElementById(
-        IdGenerator.getTableCellId(state.end.rowIndex, state.end.colIndex)
+        IdGenerator.getTableCellId({
+          rowIndex: state.end.rowIndex,
+          columnIndex: state.end.colIndex,
+        })
       );
 
       if (endElement) {
