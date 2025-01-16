@@ -161,6 +161,31 @@ export function TableTestComponent(props: { id?: string }) {
       }}
       conditionalFormattings={[
         {
+          condition: (row) => row.role === "",
+          key: "id",
+          style: "bg-gray-200",
+        },
+        {
+          condition: (row) => row.role === "",
+          key: "name",
+          style: "bg-gray-200",
+        },
+        {
+          condition: (row) => row.role === "",
+          key: "role",
+          style: "bg-gray-200",
+        },
+        {
+          condition: (row) => row.role === "",
+          key: "button",
+          style: "bg-gray-200",
+        },
+        {
+          condition: (row) => row.role === "",
+          key: "age",
+          style: "bg-gray-200 text-gray-500",
+        },
+        {
           condition: (row) => row.age > 21,
           key: "age",
           style: "text-red-500",
