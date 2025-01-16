@@ -97,8 +97,6 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
         id={IdGenerator.getTableId()}
         className="relative h-full max-w-full max-h-[80vh] border border-gray-200 bg-white rounded-md overflow-auto"
       >
-        <TestRange />
-        <Editor rowMaps={rowMaps} pageRowIds={pageRowIds} />
         <table className={`table`}>
           <thead>
             <tr
@@ -163,6 +161,8 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
             ))}
           </tbody>
         </table>
+        <TestRange />
+        <Editor rowMaps={rowMaps} pageRowIds={pageRowIds} />
       </div>
       <div className="mt-1">
         <DisplayRange />
