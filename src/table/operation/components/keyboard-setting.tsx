@@ -24,7 +24,7 @@ const setInitialValueToInputForm = (key: string, id: string) => {
   }
 };
 
-export function KeyboardSetting() {
+export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
   const IdGenerator = useTableIdGenerator();
   const edit = useEditContext();
   const range = useRangeContext();
@@ -82,7 +82,7 @@ export function KeyboardSetting() {
           edit.startEditing();
         } else if (e.ctrlKey && e.key === "c") {
           e.preventDefault();
-          copy();
+          copy({ enableDeprecatedCopy: options?.enableDeprecatedCopy });
         } else if (!e.altKey && !e.ctrlKey && /^[a-zA-Z0-9]$/.test(e.key)) {
           e.preventDefault();
           e.stopPropagation();

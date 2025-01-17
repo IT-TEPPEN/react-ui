@@ -60,7 +60,11 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
                             cols={props.cols}
                             onUpdateRowFunction={props.onUpdateRow}
                           >
-                            <KeyboardSetting />
+                            <KeyboardSetting
+                              enableDeprecatedCopy={
+                                props.deprecatedOptions?.enableDeprecatedCopy
+                              }
+                            />
                             <BaseTable {...props} />
                           </PasteProvider>
                         </CopyProvider>

@@ -37,7 +37,10 @@ function reducer(state: TState, action: TAction) {
   }
 }
 
-export function TableTestComponent(props: { id?: string }) {
+export function TableTestComponent(props: {
+  id?: string;
+  enableDeprecatedCopy?: boolean;
+}) {
   const [state, dispatch] = useReducer(reducer, [
     ...Array.from({ length: 1000 }, (_, i) => ({
       id: i + 1,
@@ -196,6 +199,9 @@ export function TableTestComponent(props: { id?: string }) {
           style: "text-blue-500",
         },
       ]}
+      deprecatedOptions={{
+        enableDeprecatedCopy: props.enableDeprecatedCopy,
+      }}
     />
   );
 }

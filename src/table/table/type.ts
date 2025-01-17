@@ -119,4 +119,7 @@ export type TPropsTable<T extends DataRecord> = {
   applyRowFormatting?: (row: DataObject<T>) => TailwindCssStyle;
   conditionalFormattings?: TConditionalFormatting<T>[];
   errorHandler?: (errors: TErrorValidation[]) => void;
+  deprecatedOptions?: {
+    enableDeprecatedCopy?: boolean;
+  };
 } & TCheckboxProperty<T>;
