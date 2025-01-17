@@ -22,7 +22,7 @@ export const Multiple: Story = {
   render: () => (
     <div className="bg-slate-700">
       <TableTestComponent id="1" />
-      <TableTestComponent id="2" />
+      <TableTestComponent id="2" enableDeprecatedCopy />
     </div>
   ),
 };

@@ -25,59 +25,84 @@ export function useCopyReducer(initial: {
   });
   const range = useRangeStateContext();
 
-  const copy = useCallback(() => {
-    if (!range.isSelecting) {
-      return;
-    }
+  const copy = useCallback(
+    (options?: { enableDeprecatedCopy?: boolean }) => {
+      if (!range.isSelecting) {
+        return;
+      }
 
-    const startRowIndex =
-      range.start.rowIndex <= range.end.rowIndex
-        ? range.start.rowIndex
-        : range.end.rowIndex;
-    const endRowIndex =
-      range.start.rowIndex >= range.end.rowIndex
-        ? range.start.rowIndex
-        : range.end.rowIndex;
-    const startColIndex =
-      range.start.colIndex <= range.end.colIndex
-        ? range.start.colIndex
-        : range.end.colIndex;
-    const endColIndex =
-      range.start.colIndex >= range.end.colIndex
-        ? range.start.colIndex
-        : range.end.colIndex;
+      const startRowIndex =
+        range.start.rowIndex <= range.end.rowIndex
+          ? range.start.rowIndex
+          : range.end.rowIndex;
+      const endRowIndex =
+        range.start.rowIndex >= range.end.rowIndex
+          ? range.start.rowIndex
+          : range.end.rowIndex;
+      const startColIndex =
+        range.start.colIndex <= range.end.colIndex
+          ? range.start.colIndex
+          : range.end.colIndex;
+      const endColIndex =
+        range.start.colIndex >= range.end.colIndex
+          ? range.start.colIndex
+          : range.end.colIndex;
 
-    const copiedData = state.rows
-      .slice(startRowIndex, endRowIndex + 1)
-      .map((row) => {
-        const copiedRow = [];
-        for (let i = startColIndex; i <= endColIndex; i++) {
-          const col = state.cols[i];
+      const copiedData = state.rows
+        .slice(startRowIndex, endRowIndex + 1)
+        .map((row) => {
+          const copiedRow = [];
+          for (let i = startColIndex; i <= endColIndex; i++) {
+            const col = state.cols[i];
 
-          if (col.type == "number" || col.type == "string") {
-            copiedRow.push(row[col.key]);
-            continue;
-          } else if (col.type == "select") {
-            const value = row[col.key];
+            if (col.type == "number" || col.type == "string") {
+              copiedRow.push(row[col.key]);
+              continue;
+            } else if (col.type == "select") {
+              const value = row[col.key];
 
-            if (value === null || value === undefined || value === "") {
-              copiedRow.push("");
-            } else {
-              copiedRow.push(
-                col.options.find((option) => option.value === row[col.key])!
-                  .label
-              );
+              if (value === null || value === undefined || value === "") {
+                copiedRow.push("");
+              } else {
+                copiedRow.push(
+                  col.options.find((option) => option.value === row[col.key])!
+                    .label
+                );
+              }
             }
           }
-        }
-        return copiedRow;
-      });
+          return copiedRow;
+        });
 
-    const copiedDataString = copiedData.map((row) => row.join("\t")).join("\n");
+      const copiedDataString = copiedData
+        .map((row) => row.join("\t"))
+        .join("\n");
 
-    navigator.clipboard.writeText(copiedDataString);
-    dispatch({ type: "copied" });
-  }, [range, state.rows, state.cols]);
+      if (options?.enableDeprecatedCopy) {
+        const textArea = document.createElement("textarea");
+        textArea.style.position = "fixed";
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.width = "2em";
+        textArea.style.height = "2em";
+        textArea.style.padding = "0";
+        textArea.style.border = "none";
+        textArea.style.outline = "none";
+        textArea.style.boxShadow = "none";
+        textArea.style.background = "transparent";
+        textArea.value = copiedDataString;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+      } else {
+        navigator.clipboard.writeText(copiedDataString);
+      }
+
+      dispatch({ type: "copied" });
+    },
+    [range, state.rows, state.cols]
+  );
 
   const setRows = useCallback((rows: any[]) => {
     dispatch({ type: "setRows", payload: { rows } });

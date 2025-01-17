@@ -31,7 +31,7 @@ export type TCopyReducer = (
 export type TCopyStateContext = Pick<TCopyState, "copiedAt">;
 
 export type TCopyActionContext = {
-  copy: () => void;
+  copy: (options?: { enableDeprecatedCopy?: boolean }) => void;
   setRows: (rows: DataObject<any>[]) => void;
 };
 
