@@ -33,9 +33,19 @@ export function SelectBox(props: IPropsSelectBox) {
 
   const searchedOptions = useMemo(
     () =>
-      props.options.filter((option) =>
-        option.label.toLowerCase().includes(searchText.toLowerCase())
-      ),
+      props.options.filter((option) => {
+        if (option.searchText) {
+          return option.searchText
+            .toLowerCase()
+            .includes(searchText.toLowerCase());
+        } else if (option.searchLabel) {
+          return option.searchLabel
+            .toLowerCase()
+            .includes(searchText.toLowerCase());
+        } else {
+          option.label.toLowerCase().includes(searchText.toLowerCase());
+        }
+      }),
     [props.options, searchText]
   );
 
