@@ -1,3 +1,4 @@
+import { Options } from "../../select-box/types";
 import {
   TErrorValidation,
   TNumberValidateOption,
@@ -51,7 +52,7 @@ export type TNumberCellEditingCondition<T extends DataRecord> =
 export type TSelectCellEditingCondition<T extends DataRecord> =
   | {
       type: "select";
-      options: { value: string; label: string }[];
+      options: Options[];
     } & (
       | {
           editable?: false;

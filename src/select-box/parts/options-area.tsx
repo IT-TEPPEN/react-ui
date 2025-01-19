@@ -47,7 +47,7 @@ export function OptionsArea(props: IPropsSelectArea) {
           key={option.value}
           onClick={() => props.onSelect(option.value)}
         >
-          {option.label}
+          {option.searchLabel ?? option.label}
         </div>
       ))}
     </div>

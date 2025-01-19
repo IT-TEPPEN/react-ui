@@ -103,8 +103,16 @@ export function TableTestComponent(props: {
           type: "select",
           editable: true,
           options: [
-            { value: "admin", label: "管理者" },
-            { value: "user", label: "ユーザー" },
+            {
+              value: "admin",
+              label: "管理者",
+              searchText: "管理者administratorかんりしゃカンリシャ",
+            },
+            {
+              value: "user",
+              label: "ユーザー",
+              searchText: "ユーザーuserゆーざー",
+            },
           ],
           allowEmpty: true,
           onCellBlur: (id, value, current, completeEditing) => {
