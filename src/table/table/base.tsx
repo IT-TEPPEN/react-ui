@@ -134,7 +134,11 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
       </div>
 
       <div>
-        <TableHeader cols={cols} />
+        <TableHeader
+          cols={cols}
+          checkbox={!!props.checkbox}
+          rows={props.rows}
+        />
 
         <div
           ref={bodyRef}
@@ -144,11 +148,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
           <table className={`table`}>
             <thead>
               <tr>
-                {props.checkbox && (
-                  <th>
-                    <AllCheckbox rows={props.rows} />
-                  </th>
-                )}
+                {props.checkbox && <th></th>}
                 {cols.map((col, i) => (
                   <TableHeaderElement
                     id={IdGenerator.getTableColId({ columnIndex: i })}
