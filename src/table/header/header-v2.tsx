@@ -1,7 +1,7 @@
 import { memo, useRef } from "react";
 import { DataRecord, TTableColumn } from "../table/type";
 import { useColumnsWidthState } from "./columns-width";
-import { useResizeColWidthHook } from "./header-v2-hook";
+import { useResizeColWidthHook, useScrollXRef } from "./header-v2-hook";
 
 interface IPropsTableHeader<T extends DataRecord> {
   cols: TTableColumn<T>[];
@@ -9,21 +9,24 @@ interface IPropsTableHeader<T extends DataRecord> {
 
 export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
   const { getColumnWidth } = useColumnsWidthState();
+  const ref = useScrollXRef();
 
   return (
-    <div className="flex border-gray-200 bg-gray-200 text-gray-600 h-[32px]">
-      {props.cols.map((col) => {
-        return (
-          <HeaderElement
-            key={col.key.toString()}
-            keyName={col.key.toString()}
-            label={col.label}
-            colWidth={getColumnWidth(col.key as string)}
-            disableSort={col.disableSort}
-            disableFilter={col.disableFilter}
-          />
-        );
-      })}
+    <div ref={ref} className="relative max-w-full overflow-x-auto no_scrollbar">
+      <div className="flex border-gray-200 bg-gray-200 text-gray-600 h-[32px]">
+        {props.cols.map((col) => {
+          return (
+            <HeaderElement
+              key={col.key.toString()}
+              keyName={col.key.toString()}
+              label={col.label}
+              colWidth={getColumnWidth(col.key as string)}
+              disableSort={col.disableSort}
+              disableFilter={col.disableFilter}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }

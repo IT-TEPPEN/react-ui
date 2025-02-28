@@ -97,7 +97,6 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { reset } = useRangeActionContext();
   const IdGenerator = useTableIdGenerator();
   const { x, setScrollX } = useScrollXPosition();
-  const headerRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -106,35 +105,19 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
         setScrollX(bodyRef.current.scrollLeft);
       }
     };
-    const handleHeaderScroll = () => {
-      if (headerRef.current) {
-        setScrollX(headerRef.current.scrollLeft);
-      }
-    };
 
     if (bodyRef.current) {
       bodyRef.current.addEventListener("scroll", handleBodyScroll);
-    }
-    if (headerRef.current) {
-      headerRef.current.addEventListener("scroll", handleHeaderScroll);
     }
 
     return () => {
       if (bodyRef.current) {
         bodyRef.current.removeEventListener("scroll", handleBodyScroll);
       }
-      if (headerRef.current) {
-        headerRef.current.removeEventListener("scroll", handleHeaderScroll);
-      }
     };
   }, [setScrollX]);
 
   useEffect(() => {
-    if (headerRef.current) {
-      console.log("x", x);
-      headerRef.current.scrollLeft = x;
-    }
-
     if (bodyRef.current) {
       bodyRef.current.scrollLeft = x;
     }
@@ -151,12 +134,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
       </div>
 
       <div>
-        <div
-          ref={headerRef}
-          className="relative max-w-full overflow-x-auto no_scrollbar"
-        >
-          <TableHeader cols={cols} />
-        </div>
+        <TableHeader cols={cols} />
 
         <div
           ref={bodyRef}

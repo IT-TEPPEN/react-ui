@@ -1,5 +1,6 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useColumnsWidth } from "./columns-width";
+import { useScrollXPosition } from "./x-scroll-position";
 
 export function useResizeColWidthHook(keyName: string) {
   const { getColumnWidth, getColumnMinWidth, setColWidth } = useColumnsWidth();
@@ -44,4 +45,35 @@ export function useResizeColWidthHook(keyName: string) {
   return {
     onMouseDownResizeWidth,
   };
+}
+
+export function useScrollXRef() {
+  const { x, setScrollX } = useScrollXPosition();
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleHeaderScroll = () => {
+      if (ref.current) {
+        setScrollX(ref.current.scrollLeft);
+      }
+    };
+
+    if (ref.current) {
+      ref.current.addEventListener("scroll", handleHeaderScroll);
+    }
+
+    return () => {
+      if (ref.current) {
+        ref.current.removeEventListener("scroll", handleHeaderScroll);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.scrollLeft = x;
+    }
+  }, [x]);
+
+  return ref;
 }
