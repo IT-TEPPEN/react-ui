@@ -34,49 +34,59 @@ import {
 import { CopyProvider } from "../copy/provider";
 import { CopiedMessage } from "../copy/components";
 import { TableIdGeneratorProvider, useTableIdGenerator } from "../id";
+import { TableHeader } from "../header/header-v2";
+import { ColumnsWidthProvider, ScrollXPositionProvider } from "../header";
+import { useScrollXPosition } from "../header/x-scroll-position";
+import { useRef, useEffect } from "react";
 
 export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   return (
     <TableIdGeneratorProvider id={props.id}>
-      <FilterProvider>
-        <SortProvider initialCondition={props.initialCondition?.sort}>
-          <PagenationProvider
-            rowCount={props.rows.length}
-            perPage={props.initialCondition?.pagenation?.rowCountPerPage}
-          >
-            <CheckboxProvider checkbox={props.checkbox}>
-              <CheckboxStatusProvider checkboxCount={props.rows.length}>
-                <ColumnsProvider
-                  cols={props.cols}
-                  errorHandler={props.errorHandler}
-                >
-                  <EditProvider>
-                    <TablePropertyProvider>
-                      <RangeProvider>
-                        <CopyProvider rows={props.rows} cols={props.cols}>
-                          <CopiedMessage />
-                          <PasteProvider
-                            rows={props.rows}
-                            cols={props.cols}
-                            onUpdateRowFunction={props.onUpdateRow}
-                          >
-                            <KeyboardSetting
-                              enableDeprecatedCopy={
-                                props.deprecatedOptions?.enableDeprecatedCopy
-                              }
-                            />
-                            <BaseTable {...props} />
-                          </PasteProvider>
-                        </CopyProvider>
-                      </RangeProvider>
-                    </TablePropertyProvider>
-                  </EditProvider>
-                </ColumnsProvider>
-              </CheckboxStatusProvider>
-            </CheckboxProvider>
-          </PagenationProvider>
-        </SortProvider>
-      </FilterProvider>
+      <ColumnsWidthProvider
+        initialState={props.cols as TTableColumn<DataRecord>[]}
+      >
+        <FilterProvider>
+          <SortProvider initialCondition={props.initialCondition?.sort}>
+            <PagenationProvider
+              rowCount={props.rows.length}
+              perPage={props.initialCondition?.pagenation?.rowCountPerPage}
+            >
+              <CheckboxProvider checkbox={props.checkbox}>
+                <CheckboxStatusProvider checkboxCount={props.rows.length}>
+                  <ColumnsProvider
+                    cols={props.cols}
+                    errorHandler={props.errorHandler}
+                  >
+                    <EditProvider>
+                      <TablePropertyProvider>
+                        <RangeProvider>
+                          <CopyProvider rows={props.rows} cols={props.cols}>
+                            <CopiedMessage />
+                            <PasteProvider
+                              rows={props.rows}
+                              cols={props.cols}
+                              onUpdateRowFunction={props.onUpdateRow}
+                            >
+                              <KeyboardSetting
+                                enableDeprecatedCopy={
+                                  props.deprecatedOptions?.enableDeprecatedCopy
+                                }
+                              />
+                              <ScrollXPositionProvider>
+                                <BaseTable {...props} />
+                              </ScrollXPositionProvider>
+                            </PasteProvider>
+                          </CopyProvider>
+                        </RangeProvider>
+                      </TablePropertyProvider>
+                    </EditProvider>
+                  </ColumnsProvider>
+                </CheckboxStatusProvider>
+              </CheckboxProvider>
+            </PagenationProvider>
+          </SortProvider>
+        </FilterProvider>
+      </ColumnsWidthProvider>
     </TableIdGeneratorProvider>
   );
 }
@@ -86,6 +96,49 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
   const filteringColumn = useFilteringColumnStateContext();
   const { reset } = useRangeActionContext();
   const IdGenerator = useTableIdGenerator();
+  const { x, setScrollX } = useScrollXPosition();
+  const headerRef = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleBodyScroll = () => {
+      if (bodyRef.current) {
+        setScrollX(bodyRef.current.scrollLeft);
+      }
+    };
+    const handleHeaderScroll = () => {
+      if (headerRef.current) {
+        setScrollX(headerRef.current.scrollLeft);
+      }
+    };
+
+    if (bodyRef.current) {
+      bodyRef.current.addEventListener("scroll", handleBodyScroll);
+    }
+    if (headerRef.current) {
+      headerRef.current.addEventListener("scroll", handleHeaderScroll);
+    }
+
+    return () => {
+      if (bodyRef.current) {
+        bodyRef.current.removeEventListener("scroll", handleBodyScroll);
+      }
+      if (headerRef.current) {
+        headerRef.current.removeEventListener("scroll", handleHeaderScroll);
+      }
+    };
+  }, [setScrollX]);
+
+  useEffect(() => {
+    if (headerRef.current) {
+      console.log("x", x);
+      headerRef.current.scrollLeft = x;
+    }
+
+    if (bodyRef.current) {
+      bodyRef.current.scrollLeft = x;
+    }
+  }, [x]);
 
   return (
     <div className="w-full">
@@ -97,76 +150,80 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
         </TableFilterRemoveButton>
       </div>
 
-      <div
-        id={IdGenerator.getTableId()}
-        className="relative h-full max-w-full max-h-[80vh] border border-gray-200 bg-white rounded-md overflow-auto"
-      >
-        <table className={`table`}>
-          <thead>
-            <tr
-              className="sticky top-0 border-gray-200 z-20 bg-gray-200 text-gray-600 h-[32px]"
-              onClick={(e) => {
-                e.stopPropagation();
-                reset();
-              }}
-            >
-              {props.checkbox && (
-                <th>
-                  <AllCheckbox rows={props.rows} />
-                </th>
+      <div>
+        <div
+          ref={headerRef}
+          className="relative max-w-full overflow-x-auto no_scrollbar"
+        >
+          <TableHeader cols={cols} />
+        </div>
+
+        <div
+          ref={bodyRef}
+          id={IdGenerator.getTableId()}
+          className="relative h-full max-w-full max-h-[80vh] border border-gray-200 bg-white rounded-b-md overflow-auto no_scrollbar"
+        >
+          <table className={`table`}>
+            <thead>
+              <tr>
+                {props.checkbox && (
+                  <th>
+                    <AllCheckbox rows={props.rows} />
+                  </th>
+                )}
+                {cols.map((col, i) => (
+                  <TableHeaderElement
+                    id={IdGenerator.getTableColId({ columnIndex: i })}
+                    key={col.key.toString()}
+                    col={col}
+                  />
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {!!filteringColumn && (
+                <tr
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    reset();
+                  }}
+                >
+                  <td
+                    colSpan={cols.length}
+                    className="sticky top-8 left-0 bg-gray-300 w-full shadow-lg rounded-b-2xl z-20 p-0 overflow-hidden"
+                  >
+                    <TableFilterForm />
+                  </td>
+                </tr>
               )}
-              {cols.map((col, i) => (
-                <TableHeaderElement
-                  id={IdGenerator.getTableColId({ columnIndex: i })}
-                  key={col.key.toString()}
-                  col={col}
+              {pageRowIds.length === 0 && (
+                <tr>
+                  <td colSpan={cols.length} className="py-5">
+                    <p className="text-center font-bold text-lg">NO DATA</p>
+                  </td>
+                </tr>
+              )}
+              {pageRowIds.map((rowId, i) => (
+                <Row
+                  key={rowId}
+                  existCheckbox={!!props.checkbox}
+                  rowIndex={i}
+                  dataString={rowMaps[rowId].stringValue}
+                  cols={props.cols as TTableColumn<DataRecord>[]}
+                  onClickRow={props.onClickRow}
+                  applyRowFormatting={props.applyRowFormatting}
+                  conditionalFormattingString={generateFormattingString(
+                    rowMaps[rowId].data,
+                    cols as TTableColumn<DataRecord>[],
+                    props.conditionalFormattings as TConditionalFormatting<DataRecord>[]
+                  )}
                 />
               ))}
-            </tr>
-          </thead>
-          <tbody>
-            {!!filteringColumn && (
-              <tr
-                onClick={(e) => {
-                  e.stopPropagation();
-                  reset();
-                }}
-              >
-                <td
-                  colSpan={cols.length}
-                  className="sticky top-8 left-0 bg-gray-300 w-full shadow-lg rounded-b-2xl z-20 p-0 overflow-hidden"
-                >
-                  <TableFilterForm />
-                </td>
-              </tr>
-            )}
-            {pageRowIds.length === 0 && (
-              <tr>
-                <td colSpan={cols.length} className="py-5">
-                  <p className="text-center font-bold text-lg">NO DATA</p>
-                </td>
-              </tr>
-            )}
-            {pageRowIds.map((rowId, i) => (
-              <Row
-                key={rowId}
-                existCheckbox={!!props.checkbox}
-                rowIndex={i}
-                dataString={rowMaps[rowId].stringValue}
-                cols={props.cols as TTableColumn<DataRecord>[]}
-                onClickRow={props.onClickRow}
-                applyRowFormatting={props.applyRowFormatting}
-                conditionalFormattingString={generateFormattingString(
-                  rowMaps[rowId].data,
-                  cols as TTableColumn<DataRecord>[],
-                  props.conditionalFormattings as TConditionalFormatting<DataRecord>[]
-                )}
-              />
-            ))}
-          </tbody>
-        </table>
-        <TestRange />
-        <Editor rowMaps={rowMaps} pageRowIds={pageRowIds} />
+            </tbody>
+          </table>
+          <TestRange />
+          <Editor rowMaps={rowMaps} pageRowIds={pageRowIds} />
+        </div>
       </div>
       <div className="mt-1">
         <DisplayRange />
