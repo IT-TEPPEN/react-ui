@@ -8,6 +8,7 @@ interface IPropsTableHeader<T extends DataRecord> {
   cols: TTableColumn<T>[];
   checkbox?: boolean;
   rows: DataObject<T>[];
+  maxWidth?: string;
 }
 
 export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
@@ -15,7 +16,11 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
   const ref = useScrollXRef();
 
   return (
-    <div ref={ref} className="relative max-w-full overflow-x-auto no_scrollbar">
+    <div
+      ref={ref}
+      className="relative max-w-full overflow-x-auto no_scrollbar"
+      style={{ maxWidth: props.maxWidth }}
+    >
       <div className="flex border-gray-200 bg-gray-200 text-gray-600 h-[32px]">
         {props.checkbox && (
           <th className="w-8 h-full">
