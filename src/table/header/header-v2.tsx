@@ -9,6 +9,7 @@ interface IPropsTableHeader<T extends DataRecord> {
   checkbox?: boolean;
   rows: DataObject<T>[];
   maxWidth?: string;
+  generateSortButton?: (columnKey: string) => React.ReactNode;
 }
 
 export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
@@ -35,7 +36,7 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
               label={col.label}
               colWidth={getColumnWidth(col.key as string)}
               disableSort={col.disableSort}
-              disableFilter={col.disableFilter}
+              generateSortButton={props.generateSortButton}
             />
           );
         })}
@@ -49,7 +50,7 @@ interface IPropsHeaderElement {
   label?: string;
   colWidth: number;
   disableSort?: boolean;
-  disableFilter?: boolean;
+  generateSortButton?: (columnKey: string) => React.ReactNode;
 }
 
 const HeaderElement = memo(function HE(props: IPropsHeaderElement) {
@@ -83,8 +84,9 @@ const HeaderElement = memo(function HE(props: IPropsHeaderElement) {
         </div>
 
         <div ref={ref} className="flex items-center w-fit shrink-0 gap-1 px-1">
-          {!props.disableSort && <></>}
-          {!props.disableFilter && !!props.label && <></>}
+          {!props.disableSort &&
+            props.generateSortButton &&
+            props.generateSortButton(props.keyName)}
         </div>
       </div>
       <div

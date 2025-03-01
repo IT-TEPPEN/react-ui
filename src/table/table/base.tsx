@@ -36,56 +36,61 @@ import { TableIdGeneratorProvider, useTableIdGenerator } from "../id";
 import { TableHeader } from "../header/header-v2";
 import { ColumnsWidthProvider, ScrollXPositionProvider } from "../header";
 import { Frame } from "../frame";
+import { ComponentProvider } from "./component-provider";
+import { useGenerateSortButton } from "./component-provider/provider";
 
 export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   return (
-    <TableIdGeneratorProvider id={props.id}>
-      <ColumnsWidthProvider
-        initialState={props.cols as TTableColumn<DataRecord>[]}
-      >
-        <FilterProvider>
-          <SortProvider initialCondition={props.initialCondition?.sort}>
-            <PagenationProvider
-              rowCount={props.rows.length}
-              perPage={props.initialCondition?.pagenation?.rowCountPerPage}
-            >
-              <CheckboxProvider checkbox={props.checkbox}>
-                <CheckboxStatusProvider checkboxCount={props.rows.length}>
-                  <ColumnsProvider
-                    cols={props.cols}
-                    errorHandler={props.errorHandler}
-                  >
-                    <EditProvider>
-                      <TablePropertyProvider>
-                        <RangeProvider>
-                          <CopyProvider rows={props.rows} cols={props.cols}>
-                            <CopiedMessage />
-                            <PasteProvider
-                              rows={props.rows}
-                              cols={props.cols}
-                              onUpdateRowFunction={props.onUpdateRow}
-                            >
-                              <KeyboardSetting
-                                enableDeprecatedCopy={
-                                  props.deprecatedOptions?.enableDeprecatedCopy
-                                }
-                              />
-                              <ScrollXPositionProvider>
-                                <BaseTable {...props} />
-                              </ScrollXPositionProvider>
-                            </PasteProvider>
-                          </CopyProvider>
-                        </RangeProvider>
-                      </TablePropertyProvider>
-                    </EditProvider>
-                  </ColumnsProvider>
-                </CheckboxStatusProvider>
-              </CheckboxProvider>
-            </PagenationProvider>
-          </SortProvider>
-        </FilterProvider>
-      </ColumnsWidthProvider>
-    </TableIdGeneratorProvider>
+    <ComponentProvider>
+      <TableIdGeneratorProvider id={props.id}>
+        <ColumnsWidthProvider
+          initialState={props.cols as TTableColumn<DataRecord>[]}
+        >
+          <FilterProvider>
+            <SortProvider initialCondition={props.initialCondition?.sort}>
+              <PagenationProvider
+                rowCount={props.rows.length}
+                perPage={props.initialCondition?.pagenation?.rowCountPerPage}
+              >
+                <CheckboxProvider checkbox={props.checkbox}>
+                  <CheckboxStatusProvider checkboxCount={props.rows.length}>
+                    <ColumnsProvider
+                      cols={props.cols}
+                      errorHandler={props.errorHandler}
+                    >
+                      <EditProvider>
+                        <TablePropertyProvider>
+                          <RangeProvider>
+                            <CopyProvider rows={props.rows} cols={props.cols}>
+                              <CopiedMessage />
+                              <PasteProvider
+                                rows={props.rows}
+                                cols={props.cols}
+                                onUpdateRowFunction={props.onUpdateRow}
+                              >
+                                <KeyboardSetting
+                                  enableDeprecatedCopy={
+                                    props.deprecatedOptions
+                                      ?.enableDeprecatedCopy
+                                  }
+                                />
+                                <ScrollXPositionProvider>
+                                  <BaseTable {...props} />
+                                </ScrollXPositionProvider>
+                              </PasteProvider>
+                            </CopyProvider>
+                          </RangeProvider>
+                        </TablePropertyProvider>
+                      </EditProvider>
+                    </ColumnsProvider>
+                  </CheckboxStatusProvider>
+                </CheckboxProvider>
+              </PagenationProvider>
+            </SortProvider>
+          </FilterProvider>
+        </ColumnsWidthProvider>
+      </TableIdGeneratorProvider>
+    </ComponentProvider>
   );
 }
 
@@ -94,6 +99,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
   const filteringColumn = useFilteringColumnStateContext();
   const { reset } = useRangeActionContext();
   const IdGenerator = useTableIdGenerator();
+  const generateSortButton = useGenerateSortButton();
 
   return (
     <div className="w-full">
@@ -111,6 +117,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
           checkbox={!!props.checkbox}
           rows={props.rows}
           maxWidth={props.maxWidth}
+          generateSortButton={generateSortButton}
         />
 
         <Frame
