@@ -1,22 +1,20 @@
 "use client";
 
-import { DataRecord, TTableColumn } from "../table/type";
+import { DataRecord } from "../table/type";
 import { useColumnsWidthState } from "./columns-width";
 
-type TPropsTableHeader<T extends DataRecord> = {
-  id: string;
-  col: TTableColumn<T>;
+type TPropsTableHeader = {
+  keyname: string;
 };
 
 export function TableHeaderElement<T extends DataRecord>(
-  props: TPropsTableHeader<T>
+  props: TPropsTableHeader
 ) {
   const { getColumnWidth } = useColumnsWidthState();
-  const colWidth = getColumnWidth(props.col.key as string);
+  const colWidth = getColumnWidth(props.keyname);
+
   return (
     <th
-      id={props.id}
-      className="relative"
       style={{ width: colWidth, maxWidth: colWidth, minWidth: colWidth }}
     ></th>
   );
