@@ -6,6 +6,7 @@ interface IPropsSelectBoxFrame {
   onToggle: () => void;
   isOpen: boolean;
   children: React.ReactNode;
+  no_icon?: boolean;
 }
 
 export function SelectBoxFrame(props: IPropsSelectBoxFrame) {
@@ -25,17 +26,19 @@ export function SelectBoxFrame(props: IPropsSelectBoxFrame) {
       >
         {props.children}
       </div>
-      <div
-        className="absolute grid place-items-center h-full right-1 top-0"
-        onClick={(e) => {
-          e.stopPropagation();
-          props.onToggle();
-        }}
-      >
-        <MdOutlineKeyboardArrowLeft
-          className={`duration-300 ${props.isOpen ? "-rotate-90" : ""}`}
-        />
-      </div>
+      {!props.no_icon && (
+        <div
+          className="absolute grid place-items-center h-full right-1 top-0"
+          onClick={(e) => {
+            e.stopPropagation();
+            props.onToggle();
+          }}
+        >
+          <MdOutlineKeyboardArrowLeft
+            className={`duration-300 ${props.isOpen ? "-rotate-90" : ""}`}
+          />
+        </div>
+      )}
     </div>
   );
 }

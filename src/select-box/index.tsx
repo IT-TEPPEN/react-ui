@@ -11,6 +11,9 @@ interface IPropsSelectBox {
   options: Options[];
   value?: string;
   onSelect: (value: string) => void;
+  no_appearance?: boolean;
+  no_icon?: boolean;
+  placeholder?: string;
 }
 
 export function SelectBox(props: IPropsSelectBox) {
@@ -140,6 +143,7 @@ export function SelectBox(props: IPropsSelectBox) {
       <SelectBoxFrame
         isOpen={isOpen}
         onToggle={() => setIsOpen((prev) => !prev)}
+        no_icon={props.no_icon}
       >
         <InputArea
           inputRef={props.inputRef}
@@ -147,6 +151,8 @@ export function SelectBox(props: IPropsSelectBox) {
           selectedValue={label}
           searchText={searchText}
           onChangeSearchText={setSearchText}
+          no_appearance={props.no_appearance}
+          placeholder={props.placeholder}
         />
         {isOpen && (
           <OptionsArea
