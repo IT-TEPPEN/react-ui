@@ -107,5 +107,43 @@ export const conditionInputReducer: TConditionInputReducer = (
         status: "waiting for input",
       };
     }
+
+    case "removeInputedTarget": {
+      if (
+        !(
+          state.status == "inputted target" ||
+          state.status == "inputted operator"
+        )
+      ) {
+        return state;
+      }
+
+      return {
+        conditions: state.conditions,
+        targets: state.targets,
+        operators: state.operators,
+        status: "waiting for input",
+      };
+    }
+
+    case "removeInputedOperator": {
+      if (state.status !== "inputted operator") {
+        return state;
+      }
+
+      return {
+        conditions: state.conditions,
+        targets: state.targets,
+        operators: state.operators,
+        status: "inputted target",
+        inputtingCondition: {
+          type: state.inputtingCondition.target.type,
+          target: state.inputtingCondition.target,
+        },
+        useableOperators: state.operators.filter(
+          (o) => o.type === state.inputtingCondition.target.type
+        ),
+      };
+    }
   }
 };

@@ -31,6 +31,12 @@ export const useConditionInputHook: TConditionInputHook = (target, options) => {
       updateTargets: (targets: Target[]) => {
         dispatch({ type: "updateTargets", payload: { targets } });
       },
+      removeInputedTarget: () => {
+        dispatch({ type: "removeInputedTarget" });
+      },
+      removeInputedOperator: () => {
+        dispatch({ type: "removeInputedOperator" });
+      },
     }),
     []
   );

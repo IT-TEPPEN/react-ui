@@ -7,6 +7,7 @@ import {
   useConditionInputState,
 } from "./condition-input-management";
 import { useIdGenerator } from "../id-generator";
+import { TiDeleteOutline } from "react-icons/ti";
 
 export function SearchBarInputForm() {
   const { status } = useConditionInputState();
@@ -46,7 +47,7 @@ function TargetInputForm() {
 function OperatorInputForm() {
   const { generateId } = useIdGenerator();
   const state = useConditionInputState();
-  const { inputOperator } = useConditionInputAction();
+  const { inputOperator, removeInputedTarget } = useConditionInputAction();
 
   if (state.status !== "inputted target") {
     return null;
@@ -57,7 +58,12 @@ function OperatorInputForm() {
 
   return (
     <>
-      <FixedValue label={target.label} />
+      <FixedValue
+        label={target.label}
+        onClickDelete={() => {
+          removeInputedTarget();
+        }}
+      />
       <SelectBox
         id={generateId("OperatorInput")}
         onSelect={(value) => {
@@ -89,7 +95,8 @@ function OperatorInputForm() {
 function SearchValueInputForm() {
   const { generateId } = useIdGenerator();
   const state = useConditionInputState();
-  const { inputValue } = useConditionInputAction();
+  const { inputValue, removeInputedOperator, removeInputedTarget } =
+    useConditionInputAction();
   const [value, setValue] = useState("");
 
   if (state.status !== "inputted operator") {
@@ -101,8 +108,18 @@ function SearchValueInputForm() {
 
   return (
     <>
-      <FixedValue label={target.label} />
-      <FixedValue label={operator.label} />
+      <FixedValue
+        label={target.label}
+        onClickDelete={() => {
+          removeInputedTarget();
+        }}
+      />
+      <FixedValue
+        label={operator.label}
+        onClickDelete={() => {
+          removeInputedOperator();
+        }}
+      />
       <input
         id={generateId("OperatorInput")}
         className="no_appearance border-none p-2 focus:outline-none focus-visible:outline-none bg-transparent"
@@ -124,10 +141,18 @@ function SearchValueInputForm() {
   );
 }
 
-function FixedValue(props: { label: string }) {
+function FixedValue(props: { label: string; onClickDelete?: () => void }) {
   return (
-    <div className="w-fit px-2 border rounded bg-slate-100">
+    <div className="flex items-center gap-2 w-fit px-2 border rounded bg-slate-100">
       <p className="whitespace-nowrap">{props.label}</p>
+      {props.onClickDelete && (
+        <div>
+          <TiDeleteOutline
+            className="bg-white hover:bg-slate-300 rounded-full cursor-pointer"
+            onClick={props.onClickDelete}
+          />
+        </div>
+      )}
     </div>
   );
 }

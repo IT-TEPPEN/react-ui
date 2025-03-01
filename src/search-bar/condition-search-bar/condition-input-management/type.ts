@@ -67,6 +67,12 @@ export type TConditionInputAction =
   | {
       type: "updateTargets";
       payload: { targets: Target[] };
+    }
+  | {
+      type: "removeInputedTarget";
+    }
+  | {
+      type: "removeInputedOperator";
     };
 
 export type TConditionInputReducer = Reducer<
@@ -82,6 +88,8 @@ export type TConditionInputActionContext = {
   deleteCondition: (index: number) => void;
   reset: () => void;
   updateTargets: (targets: Target[]) => void;
+  removeInputedTarget: () => void;
+  removeInputedOperator: () => void;
 };
 
 export type TConditionInputHook = (

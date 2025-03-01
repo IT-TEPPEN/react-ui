@@ -5,6 +5,7 @@ import { ConditionInputProvider } from "./condition-input-management";
 import { Target } from "./condition-input-management/type";
 import { ConditionList } from "./condition-list";
 import { SearchBarInputForm } from "./input-form";
+import { BiSearchAlt } from "react-icons/bi";
 
 interface ConditionSearchBarProps {
   id: string;
@@ -24,12 +25,12 @@ export function ConditionSearchBar(props: ConditionSearchBarProps) {
 
 export function SearchBar() {
   return (
-    <div className="flex items-center gap-1 px-2 py-1 border rounded-md">
+    <div className="flex items-center gap-1 w-full px-2 py-1 border border-slate-700 rounded-md text-gray-800">
+      <div className="px-2">
+        <BiSearchAlt className="text-slate-600" />
+      </div>
       <ConditionList />
       <SearchBarInputForm />
-      <button className="px-2 py-1 text-white bg-blue-500 rounded-md">
-        Search
-      </button>
     </div>
   );
 }

@@ -21,4 +21,9 @@ export const Default: Story = {
       { key: "age", label: "年齢", type: "number" },
     ],
   },
+  render: (props) => (
+    <div className="w-[80vw]">
+      <ConditionSearchBar {...props} />
+    </div>
+  ),
 };
