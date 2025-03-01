@@ -79,3 +79,23 @@ export type TConditionInputReducer = Reducer<
   TConditionInputState,
   TConditionInputAction
 >;
+
+export type TConditionInputStateContext = TConditionInputState;
+export type TConditionInputActionContext = {
+  inputTarget: (targetKey: string) => void;
+  inputOperator: (operatorKey: string) => void;
+  inputValue: (value: string) => void;
+  deleteCondition: (index: number) => void;
+  reset: () => void;
+  updateTargets: (targets: Target[]) => void;
+};
+
+export type TConditionInputHook = (
+  targets: Target[],
+  options?: {
+    operators?: Operator[];
+  }
+) => {
+  state: TConditionInputState;
+  actions: TConditionInputActionContext;
+};

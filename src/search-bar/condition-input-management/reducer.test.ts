@@ -1,7 +1,7 @@
-import { ConditionInputReducer } from "./reducer";
+import { conditionInputReducer } from "./reducer";
 import { TConditionInputState, TConditionInputAction } from "./type";
 
-describe("ConditionInputReducer", () => {
+describe("conditionInputReducer", () => {
   const initialState: TConditionInputState = {
     conditions: [],
     targets: [{ key: "target1", label: "対象1", type: "string" }],
@@ -79,7 +79,7 @@ describe("ConditionInputReducer", () => {
               }),
             },
           };
-    const newState = ConditionInputReducer(
+    const newState = conditionInputReducer(
       state as any,
       action as TConditionInputAction
     );
@@ -101,7 +101,7 @@ describe("ConditionInputReducer", () => {
       type: "deleteCondition",
       payload: { index: 0 },
     };
-    const newState = ConditionInputReducer(state, action);
+    const newState = conditionInputReducer(state, action);
     expect(newState.conditions).toEqual([]);
   });
 
@@ -117,7 +117,7 @@ describe("ConditionInputReducer", () => {
       ],
     };
     const action: TConditionInputAction = { type: "reset" };
-    const newState = ConditionInputReducer(state, action);
+    const newState = conditionInputReducer(state, action);
     expect(newState.conditions).toEqual([]);
     expect(newState.status).toBe("waiting for input");
   });
@@ -129,7 +129,7 @@ describe("ConditionInputReducer", () => {
         targets: [{ key: "target2", label: "対象2", type: "number" }],
       },
     };
-    const newState = ConditionInputReducer(initialState, action);
+    const newState = conditionInputReducer(initialState, action);
     expect(newState.targets).toEqual([
       { key: "target2", label: "対象2", type: "number" },
     ]);

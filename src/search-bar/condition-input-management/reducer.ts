@@ -1,6 +1,6 @@
 import { TConditionInputReducer } from "./type";
 
-export const ConditionInputReducer: TConditionInputReducer = (
+export const conditionInputReducer: TConditionInputReducer = (
   state,
   action
 ) => {
