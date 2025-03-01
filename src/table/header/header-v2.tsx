@@ -3,6 +3,7 @@ import { DataObject, DataRecord, TTableColumn } from "../table/type";
 import { useColumnsWidthState } from "./columns-width";
 import { useResizeColWidthHook, useScrollXRef } from "./header-v2-hook";
 import { AllCheckbox } from "../checkbox/components";
+import { ConditionSearchBar } from "../../search-bar";
 
 interface IPropsTableHeader<T extends DataRecord> {
   cols: TTableColumn<T>[];
@@ -18,28 +19,45 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
 
   return (
     <div
-      ref={ref}
-      className="relative max-w-full overflow-x-auto no_scrollbar"
+      className="border-gray-200 bg-gray-200 text-gray-600 rounded-t-md"
       style={{ maxWidth: props.maxWidth }}
     >
-      <div className="flex border-gray-200 bg-gray-200 text-gray-600 h-[32px]">
-        {props.checkbox && (
-          <th className="w-8 h-full">
-            <AllCheckbox rows={props.rows} />
-          </th>
-        )}
-        {props.cols.map((col) => {
-          return (
-            <HeaderElement
-              key={col.key.toString()}
-              keyName={col.key.toString()}
-              label={col.label}
-              colWidth={getColumnWidth(col.key as string)}
-              disableSort={col.disableSort || (!col.editable && !!col.render)}
-              generateSortButton={props.generateSortButton}
-            />
-          );
-        })}
+      <div className="py-2 px-2">
+        <ConditionSearchBar
+          targets={props.cols
+            .filter((col) => !!col.label)
+            .map((col) => ({
+              key: col.key as string,
+              label: col.label as string,
+              type: col.type as "string" | "number",
+            }))}
+          onChangeCondition={(condition) => {}}
+          size="small"
+        />
+      </div>
+      <div
+        ref={ref}
+        className="relative max-w-full overflow-x-auto no_scrollbar"
+      >
+        <div className="flex h-[32px]">
+          {props.checkbox && (
+            <th className="w-8 h-full">
+              <AllCheckbox rows={props.rows} />
+            </th>
+          )}
+          {props.cols.map((col) => {
+            return (
+              <HeaderElement
+                key={col.key.toString()}
+                keyName={col.key.toString()}
+                label={col.label}
+                colWidth={getColumnWidth(col.key as string)}
+                disableSort={col.disableSort || (!col.editable && !!col.render)}
+                generateSortButton={props.generateSortButton}
+              />
+            );
+          })}
+        </div>
       </div>
     </div>
   );
