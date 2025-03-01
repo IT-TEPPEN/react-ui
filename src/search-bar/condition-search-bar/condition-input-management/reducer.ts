@@ -27,6 +27,7 @@ export const conditionInputReducer: TConditionInputReducer = (
           type: target.type,
           target,
         },
+        useableOperators: state.operators.filter((o) => o.type === target.type),
       };
     }
 

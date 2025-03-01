@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { ConditionSearchBar } from "./condition-search-bar";
+import { ConditionSearchBar } from "./base";
 
 const meta = {
   title: "SearchBar/ConditionSearchBar",
@@ -15,6 +15,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
+    id: "search-bar",
     targets: [
       { key: "name", label: "名前", type: "string" },
       { key: "age", label: "年齢", type: "number" },

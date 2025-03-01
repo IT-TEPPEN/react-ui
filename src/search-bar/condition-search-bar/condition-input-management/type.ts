@@ -1,22 +1,15 @@
 import { Reducer } from "react";
-
-type Type = "string" | "number" | "date";
+import { ISearchOperator, TValueType } from "../../../share/search-operator";
 
 export interface Target {
   key: string;
   label: string;
-  type: Type;
-}
-
-export interface Operator {
-  key: string;
-  label: string;
-  type: Type;
+  type: TValueType;
 }
 
 export type Condition = {
   target: Target;
-  operator: Operator;
+  operator: ISearchOperator;
   value: string;
 };
 
@@ -24,7 +17,7 @@ export type TConditionInputState =
   | {
       conditions: Condition[];
       targets: Target[];
-      operators: Operator[];
+      operators: ISearchOperator[];
     } & (
       | {
           status: "waiting for input";
@@ -32,16 +25,17 @@ export type TConditionInputState =
       | {
           status: "inputted target";
           inputtingCondition: {
-            type: Type;
+            type: TValueType;
             target: Target;
           };
+          useableOperators: ISearchOperator[];
         }
       | {
           status: "inputted operator";
           inputtingCondition: {
-            type: Type;
+            type: TValueType;
             target: Target;
-            operator: Operator;
+            operator: ISearchOperator;
           };
         }
     );
@@ -93,7 +87,7 @@ export type TConditionInputActionContext = {
 export type TConditionInputHook = (
   targets: Target[],
   options?: {
-    operators?: Operator[];
+    operators?: ISearchOperator[];
   }
 ) => {
   state: TConditionInputState;
