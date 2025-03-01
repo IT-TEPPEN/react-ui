@@ -35,7 +35,7 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
               keyName={col.key.toString()}
               label={col.label}
               colWidth={getColumnWidth(col.key as string)}
-              disableSort={col.disableSort}
+              disableSort={col.disableSort || (!col.editable && !!col.render)}
               generateSortButton={props.generateSortButton}
             />
           );
