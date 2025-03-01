@@ -43,7 +43,7 @@ export function SelectBox(props: IPropsSelectBox) {
             .toLowerCase()
             .includes(searchText.toLowerCase());
         } else {
-          option.label.toLowerCase().includes(searchText.toLowerCase());
+          return option.label.toLowerCase().includes(searchText.toLowerCase());
         }
       }),
     [props.options, searchText]
