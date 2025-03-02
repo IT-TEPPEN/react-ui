@@ -9,7 +9,9 @@ import {
 import { useIdGenerator } from "../id-generator";
 import { TiDeleteOutline } from "react-icons/ti";
 
-export function SearchBarInputForm() {
+export function SearchBarInputForm(props: {
+  size?: "small" | "medium" | "large";
+}) {
   const { status } = useConditionInputState();
 
   switch (status) {
@@ -18,7 +20,7 @@ export function SearchBarInputForm() {
     case "inputted target":
       return <OperatorInputForm />;
     case "inputted operator":
-      return <SearchValueInputForm />;
+      return <SearchValueInputForm size={props.size} />;
   }
 }
 
@@ -64,35 +66,35 @@ function OperatorInputForm() {
           removeInputedTarget();
         }}
       />
-      <SelectBox
-        id={generateId("OperatorInput")}
-        onSelect={(value) => {
-          inputOperator(value);
+      <div className="w-full min-w-64">
+        <SelectBox
+          id={generateId("OperatorInput")}
+          onSelect={(value) => {
+            inputOperator(value);
 
-          setTimeout(() => {
-            const element = document.getElementById(
-              generateId("OperatorInput")
-            );
+            setTimeout(() => {
+              const element = document.getElementById(generateId("ValueInput"));
 
-            if (element) {
-              element.focus();
-            }
-          }, 10);
-        }}
-        options={operators.map((t) => ({
-          value: t.key,
-          label: t.label,
-        }))}
-        defaultIsOpen
-        placeholder="Select operator"
-        no_appearance
-        no_icon
-      />
+              if (element) {
+                element.focus();
+              }
+            }, 10);
+          }}
+          options={operators.map((t) => ({
+            value: t.key,
+            label: t.label,
+          }))}
+          defaultIsOpen
+          placeholder="Select operator"
+          no_appearance
+          no_icon
+        />
+      </div>
     </>
   );
 }
 
-function SearchValueInputForm() {
+function SearchValueInputForm(props: { size?: "small" | "medium" | "large" }) {
   const { generateId } = useIdGenerator();
   const state = useConditionInputState();
   const { inputValue, removeInputedOperator, removeInputedTarget } =
@@ -121,8 +123,14 @@ function SearchValueInputForm() {
         }}
       />
       <input
-        id={generateId("OperatorInput")}
-        className="no_appearance border-none p-2 focus:outline-none focus-visible:outline-none bg-transparent"
+        id={generateId("ValueInput")}
+        className={`no_appearance w-full min-w-64 border-none px-2 py-1 focus:outline-none focus-visible:outline-none bg-transparent ${
+          props.size === "small"
+            ? "text-sm"
+            : props.size === "large"
+            ? "text-lg"
+            : ""
+        }`}
         type="text"
         placeholder="Search text"
         value={value}
@@ -155,8 +163,4 @@ function FixedValue(props: { label: string; onClickDelete?: () => void }) {
       )}
     </div>
   );
-}
-
-function getId(idType: "Target" | "Operator" | "Value") {
-  return `ConditionSearchBar:${idType}`;
 }

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Options } from "../types";
+import { Options } from "../options-window";
 import { useIdContext } from "../id/provider";
 import { IdGenerator } from "../lib";
 

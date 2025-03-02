@@ -4,6 +4,7 @@ import { useColumnsWidthState } from "./columns-width";
 import { useResizeColWidthHook, useScrollXRef } from "./header-v2-hook";
 import { AllCheckbox } from "../checkbox/components";
 import { ConditionSearchBar } from "../../search-bar";
+import { useTableIdGenerator } from "../id";
 
 interface IPropsTableHeader<T extends DataRecord> {
   cols: TTableColumn<T>[];
@@ -14,6 +15,7 @@ interface IPropsTableHeader<T extends DataRecord> {
 }
 
 export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
+  const idGenerator = useTableIdGenerator();
   const { getColumnWidth } = useColumnsWidthState();
   const ref = useScrollXRef();
 
@@ -24,6 +26,7 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
     >
       <div className="py-2 px-2">
         <ConditionSearchBar
+          id={idGenerator.getTableHeaderId()}
           targets={props.cols
             .filter((col) => !!col.label)
             .map((col) => ({

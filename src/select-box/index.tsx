@@ -1,7 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
-import { InputArea, OptionsArea, SelectBoxFrame } from "./parts";
-import { Options } from "./types";
+"use client";
+
+import { InputArea, SelectBoxFrame } from "./parts";
+import { Options, useOptionsWindowActions } from "./options-window";
+import { SelectBoxProvider } from "./provider";
 import { IdProvider } from "./id/provider";
+import { useCallback, useEffect } from "react";
 import { IdGenerator } from "./lib";
 
 interface IPropsSelectBox {
@@ -17,151 +20,47 @@ interface IPropsSelectBox {
 }
 
 export function SelectBox(props: IPropsSelectBox) {
-  const [value, setValue] = useState(props.value ?? "");
-  const [isOpen, setIsOpen] = useState(props.defaultIsOpen ?? false);
-  const [searchText, setSearchText] = useState("");
-  const [selectingIndex, setSelectingIndex] = useState<number | undefined>(
-    undefined
+  return (
+    <SelectBoxProvider>
+      <SelectBoxContent {...props} />
+    </SelectBoxProvider>
   );
+}
 
-  const handleSelect = (value: string) => {
-    setValue(value);
-    props.onSelect(value);
-    setSearchText("");
-    setIsOpen(false);
-  };
+function SelectBoxContent(props: IPropsSelectBox) {
+  const { openOptionsWindow, closeOptionsWindow } = useOptionsWindowActions();
 
-  const label =
-    props.options.find((option) => option.value === value)?.label ?? "";
+  const open = useCallback(() => {
+    openOptionsWindow(
+      IdGenerator.generateIdSelectBoxInputArea(props.id),
+      props.options,
+      props.onSelect
+    );
+  }, [props.id, props.options, props.onSelect]);
 
-  const searchedOptions = useMemo(
-    () =>
-      props.options.filter((option) => {
-        if (option.searchText) {
-          return option.searchText
-            .toLowerCase()
-            .includes(searchText.toLowerCase());
-        } else if (option.searchLabel) {
-          return option.searchLabel
-            .toLowerCase()
-            .includes(searchText.toLowerCase());
-        } else {
-          return option.label.toLowerCase().includes(searchText.toLowerCase());
-        }
-      }),
-    [props.options, searchText]
-  );
-
-  useEffect(() => {
-    const onClickOutOfSelectBox = (e: MouseEvent) => {
-      // SelectBox関連の要素を取得
-      const frameElement = document.getElementById(
-        IdGenerator.generateIdSelectBoxFrame(props.id)
-      );
-      const optionsElement = document.getElementById(
-        IdGenerator.generateIdSelectBoxOptionsArea(props.id)
-      );
-
-      // クリックされた要素を取得
-      const ele = e.target;
-
-      if (ele instanceof Node && frameElement?.contains(ele)) return;
-      if (ele instanceof Node && optionsElement?.contains(ele)) return;
-
-      setSearchText("");
-      setIsOpen(false);
-    };
-
-    document.addEventListener("mousedown", onClickOutOfSelectBox);
-
-    return () => {
-      document.removeEventListener("mousedown", onClickOutOfSelectBox);
-    };
+  const close = useCallback(() => {
+    closeOptionsWindow();
   }, []);
 
   useEffect(() => {
-    if (!isOpen) {
-      setSelectingIndex(undefined);
-
-      const inputElement = document.getElementById(
-        IdGenerator.generateIdSelectBoxInputArea(props.id)
-      );
-
-      if (inputElement) {
-        // inputElementにフォーカスされている場合、ArrowDownを押すとOptionsAreaが開く
-        const handleKeydown = (e: KeyboardEvent) => {
-          if (e.key === "ArrowDown") {
-            e.preventDefault();
-            setIsOpen(true);
-          }
-        };
-        inputElement.addEventListener("keydown", handleKeydown);
-
-        return () => {
-          inputElement.removeEventListener("keydown", handleKeydown);
-        };
-      }
-    } else {
-      const handleKeydown = (e: KeyboardEvent) => {
-        if (e.key === "ArrowDown") {
-          e.preventDefault();
-          setSelectingIndex((prev) =>
-            typeof prev === "number"
-              ? Math.min(prev + 1, searchedOptions.length - 1)
-              : 0
-          );
-        } else if (e.key === "ArrowUp") {
-          e.preventDefault();
-          setSelectingIndex((prev) =>
-            typeof prev === "number" ? Math.max(prev - 1, 0) : 0
-          );
-        } else if (e.key === "Enter") {
-          e.preventDefault();
-          if (typeof selectingIndex === "number") {
-            handleSelect(searchedOptions[selectingIndex].value);
-          }
-        }
-      };
-      document.addEventListener("keydown", handleKeydown);
-
-      return () => {
-        document.removeEventListener("keydown", handleKeydown);
-      };
+    if (props.defaultIsOpen) {
+      open();
     }
-  }, [isOpen, searchedOptions, selectingIndex, setSelectingIndex]);
-
-  const selectingValue =
-    searchedOptions.length === 0
-      ? undefined
-      : typeof selectingIndex === "number" &&
-        selectingIndex < searchedOptions.length
-      ? searchedOptions[selectingIndex].value
-      : undefined;
+  }, [props.defaultIsOpen]);
 
   return (
     <IdProvider id={props.id}>
-      <SelectBoxFrame
-        isOpen={isOpen}
-        onToggle={() => setIsOpen((prev) => !prev)}
-        no_icon={props.no_icon}
-      >
+      <SelectBoxFrame open={open} close={close} no_icon={props.no_icon}>
         <InputArea
+          id={props.id}
+          value={props.value}
+          open={open}
+          close={close}
           inputRef={props.inputRef}
-          isSelecting={isOpen}
-          selectedValue={label}
-          searchText={searchText}
-          onChangeSearchText={setSearchText}
+          options={props.options}
           no_appearance={props.no_appearance}
           placeholder={props.placeholder}
         />
-        {isOpen && (
-          <OptionsArea
-            options={searchedOptions}
-            value={value}
-            onSelect={handleSelect}
-            selectingValue={selectingValue}
-          />
-        )}
       </SelectBoxFrame>
     </IdProvider>
   );

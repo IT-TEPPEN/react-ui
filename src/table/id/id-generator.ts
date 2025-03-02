@@ -15,6 +15,9 @@ export class IdGenerator implements ITableIdGenerator {
   getEditorId(): string {
     return `${this.getTableId()}:Editor`;
   }
+  getTableHeaderId(): string {
+    return `${this.getTableId()}:Header`;
+  }
   extractCellIndexFromId(id: string): [number, number] {
     const arr = id.split("-");
     const rowIndex = arr[arr.length - 2];

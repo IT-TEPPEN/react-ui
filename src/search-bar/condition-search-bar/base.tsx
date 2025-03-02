@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectBoxProvider } from "../../select-box/provider";
 import { IdGeneratorProvider } from "../id-generator";
 import { ConditionInputProvider } from "./condition-input-management";
 import { Target } from "./condition-input-management/type";
@@ -19,11 +20,13 @@ interface ConditionSearchBarProps extends SearcchBarProps {
 
 export function ConditionSearchBar(props: ConditionSearchBarProps) {
   return (
-    <IdGeneratorProvider id={props.id}>
-      <ConditionInputProvider targets={props.targets}>
-        <SearchBar size={props.size} />
-      </ConditionInputProvider>
-    </IdGeneratorProvider>
+    <SelectBoxProvider>
+      <IdGeneratorProvider id={props.id}>
+        <ConditionInputProvider targets={props.targets}>
+          <SearchBar size={props.size} />
+        </ConditionInputProvider>
+      </IdGeneratorProvider>
+    </SelectBoxProvider>
   );
 }
 
@@ -41,8 +44,12 @@ export function SearchBar(props: SearcchBarProps) {
       <div className="px-2">
         <BiSearchAlt className="text-slate-600" />
       </div>
-      <ConditionList />
-      <SearchBarInputForm />
+      <div className="relative flex w-full items-center gap-1 overflow-x-auto no_scrollbar">
+        <ConditionList />
+        <div className="flex items-center min-w-64 w-full">
+          <SearchBarInputForm size={props.size} />
+        </div>
+      </div>
     </div>
   );
 }
