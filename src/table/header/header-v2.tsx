@@ -1,4 +1,4 @@
-import { memo, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 import { DataObject, DataRecord, TTableColumn } from "../table/type";
 import { useColumnsWidthState } from "./columns-width";
 import { useResizeColWidthHook, useScrollXRef } from "./header-v2-hook";
@@ -18,6 +18,25 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
   const idGenerator = useTableIdGenerator();
   const { getColumnWidth } = useColumnsWidthState();
   const ref = useScrollXRef();
+
+  useEffect(() => {
+    if (ref.current) {
+      const element = ref.current;
+
+      const scrollX = (e: WheelEvent) => {
+        if (e.deltaY === 0) return;
+
+        e.preventDefault();
+        element.scrollLeft += e.deltaY;
+      };
+
+      element.addEventListener("wheel", scrollX);
+
+      return () => {
+        element.removeEventListener("wheel", scrollX);
+      };
+    }
+  }, [ref]);
 
   return (
     <div

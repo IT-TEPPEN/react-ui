@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { SelectBoxProvider } from "../../select-box/provider";
 import { IdGeneratorProvider } from "../id-generator";
 import { ConditionInputProvider } from "./condition-input-management";
@@ -31,6 +32,27 @@ export function ConditionSearchBar(props: ConditionSearchBarProps) {
 }
 
 export function SearchBar(props: SearcchBarProps) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (ref.current) {
+      const element = ref.current;
+
+      const scrollX = (e: WheelEvent) => {
+        if (e.deltaY === 0) return;
+
+        e.preventDefault();
+        element.scrollLeft += e.deltaY;
+      };
+
+      element.addEventListener("wheel", scrollX);
+
+      return () => {
+        element.removeEventListener("wheel", scrollX);
+      };
+    }
+  }, [ref]);
+
   return (
     <div
       className={`flex items-center gap-1 w-full px-2 py-1 bg-white border border-slate-700 rounded-md text-gray-800 ${
@@ -44,7 +66,10 @@ export function SearchBar(props: SearcchBarProps) {
       <div className="px-2">
         <BiSearchAlt className="text-slate-600" />
       </div>
-      <div className="relative flex w-full items-center gap-1 overflow-x-auto no_scrollbar">
+      <div
+        ref={ref}
+        className="relative flex w-full items-center gap-1 overflow-x-auto no_scrollbar"
+      >
         <ConditionList />
         <div className="flex items-center min-w-64 w-full">
           <SearchBarInputForm size={props.size} />
