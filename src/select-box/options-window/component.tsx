@@ -96,7 +96,7 @@ export function OptionsArea() {
   return (
     <div
       id={"ReactUI:SelectBox:OptionsArea"}
-      className="absolute w-fit max-h-[40vh] overflow-auto border border-gray-300 z-10"
+      className="absolute min-w-fit max-h-[40vh] overflow-auto border border-gray-300 z-10"
       style={{ top, left }}
     >
       {state.options.map((option) => (

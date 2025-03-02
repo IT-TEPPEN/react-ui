@@ -110,55 +110,55 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
           generateSortButton={generateSortButton}
         />
 
-        <Frame
-          id={IdGenerator.getTableId()}
-          maxHeight={props.maxHeight}
-          maxWidth={props.maxWidth}
-          displayScroll={false}
-        >
-          <table className={`table`}>
-            <thead>
-              <tr>
-                {props.checkbox && <th></th>}
-                {cols.map((col) => (
-                  <TableHeaderElement
-                    key={col.key.toString()}
-                    keyname={col.key.toString()}
+        <SelectBoxProvider>
+          <Frame
+            id={IdGenerator.getTableId()}
+            maxHeight={props.maxHeight}
+            maxWidth={props.maxWidth}
+            displayScroll={false}
+          >
+            <table className={`table`}>
+              <thead>
+                <tr>
+                  {props.checkbox && <th></th>}
+                  {cols.map((col) => (
+                    <TableHeaderElement
+                      key={col.key.toString()}
+                      keyname={col.key.toString()}
+                    />
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {pageRowIds.length === 0 && (
+                  <tr>
+                    <td colSpan={cols.length} className="py-5">
+                      <p className="text-center font-bold text-lg">NO DATA</p>
+                    </td>
+                  </tr>
+                )}
+                {pageRowIds.map((rowId, i) => (
+                  <Row
+                    key={rowId}
+                    existCheckbox={!!props.checkbox}
+                    rowIndex={i}
+                    dataString={rowMaps[rowId].stringValue}
+                    cols={props.cols as TTableColumn<DataRecord>[]}
+                    onClickRow={props.onClickRow}
+                    applyRowFormatting={props.applyRowFormatting}
+                    conditionalFormattingString={generateFormattingString(
+                      rowMaps[rowId].data,
+                      cols as TTableColumn<DataRecord>[],
+                      props.conditionalFormattings as TConditionalFormatting<DataRecord>[]
+                    )}
                   />
                 ))}
-              </tr>
-            </thead>
-            <tbody>
-              {pageRowIds.length === 0 && (
-                <tr>
-                  <td colSpan={cols.length} className="py-5">
-                    <p className="text-center font-bold text-lg">NO DATA</p>
-                  </td>
-                </tr>
-              )}
-              {pageRowIds.map((rowId, i) => (
-                <Row
-                  key={rowId}
-                  existCheckbox={!!props.checkbox}
-                  rowIndex={i}
-                  dataString={rowMaps[rowId].stringValue}
-                  cols={props.cols as TTableColumn<DataRecord>[]}
-                  onClickRow={props.onClickRow}
-                  applyRowFormatting={props.applyRowFormatting}
-                  conditionalFormattingString={generateFormattingString(
-                    rowMaps[rowId].data,
-                    cols as TTableColumn<DataRecord>[],
-                    props.conditionalFormattings as TConditionalFormatting<DataRecord>[]
-                  )}
-                />
-              ))}
-            </tbody>
-          </table>
-          <TestRange />
-          <SelectBoxProvider>
+              </tbody>
+            </table>
+            <TestRange />
             <Editor rowMaps={rowMaps} pageRowIds={pageRowIds} />
-          </SelectBoxProvider>
-        </Frame>
+          </Frame>
+        </SelectBoxProvider>
       </div>
       <div className="mt-1">
         <DisplayRange />

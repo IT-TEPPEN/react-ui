@@ -47,6 +47,8 @@ export function InputArea(props: IPropsInputArea) {
 
   useEffect(() => {
     const onClickOutOfSelectBox = (e: MouseEvent) => {
+      if (!state.isOpen) return;
+
       // SelectBox関連の要素を取得
       const frameElement = document.getElementById(
         IdGenerator.generateIdSelectBoxFrame(props.id)
@@ -70,7 +72,7 @@ export function InputArea(props: IPropsInputArea) {
     return () => {
       document.removeEventListener("mousedown", onClickOutOfSelectBox);
     };
-  }, []);
+  }, [state]);
 
   useEffect(() => {
     if (!state.isOpen) {
