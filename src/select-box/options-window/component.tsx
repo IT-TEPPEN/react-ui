@@ -90,8 +90,8 @@ export function OptionsArea() {
   if (!selectBoxElement) return <></>;
 
   const rect = selectBoxElement.getBoundingClientRect();
-  const top = rect.top + rect.height;
-  const left = rect.left;
+  let top = window.scrollY + rect.top + rect.height;
+  let left = window.scrollX + rect.left;
 
   return (
     <div
