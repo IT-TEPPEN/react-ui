@@ -19,9 +19,9 @@ export const conditionInputReducer: TConditionInputReducer = (
       }
 
       return {
-        conditions: state.conditions,
         targets: state.targets,
         operators: state.operators,
+        onChangeCondition: state.onChangeCondition,
         status: "inputted target",
         inputtingCondition: {
           type: target.type,
@@ -49,9 +49,9 @@ export const conditionInputReducer: TConditionInputReducer = (
       }
 
       return {
-        conditions: state.conditions,
         targets: state.targets,
         operators: state.operators,
+        onChangeCondition: state.onChangeCondition,
         status: "inputted operator",
         inputtingCondition: {
           type: state.inputtingCondition.target.type,
@@ -66,44 +66,50 @@ export const conditionInputReducer: TConditionInputReducer = (
         return state;
       }
 
-      return {
-        conditions: [
-          ...state.conditions,
-          {
+      state.onChangeCondition({
+        type: "add",
+        payload: {
+          condition: {
             target: state.inputtingCondition.target,
             operator: state.inputtingCondition.operator,
             value: action.payload.value,
           },
-        ],
+        },
+      });
+
+      return {
         targets: state.targets,
         operators: state.operators,
+        onChangeCondition: state.onChangeCondition,
         status: "waiting for input",
       };
     }
 
     case "deleteCondition": {
-      return {
-        ...state,
-        conditions: state.conditions.filter(
-          (_, i) => i !== action.payload.index
-        ),
-      };
+      state.onChangeCondition({
+        type: "remove",
+        payload: {
+          index: action.payload.index,
+        },
+      });
+
+      return state;
     }
 
     case "reset": {
       return {
-        conditions: [],
         targets: state.targets,
         operators: state.operators,
+        onChangeCondition: state.onChangeCondition,
         status: "waiting for input",
       };
     }
 
     case "updateTargets": {
       return {
-        conditions: state.conditions,
         targets: action.payload.targets,
         operators: state.operators,
+        onChangeCondition: state.onChangeCondition,
         status: "waiting for input",
       };
     }
@@ -119,9 +125,9 @@ export const conditionInputReducer: TConditionInputReducer = (
       }
 
       return {
-        conditions: state.conditions,
         targets: state.targets,
         operators: state.operators,
+        onChangeCondition: state.onChangeCondition,
         status: "waiting for input",
       };
     }
@@ -132,9 +138,9 @@ export const conditionInputReducer: TConditionInputReducer = (
       }
 
       return {
-        conditions: state.conditions,
         targets: state.targets,
         operators: state.operators,
+        onChangeCondition: state.onChangeCondition,
         status: "inputted target",
         inputtingCondition: {
           type: state.inputtingCondition.target.type,

@@ -3,9 +3,9 @@ import { TConditionInputState, TConditionInputAction } from "./type";
 
 describe("conditionInputReducer", () => {
   const initialState: TConditionInputState = {
-    conditions: [],
     targets: [{ key: "target1", label: "対象1", type: "string" }],
     operators: [{ key: "eq", label: "=", type: "string" }],
+    onChangeCondition: jest.fn(),
     status: "waiting for input",
   };
 
@@ -14,14 +14,15 @@ describe("conditionInputReducer", () => {
       "inputTarget",
       { type: "inputTarget", payload: { targetKey: "target1" } },
       {
-        conditions: [],
         targets: [{ key: "target1", label: "対象1", type: "string" }],
         operators: [{ key: "eq", label: "=", type: "string" }],
+        onChangeCondition: expect.any(Function),
         status: "inputted target",
         inputtingCondition: {
           type: "string",
           target: { key: "target1", label: "対象1", type: "string" },
         },
+        useableOperators: [{ key: "eq", label: "=", type: "string" }],
       },
     ],
     [
@@ -31,9 +32,9 @@ describe("conditionInputReducer", () => {
         payload: { operatorKey: "eq" },
       },
       {
-        conditions: [],
         targets: [{ key: "target1", label: "対象1", type: "string" }],
         operators: [{ key: "eq", label: "=", type: "string" }],
+        onChangeCondition: expect.any(Function),
         status: "inputted operator",
         inputtingCondition: {
           type: "string",
@@ -49,15 +50,9 @@ describe("conditionInputReducer", () => {
         payload: { value: "value1" },
       },
       {
-        conditions: [
-          {
-            target: { key: "target1", label: "対象1", type: "string" },
-            operator: { key: "eq", label: "=", type: "string" },
-            value: "value1",
-          },
-        ],
         targets: [{ key: "target1", label: "対象1", type: "string" }],
         operators: [{ key: "eq", label: "=", type: "string" }],
+        onChangeCondition: expect.any(Function),
         status: "waiting for input",
       },
     ],
@@ -89,36 +84,31 @@ describe("conditionInputReducer", () => {
   it("should handle deleteCondition action", () => {
     const state: TConditionInputState = {
       ...initialState,
-      conditions: [
-        {
-          target: { key: "target1", label: "対象1", type: "string" },
-          operator: { key: "eq", label: "=", type: "string" },
-          value: "value1",
-        },
-      ],
+      onChangeCondition: jest.fn(),
     };
     const action: TConditionInputAction = {
       type: "deleteCondition",
       payload: { index: 0 },
     };
-    const newState = conditionInputReducer(state, action);
-    expect(newState.conditions).toEqual([]);
+    conditionInputReducer(state, action);
+    expect(state.onChangeCondition).toHaveBeenCalledWith({
+      type: "remove",
+      payload: { index: 0 },
+    });
   });
 
   it("should handle reset action", () => {
     const state: TConditionInputState = {
       ...initialState,
-      conditions: [
-        {
-          target: { key: "target1", label: "対象1", type: "string" },
-          operator: { key: "eq", label: "=", type: "string" },
-          value: "value1",
-        },
-      ],
+      status: "inputted operator",
+      inputtingCondition: {
+        type: "string",
+        target: { key: "target1", label: "対象1", type: "string" },
+        operator: { key: "eq", label: "=", type: "string" },
+      },
     };
     const action: TConditionInputAction = { type: "reset" };
     const newState = conditionInputReducer(state, action);
-    expect(newState.conditions).toEqual([]);
     expect(newState.status).toBe("waiting for input");
   });
 

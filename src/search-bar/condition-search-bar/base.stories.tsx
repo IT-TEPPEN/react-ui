@@ -20,6 +20,16 @@ export const Default: Story = {
       { key: "name", label: "名前", type: "string" },
       { key: "age", label: "年齢", type: "number" },
     ],
+    conditions: [
+      {
+        target: { key: "name", label: "名前", type: "string" },
+        operator: { key: "contains", label: "含む", type: "string" },
+        value: "John",
+      },
+    ],
+    onChangeCondition(action) {
+      console.log(action);
+    },
   },
   render: (props) => (
     <div className="w-[80vw]">

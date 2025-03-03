@@ -5,7 +5,6 @@ import { useResizeColWidthHook, useScrollXRef } from "./header-v2-hook";
 import { AllCheckbox } from "../checkbox/components";
 import { ConditionSearchBar } from "../../search-bar";
 import { useTableIdGenerator } from "../id";
-import { Condition } from "../../search-bar/condition-search-bar/condition-input-management/type";
 
 interface IPropsTableHeader<T extends DataRecord> {
   cols: TTableColumn<T>[];
@@ -54,10 +53,12 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
               label: col.label as string,
               type: col.type as "string" | "number",
             }))}
-          onChangeCondition={(conditions: Condition[]) => {}}
+          conditions={[]}
+          onChangeCondition={(action) => {}}
           size="small"
         />
       </div>
+
       <div
         ref={ref}
         className="relative max-w-full overflow-x-auto no_scrollbar"

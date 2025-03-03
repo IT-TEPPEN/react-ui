@@ -1,17 +1,17 @@
 "use client";
 
-import {
-  useConditionInputAction,
-  useConditionInputState,
-} from "./condition-input-management";
+import { useConditionInputAction } from "./condition-input-management";
 import { TiDeleteOutline } from "react-icons/ti";
+import { Condition } from "./condition-input-management/type";
 
-export function ConditionList() {
-  const { conditions } = useConditionInputState();
+interface IPropsConditionList {
+  conditions: Condition[];
+}
 
+export function ConditionList(props: IPropsConditionList) {
   return (
     <div className="flex gap-1">
-      {conditions.map((c, i) => (
+      {props.conditions.map((c, i) => (
         <FixedValue
           key={i}
           index={i}

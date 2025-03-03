@@ -4,27 +4,35 @@ import { useEffect, useRef } from "react";
 import { SelectBoxProvider } from "../../select-box/provider";
 import { IdGeneratorProvider } from "../id-generator";
 import { ConditionInputProvider } from "./condition-input-management";
-import { Target } from "./condition-input-management/type";
+import {
+  Condition,
+  Target,
+  TConditionChangeAction,
+} from "./condition-input-management/type";
 import { ConditionList } from "./condition-list";
 import { SearchBarInputForm } from "./input-form";
 import { BiSearchAlt } from "react-icons/bi";
 
 interface SearcchBarProps {
   size: "small" | "medium" | "large";
+  conditions: Condition[];
 }
 
 interface ConditionSearchBarProps extends SearcchBarProps {
   id: string;
   targets: Target[];
-  onChangeCondition: (condition: any) => void;
+  onChangeCondition: (action: TConditionChangeAction) => void;
 }
 
 export function ConditionSearchBar(props: ConditionSearchBarProps) {
   return (
     <SelectBoxProvider>
       <IdGeneratorProvider id={props.id}>
-        <ConditionInputProvider targets={props.targets}>
-          <SearchBar size={props.size} />
+        <ConditionInputProvider
+          targets={props.targets}
+          onChangeCondition={props.onChangeCondition}
+        >
+          <SearchBar size={props.size} conditions={props.conditions} />
         </ConditionInputProvider>
       </IdGeneratorProvider>
     </SelectBoxProvider>
@@ -70,7 +78,7 @@ export function SearchBar(props: SearcchBarProps) {
         ref={ref}
         className="relative flex w-full items-center gap-1 overflow-x-auto no_scrollbar"
       >
-        <ConditionList />
+        <ConditionList conditions={props.conditions} />
         <div className="flex items-center min-w-64 w-full">
           <SearchBarInputForm size={props.size} />
         </div>

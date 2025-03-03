@@ -13,11 +13,25 @@ export type Condition = {
   value: string;
 };
 
+export type TConditionChangeAction =
+  | {
+      type: "add";
+      payload: {
+        condition: Condition;
+      };
+    }
+  | {
+      type: "remove";
+      payload: {
+        index: number;
+      };
+    };
+
 export type TConditionInputState =
   | {
-      conditions: Condition[];
       targets: Target[];
       operators: ISearchOperator[];
+      onChangeCondition: (action: TConditionChangeAction) => void;
     } & (
       | {
           status: "waiting for input";
@@ -94,6 +108,7 @@ export type TConditionInputActionContext = {
 
 export type TConditionInputHook = (
   targets: Target[],
+  onChangeCondition: (action: TConditionChangeAction) => void,
   options?: {
     operators?: ISearchOperator[];
   }
