@@ -1,5 +1,6 @@
 import { Reducer } from "react";
-import { ISearchOperator, TValueType } from "../../../share/search-operator";
+import { TValueType } from "../../../share/search-operator";
+import { T_DEFAULT_SEARCH_OPERATOR } from "../../../share/search-operator/constant";
 
 export interface Target {
   key: string;
@@ -9,7 +10,7 @@ export interface Target {
 
 export type Condition = {
   target: Target;
-  operator: ISearchOperator;
+  operator: T_DEFAULT_SEARCH_OPERATOR;
   value: string;
 };
 
@@ -30,7 +31,6 @@ export type TConditionChangeAction =
 export type TConditionInputState =
   | {
       targets: Target[];
-      operators: ISearchOperator[];
       onChangeCondition: (action: TConditionChangeAction) => void;
     } & (
       | {
@@ -42,14 +42,14 @@ export type TConditionInputState =
             type: TValueType;
             target: Target;
           };
-          useableOperators: ISearchOperator[];
+          useableOperators: T_DEFAULT_SEARCH_OPERATOR[];
         }
       | {
           status: "inputted operator";
           inputtingCondition: {
             type: TValueType;
             target: Target;
-            operator: ISearchOperator;
+            operator: T_DEFAULT_SEARCH_OPERATOR;
           };
         }
     );
@@ -110,7 +110,7 @@ export type TConditionInputHook = (
   targets: Target[],
   onChangeCondition: (action: TConditionChangeAction) => void,
   options?: {
-    operators?: ISearchOperator[];
+    operators?: T_DEFAULT_SEARCH_OPERATOR[];
   }
 ) => {
   state: TConditionInputState;

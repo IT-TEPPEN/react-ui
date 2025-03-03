@@ -23,7 +23,7 @@ export const Default: Story = {
     conditions: [
       {
         target: { key: "name", label: "名前", type: "string" },
-        operator: { key: "contains", label: "含む", type: "string" },
+        operator: { key: "string:eq", label: "=", type: "string" },
         value: "John",
       },
     ],

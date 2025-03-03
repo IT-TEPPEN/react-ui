@@ -1,6 +1,4 @@
-import { ISearchOperator } from "./type";
-
-export const DEFAULT_SEARCH_OPERATOR: ISearchOperator[] = [
+export const DEFAULT_SEARCH_OPERATOR = [
   { key: "string:eq", label: "=", type: "string" },
   { key: "string:neq", label: "≠", type: "string" },
   { key: "string:like", label: "like", type: "string" },
@@ -15,12 +13,15 @@ export const DEFAULT_SEARCH_OPERATOR: ISearchOperator[] = [
   { key: "number:lt", label: "<", type: "number" },
   { key: "number:gte", label: ">=", type: "number" },
   { key: "number:lte", label: "<=", type: "number" },
-  { key: "date:eq", label: "=", type: "date" },
-  { key: "date:neq", label: "≠", type: "date" },
-  { key: "date:gt", label: ">", type: "date" },
-  { key: "date:lt", label: "<", type: "date" },
-  { key: "date:gte", label: ">=", type: "date" },
-  { key: "date:lte", label: "<=", type: "date" },
-  { key: "date:is_null", label: "is null", type: "date" },
-  { key: "date:is_not_null", label: "is not null", type: "date" },
-];
+  // { key: "date:eq", label: "=", type: "date" },
+  // { key: "date:neq", label: "≠", type: "date" },
+  // { key: "date:gt", label: ">", type: "date" },
+  // { key: "date:lt", label: "<", type: "date" },
+  // { key: "date:gte", label: ">=", type: "date" },
+  // { key: "date:lte", label: "<=", type: "date" },
+  // { key: "date:is_null", label: "is null", type: "date" },
+  // { key: "date:is_not_null", label: "is not null", type: "date" },
+] as const;
+
+export type T_DEFAULT_SEARCH_OPERATOR =
+  (typeof DEFAULT_SEARCH_OPERATOR)[number];

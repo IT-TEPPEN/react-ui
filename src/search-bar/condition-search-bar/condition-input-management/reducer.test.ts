@@ -4,7 +4,6 @@ import { TConditionInputState, TConditionInputAction } from "./type";
 describe("conditionInputReducer", () => {
   const initialState: TConditionInputState = {
     targets: [{ key: "target1", label: "対象1", type: "string" }],
-    operators: [{ key: "eq", label: "=", type: "string" }],
     onChangeCondition: jest.fn(),
     status: "waiting for input",
   };
@@ -104,7 +103,7 @@ describe("conditionInputReducer", () => {
       inputtingCondition: {
         type: "string",
         target: { key: "target1", label: "対象1", type: "string" },
-        operator: { key: "eq", label: "=", type: "string" },
+        operator: { key: "string:eq", label: "=", type: "string" },
       },
     };
     const action: TConditionInputAction = { type: "reset" };

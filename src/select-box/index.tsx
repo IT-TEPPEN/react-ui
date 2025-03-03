@@ -6,6 +6,7 @@ import { SelectBoxProvider } from "./provider";
 import { IdProvider } from "./id/provider";
 import { useCallback, useEffect } from "react";
 import { IdGenerator } from "./lib";
+export { type Options } from "./options-window";
 
 interface IPropsSelectBox {
   id: string;

@@ -1,1 +1,1 @@
-export { ConditionSearchBar } from "./condition-search-bar";
+export { ConditionSearchBar, type Condition } from "./condition-search-bar";

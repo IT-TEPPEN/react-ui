@@ -9,7 +9,7 @@ import {
   TTableColumn,
 } from "./type";
 import { PagenationProvider, DisplayRange, Pagenation } from "../pagenation";
-import { FilterProvider, TableFilterRemoveButton } from "../filter";
+import { FilterProvider } from "../filter-v2";
 import { SortProvider } from "../sort";
 import { ColumnsProvider } from "../sheet/providers";
 import { CheckboxProvider, CheckboxStatusProvider } from "../checkbox/provider";
@@ -38,7 +38,7 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
         <ColumnsWidthProvider
           initialState={props.cols as TTableColumn<DataRecord>[]}
         >
-          <FilterProvider>
+          <FilterProvider initialConditions={[]}>
             <SortProvider initialCondition={props.initialCondition?.sort}>
               <PagenationProvider
                 rowCount={props.rows.length}
@@ -93,14 +93,6 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
 
   return (
     <div className="w-full">
-      <div className="flex justify-end mb-1 mr-3">
-        <TableFilterRemoveButton>
-          <p className="text-xs underline text-gray-500 hover:text-gray-700">
-            全てのフィルタリング条件を解除する
-          </p>
-        </TableFilterRemoveButton>
-      </div>
-
       <div>
         <TableHeader
           cols={cols}

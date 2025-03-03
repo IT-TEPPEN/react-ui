@@ -15,9 +15,3 @@ export const SELECT_FILTER_OPERATOR = [
   { key: "selected", label: "次の値と等しい" },
   { key: "notSelected", label: "次の値と等しくない" },
 ] as const;
-
-export const FILTER_OPERATOR = [
-  ...STRING_FILTER_OPERATOR,
-  ...NUMBER_FILTER_OPERATOR,
-  ...SELECT_FILTER_OPERATOR,
-] as const;

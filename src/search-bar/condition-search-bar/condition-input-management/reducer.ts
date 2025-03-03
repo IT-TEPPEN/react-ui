@@ -1,3 +1,4 @@
+import { DEFAULT_SEARCH_OPERATOR } from "../../../share/search-operator";
 import { TConditionInputReducer } from "./type";
 
 export const conditionInputReducer: TConditionInputReducer = (
@@ -20,14 +21,15 @@ export const conditionInputReducer: TConditionInputReducer = (
 
       return {
         targets: state.targets,
-        operators: state.operators,
         onChangeCondition: state.onChangeCondition,
         status: "inputted target",
         inputtingCondition: {
           type: target.type,
           target,
         },
-        useableOperators: state.operators.filter((o) => o.type === target.type),
+        useableOperators: DEFAULT_SEARCH_OPERATOR.filter(
+          (o) => o.type === target.type
+        ),
       };
     }
 
@@ -36,7 +38,7 @@ export const conditionInputReducer: TConditionInputReducer = (
         return state;
       }
 
-      const operator = state.operators.find(
+      const operator = DEFAULT_SEARCH_OPERATOR.find(
         (o) => o.key === action.payload.operatorKey
       );
 
@@ -50,7 +52,6 @@ export const conditionInputReducer: TConditionInputReducer = (
 
       return {
         targets: state.targets,
-        operators: state.operators,
         onChangeCondition: state.onChangeCondition,
         status: "inputted operator",
         inputtingCondition: {
@@ -79,7 +80,6 @@ export const conditionInputReducer: TConditionInputReducer = (
 
       return {
         targets: state.targets,
-        operators: state.operators,
         onChangeCondition: state.onChangeCondition,
         status: "waiting for input",
       };
@@ -99,7 +99,6 @@ export const conditionInputReducer: TConditionInputReducer = (
     case "reset": {
       return {
         targets: state.targets,
-        operators: state.operators,
         onChangeCondition: state.onChangeCondition,
         status: "waiting for input",
       };
@@ -108,7 +107,6 @@ export const conditionInputReducer: TConditionInputReducer = (
     case "updateTargets": {
       return {
         targets: action.payload.targets,
-        operators: state.operators,
         onChangeCondition: state.onChangeCondition,
         status: "waiting for input",
       };
@@ -126,7 +124,6 @@ export const conditionInputReducer: TConditionInputReducer = (
 
       return {
         targets: state.targets,
-        operators: state.operators,
         onChangeCondition: state.onChangeCondition,
         status: "waiting for input",
       };
@@ -139,14 +136,13 @@ export const conditionInputReducer: TConditionInputReducer = (
 
       return {
         targets: state.targets,
-        operators: state.operators,
         onChangeCondition: state.onChangeCondition,
         status: "inputted target",
         inputtingCondition: {
           type: state.inputtingCondition.target.type,
           target: state.inputtingCondition.target,
         },
-        useableOperators: state.operators.filter(
+        useableOperators: DEFAULT_SEARCH_OPERATOR.filter(
           (o) => o.type === state.inputtingCondition.target.type
         ),
       };

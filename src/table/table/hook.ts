@@ -1,15 +1,15 @@
 import { useEffect, useMemo } from "react";
 import { DataObject, DataRecord, TPropsTable } from "./type";
 import { usePageContext } from "../pagenation/providers";
-import { useFilterContext } from "../filter";
 import { useCheckboxStatusContext } from "../checkbox/provider";
 import { useSortActionContext, useSortTimingContext } from "../sort/provider";
 import { useTablePropertyActionContext } from "../table-property/provider";
 import { usePasteActionContext } from "../paste/provider";
 import { useCopyActionContext } from "../copy/provider";
+import { useFilterFunctions } from "../filter-v2/context";
 
 export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
-  const { filter } = useFilterContext();
+  const { filter } = useFilterFunctions();
   const { sort, updatedData } = useSortActionContext();
   const sortTiming = useSortTimingContext();
   const { setRowCount, pageFilter } = usePageContext();

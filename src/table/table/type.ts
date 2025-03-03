@@ -1,4 +1,4 @@
-import { Options } from "../../select-box/types";
+import { Options } from "../../select-box";
 import {
   TErrorValidation,
   TNumberValidateOption,

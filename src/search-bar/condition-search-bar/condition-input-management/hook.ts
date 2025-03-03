@@ -1,16 +1,13 @@
 import { useMemo, useReducer } from "react";
 import { Target, TConditionInputHook } from "./type";
 import { conditionInputReducer } from "./reducer";
-import { DEFAULT_SEARCH_OPERATOR } from "../../../share/search-operator";
 
 export const useConditionInputHook: TConditionInputHook = (
   targets,
-  onChangeCondition,
-  options
+  onChangeCondition
 ) => {
   const [state, dispatch] = useReducer(conditionInputReducer, {
     targets,
-    operators: options?.operators ?? DEFAULT_SEARCH_OPERATOR,
     onChangeCondition,
     status: "waiting for input",
   });

@@ -5,6 +5,7 @@ import { useResizeColWidthHook, useScrollXRef } from "./header-v2-hook";
 import { AllCheckbox } from "../checkbox/components";
 import { ConditionSearchBar } from "../../search-bar";
 import { useTableIdGenerator } from "../id";
+import { useFilter } from "../filter-v2";
 
 interface IPropsTableHeader<T extends DataRecord> {
   cols: TTableColumn<T>[];
@@ -17,6 +18,7 @@ interface IPropsTableHeader<T extends DataRecord> {
 export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
   const idGenerator = useTableIdGenerator();
   const { getColumnWidth } = useColumnsWidthState();
+  const { conditions, addFilter, removeFilter } = useFilter();
   const ref = useScrollXRef();
 
   useEffect(() => {
@@ -47,14 +49,26 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
         <ConditionSearchBar
           id={idGenerator.getTableHeaderId()}
           targets={props.cols
-            .filter((col) => !!col.label)
+            .filter(
+              (col) =>
+                !!col.label && (col.editable || (!col.editable && !col.render))
+            )
             .map((col) => ({
               key: col.key as string,
               label: col.label as string,
               type: col.type as "string" | "number",
             }))}
-          conditions={[]}
-          onChangeCondition={(action) => {}}
+          conditions={conditions}
+          onChangeCondition={(action) => {
+            switch (action.type) {
+              case "add":
+                addFilter(action.payload.condition);
+                break;
+              case "remove":
+                removeFilter(action.payload.index);
+                break;
+            }
+          }}
           size="small"
         />
       </div>
