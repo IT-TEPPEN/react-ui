@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Options } from "../types";
+import { Options } from "../options-window";
 import { useIdContext } from "../id/provider";
 import { IdGenerator } from "../lib";
 
@@ -30,7 +30,7 @@ export function OptionsArea(props: IPropsSelectArea) {
   return (
     <div
       id={IdGenerator.generateIdSelectBoxOptionsArea(id)}
-      className="absolute top-full left-0 w-full max-h-[40vh] overflow-auto border border-gray-300"
+      className="absolute top-full left-0 w-full max-h-[40vh] overflow-auto border border-gray-300 z-10"
     >
       {props.options.map((option) => (
         <div

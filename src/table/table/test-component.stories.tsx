@@ -15,6 +15,11 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {},
+  render: () => (
+    <div className="p-8">
+      <TableTestComponent />
+    </div>
+  ),
 };
 
 export const Multiple: Story = {

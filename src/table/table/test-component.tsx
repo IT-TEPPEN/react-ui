@@ -210,6 +210,8 @@ export function TableTestComponent(props: {
       deprecatedOptions={{
         enableDeprecatedCopy: props.enableDeprecatedCopy,
       }}
+      maxHeight="80vh"
+      maxWidth="80vw"
     />
   );
 }

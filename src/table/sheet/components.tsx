@@ -38,6 +38,7 @@ export const Row = memo(function R<T extends DataRecord>(props: TPropsRow<T>) {
     >
       {props.existCheckbox && (
         <td
+          className="w-8 h-full"
           onClick={(e) => {
             e.stopPropagation();
           }}

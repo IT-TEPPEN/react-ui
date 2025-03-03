@@ -68,7 +68,7 @@ export function TestRange(props: { isCopied?: boolean }) {
 
       if (endElement) {
         endElement.scrollIntoView({
-          behavior: "smooth",
+          behavior: "instant",
           block: "nearest",
           inline: "nearest",
         });

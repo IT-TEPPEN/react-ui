@@ -20,7 +20,7 @@ export const Checkbox = memo(function CB(props: TPropsCheckbox) {
   if (!checkbox) return <></>;
 
   return (
-    <div className="flex justify-center gap-1 w-full items-center">
+    <div className="grid place-items-center w-full h-full px-1">
       <input
         type="checkbox"
         checked={checkboxIds.includes(row.id)}
@@ -68,7 +68,7 @@ export const AllCheckbox = memo(function ACB<T extends DataRecord>(props: {
   if (!checkbox) return <></>;
 
   return (
-    <div className="grid place-items-center w-full px-1">
+    <div className="grid place-items-center w-full h-full px-1">
       <input
         ref={ref}
         type="checkbox"

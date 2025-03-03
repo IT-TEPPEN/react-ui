@@ -1,14 +1,29 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { SelectBox } from ".";
+import { useState } from "react";
+
+function TestSelectBox(props: Parameters<typeof SelectBox>[0]) {
+  const [value, setValue] = useState("");
+
+  return (
+    <SelectBox
+      {...props}
+      value={value}
+      onSelect={(v) => {
+        setValue(v);
+      }}
+    />
+  );
+}
 
 const meta = {
   title: "SelectBox/Base",
-  component: SelectBox,
+  component: TestSelectBox,
   parameters: {
     layout: "centered",
   },
   tags: ["autodocs"],
-} as Meta<typeof SelectBox>;
+} as Meta<typeof TestSelectBox>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -47,9 +62,6 @@ export const Default: Story = {
       { value: "pistachio", label: "ピスタチオ" },
       { value: "pecan", label: "ペカン" },
     ],
-    onSelect: (value: string) => {
-      console.log(value);
-    },
   },
 };
 
@@ -87,9 +99,6 @@ export const English: Story = {
       { value: "pistachio", label: "Pistachio" },
       { value: "pecan", label: "Pecan" },
     ],
-    onSelect: (value: string) => {
-      console.log(value);
-    },
   },
 };
 
@@ -272,8 +281,5 @@ export const UseSearchLabelAndSearchText: Story = {
         searchText: "Pecanぺかんペカン",
       },
     ],
-    onSelect: (value: string) => {
-      console.log(value);
-    },
   },
 };
