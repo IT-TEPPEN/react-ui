@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 import { SelectBoxProvider } from "../../select-box/provider";
 import { IdGeneratorProvider } from "../id-generator";
 import { ConditionInputProvider } from "./condition-input-management";
@@ -24,7 +24,9 @@ interface ConditionSearchBarProps extends SearcchBarProps {
   onChangeCondition: (action: TConditionChangeAction) => void;
 }
 
-export function ConditionSearchBar(props: ConditionSearchBarProps) {
+export const ConditionSearchBar = memo(function CS(
+  props: ConditionSearchBarProps
+) {
   return (
     <SelectBoxProvider>
       <IdGeneratorProvider id={props.id}>
@@ -37,7 +39,7 @@ export function ConditionSearchBar(props: ConditionSearchBarProps) {
       </IdGeneratorProvider>
     </SelectBoxProvider>
   );
-}
+});
 
 export function SearchBar(props: SearcchBarProps) {
   const ref = useRef<HTMLDivElement>(null);

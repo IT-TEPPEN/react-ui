@@ -1,11 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import {
-  useColumnsWidth,
-  useColumnsWidthState,
-  useScrollXPosition,
-} from "../header";
+import { useColumnsWidthState, useScrollXPosition } from "../header";
 
 interface IPropsFrameDesign {
   maxHeight?: string;

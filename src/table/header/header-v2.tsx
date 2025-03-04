@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { DataObject, DataRecord, TTableColumn } from "../table/type";
 import { useColumnsWidthState } from "./columns-width";
 import { useResizeColWidthHook, useScrollXRef } from "./header-v2-hook";
@@ -6,6 +6,7 @@ import { AllCheckbox } from "../checkbox/components";
 import { ConditionSearchBar } from "../../search-bar";
 import { useTableIdGenerator } from "../id";
 import { useFilter } from "../filter-v2";
+import { TConditionChangeAction } from "../../search-bar/condition-search-bar/condition-input-management/type";
 
 interface IPropsTableHeader<T extends DataRecord> {
   cols: TTableColumn<T>[];
@@ -40,6 +41,29 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
     }
   }, [ref]);
 
+  const onChangeCondition = useCallback((action: TConditionChangeAction) => {
+    switch (action.type) {
+      case "add":
+        addFilter(action.payload.condition);
+        break;
+      case "remove":
+        removeFilter(action.payload.index);
+        break;
+    }
+  }, []);
+
+  const target = useMemo(() => {
+    return props.cols
+      .filter(
+        (col) => !!col.label && (col.editable || (!col.editable && !col.render))
+      )
+      .map((col) => ({
+        key: col.key as string,
+        label: col.label as string,
+        type: col.type as "string" | "number",
+      }));
+  }, [props.cols]);
+
   return (
     <div
       className="border-gray-200 bg-gray-200 text-gray-600 rounded-t-md"
@@ -48,27 +72,9 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
       <div className="py-2 px-2">
         <ConditionSearchBar
           id={idGenerator.getTableHeaderId()}
-          targets={props.cols
-            .filter(
-              (col) =>
-                !!col.label && (col.editable || (!col.editable && !col.render))
-            )
-            .map((col) => ({
-              key: col.key as string,
-              label: col.label as string,
-              type: col.type as "string" | "number",
-            }))}
+          targets={target}
           conditions={conditions}
-          onChangeCondition={(action) => {
-            switch (action.type) {
-              case "add":
-                addFilter(action.payload.condition);
-                break;
-              case "remove":
-                removeFilter(action.payload.index);
-                break;
-            }
-          }}
+          onChangeCondition={onChangeCondition}
           size="small"
         />
       </div>
