@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { SelectBox } from "../../select-box";
+import { Options, SelectBox } from "../../select-box";
 import {
   useConditionInputAction,
   useConditionInputState,
@@ -95,11 +95,9 @@ function OperatorInputForm() {
 }
 
 function SearchValueInputForm(props: { size?: "small" | "medium" | "large" }) {
-  const { generateId } = useIdGenerator();
   const state = useConditionInputState();
-  const { inputValue, removeInputedOperator, removeInputedTarget } =
+  const { removeInputedOperator, removeInputedTarget } =
     useConditionInputAction();
-  const [value, setValue] = useState("");
 
   if (state.status !== "inputted operator") {
     return null;
@@ -122,30 +120,129 @@ function SearchValueInputForm(props: { size?: "small" | "medium" | "large" }) {
           removeInputedOperator();
         }}
       />
-      <input
-        id={generateId("ValueInput")}
-        className={`no_appearance w-full min-w-64 border-none px-2 py-1 focus:outline-none focus-visible:outline-none bg-transparent ${
-          props.size === "small"
-            ? "text-sm"
-            : props.size === "large"
-            ? "text-lg"
-            : ""
-        }`}
-        type="text"
-        placeholder="Search text"
-        value={value}
-        onChange={(e) => {
-          setValue(e.target.value);
-        }}
-        // 文字列が確定し、Enterキーが押されたら値を入力する
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            inputValue(value);
-            setValue("");
+      {state.inputtingCondition.operator.inputType === "single string" ? (
+        <InputSingleString inputType="single string" size={props.size} />
+      ) : state.inputtingCondition.operator.inputType === "single number" ? (
+        <InputSingleNumber inputType="single number" size={props.size} />
+      ) : state.inputtingCondition.operator.inputType === "select" ? (
+        <InputSingleSelect
+          inputType="select"
+          options={
+            state.inputtingCondition.target.type === "select"
+              ? state.inputtingCondition.target.options
+              : []
           }
-        }}
-      />
+        />
+      ) : (
+        console.error("Not implemented")
+      )}
     </>
+  );
+}
+
+function InputSingleString(props: {
+  inputType: "single string";
+  size?: "small" | "medium" | "large";
+}) {
+  const { generateId } = useIdGenerator();
+  const [value, setValue] = useState("");
+  const { inputValue } = useConditionInputAction();
+
+  return (
+    <input
+      id={generateId("ValueInput")}
+      className={`no_appearance w-full min-w-64 border-none px-2 py-1 focus:outline-none focus-visible:outline-none bg-transparent ${
+        props.size === "small"
+          ? "text-sm"
+          : props.size === "large"
+          ? "text-lg"
+          : ""
+      }`}
+      type="text"
+      placeholder="Search text"
+      value={value}
+      onChange={(e) => {
+        setValue(e.target.value);
+      }}
+      // 文字列が確定し、Enterキーが押されたら値を入力する
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          inputValue({
+            type: props.inputType,
+            payload: {
+              value: value,
+            },
+          });
+          setValue("");
+        }
+      }}
+    />
+  );
+}
+
+function InputSingleNumber(props: {
+  inputType: "single number";
+  size?: "small" | "medium" | "large";
+}) {
+  const { generateId } = useIdGenerator();
+  const [value, setValue] = useState("");
+  const { inputValue } = useConditionInputAction();
+
+  return (
+    <input
+      id={generateId("ValueInput")}
+      className={`no_appearance w-full min-w-64 border-none px-2 py-1 focus:outline-none focus-visible:outline-none bg-transparent ${
+        props.size === "small"
+          ? "text-sm"
+          : props.size === "large"
+          ? "text-lg"
+          : ""
+      }`}
+      type="text"
+      placeholder="Search text"
+      value={value}
+      onChange={(e) => {
+        setValue(e.target.value);
+      }}
+      // 文字列が確定し、Enterキーが押されたら値を入力する
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          inputValue({
+            type: props.inputType,
+            payload: {
+              value: Number(value),
+            },
+          });
+          setValue("");
+        }
+      }}
+    />
+  );
+}
+
+function InputSingleSelect(props: { inputType: "select"; options: Options[] }) {
+  const { inputValue } = useConditionInputAction();
+  const { generateId } = useIdGenerator();
+
+  return (
+    <div className="w-full min-w-64">
+      <SelectBox
+        id={generateId("ValueInput")}
+        onSelect={(value) => {
+          inputValue({
+            type: props.inputType,
+            payload: {
+              value: value,
+            },
+          });
+        }}
+        options={props.options}
+        defaultIsOpen
+        placeholder="Select value"
+        no_appearance
+        no_icon
+      />
+    </div>
   );
 }
 

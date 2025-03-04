@@ -103,7 +103,12 @@ describe("conditionInputReducer", () => {
       inputtingCondition: {
         type: "string",
         target: { key: "target1", label: "対象1", type: "string" },
-        operator: { key: "string:eq", label: "=", type: "string" },
+        operator: {
+          key: "string:eq",
+          label: "=",
+          type: "string",
+          inputType: "single string",
+        },
       },
     };
     const action: TConditionInputAction = { type: "reset" };

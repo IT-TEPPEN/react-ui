@@ -50,6 +50,27 @@ export const conditionInputReducer: TConditionInputReducer = (
         return state;
       }
 
+      if (operator.inputType === "none") {
+        state.onChangeCondition({
+          type: "add",
+          payload: {
+            condition: {
+              target: state.inputtingCondition.target,
+              operator,
+              input: {
+                type: "none",
+              },
+            },
+          },
+        });
+
+        return {
+          targets: state.targets,
+          onChangeCondition: state.onChangeCondition,
+          status: "waiting for input",
+        };
+      }
+
       return {
         targets: state.targets,
         onChangeCondition: state.onChangeCondition,
@@ -73,7 +94,7 @@ export const conditionInputReducer: TConditionInputReducer = (
           condition: {
             target: state.inputtingCondition.target,
             operator: state.inputtingCondition.operator,
-            value: action.payload.value,
+            input: action.payload,
           },
         },
       });

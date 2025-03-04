@@ -52,16 +52,34 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
     }
   }, []);
 
-  const target = useMemo(() => {
+  const targets = useMemo(() => {
     return props.cols
       .filter(
         (col) => !!col.label && (col.editable || (!col.editable && !col.render))
       )
-      .map((col) => ({
-        key: col.key as string,
-        label: col.label as string,
-        type: col.type as "string" | "number",
-      }));
+      .map((col) => {
+        switch (col.type) {
+          case "string":
+            return {
+              key: col.key.toString(),
+              label: col.label as string,
+              type: col.type,
+            };
+          case "number":
+            return {
+              key: col.key.toString(),
+              label: col.label as string,
+              type: col.type,
+            };
+          case "select":
+            return {
+              key: col.key.toString(),
+              label: col.label as string,
+              type: col.type,
+              options: col.options,
+            };
+        }
+      });
   }, [props.cols]);
 
   return (
@@ -72,7 +90,7 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
       <div className="py-2 px-2">
         <ConditionSearchBar
           id={idGenerator.getTableHeaderId()}
-          targets={target}
+          targets={targets}
           conditions={conditions}
           onChangeCondition={onChangeCondition}
           size="small"

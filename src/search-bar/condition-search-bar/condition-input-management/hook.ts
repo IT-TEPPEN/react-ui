@@ -1,5 +1,5 @@
 import { useMemo, useReducer } from "react";
-import { Target, TConditionInputHook } from "./type";
+import { SearchInput, Target, TConditionInputHook } from "./type";
 import { conditionInputReducer } from "./reducer";
 
 export const useConditionInputHook: TConditionInputHook = (
@@ -20,8 +20,8 @@ export const useConditionInputHook: TConditionInputHook = (
       inputOperator: (operatorKey: string) => {
         dispatch({ type: "inputOperator", payload: { operatorKey } });
       },
-      inputValue: (value: string) => {
-        dispatch({ type: "inputValue", payload: { value } });
+      inputValue: (value: SearchInput) => {
+        dispatch({ type: "inputValue", payload: value });
       },
       deleteCondition: (index: number) => {
         dispatch({ type: "deleteCondition", payload: { index } });

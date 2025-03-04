@@ -1,17 +1,92 @@
 import { Reducer } from "react";
 import { TValueType } from "../../../share/search-operator";
-import { T_DEFAULT_SEARCH_OPERATOR } from "../../../share/search-operator/constant";
+import {
+  MULTI_SELECT,
+  NONE,
+  RANGE_DATE,
+  RANGE_NUMBER,
+  RANGE_STRING,
+  SELECT,
+  SINGLE_DATE,
+  SINGLE_NUMBER,
+  SINGLE_STRING,
+  T_DEFAULT_SEARCH_OPERATOR,
+} from "../../../share/search-operator/constant";
+import { Options } from "../../../select-box";
 
-export interface Target {
+export type Target = {
   key: string;
   label: string;
-  type: TValueType;
-}
+} & (
+  | {
+      type: "string" | "number" | "date";
+    }
+  | {
+      type: "select";
+      options: Options[];
+    }
+);
+
+export type SearchInput =
+  | {
+      type: typeof NONE;
+    }
+  | {
+      type: typeof SINGLE_STRING;
+      payload: {
+        value: string;
+      };
+    }
+  | {
+      type: typeof SINGLE_NUMBER;
+      payload: {
+        value: number;
+      };
+    }
+  | {
+      type: typeof SINGLE_DATE;
+      payload: {
+        value: string;
+      };
+    }
+  | {
+      type: typeof RANGE_STRING;
+      payload: {
+        from: string;
+        to: string;
+      };
+    }
+  | {
+      type: typeof RANGE_NUMBER;
+      payload: {
+        from: number;
+        to: number;
+      };
+    }
+  | {
+      type: typeof RANGE_DATE;
+      payload: {
+        from: string;
+        to: string;
+      };
+    }
+  | {
+      type: typeof SELECT;
+      payload: {
+        value: string;
+      };
+    }
+  | {
+      type: typeof MULTI_SELECT;
+      payload: {
+        value: string[];
+      };
+    };
 
 export type Condition = {
   target: Target;
   operator: T_DEFAULT_SEARCH_OPERATOR;
-  value: string;
+  input: SearchInput;
 };
 
 export type TConditionChangeAction =
@@ -39,7 +114,7 @@ export type TConditionInputState =
       | {
           status: "inputted target";
           inputtingCondition: {
-            type: TValueType;
+            type: "string" | "number" | "date" | "select";
             target: Target;
           };
           useableOperators: T_DEFAULT_SEARCH_OPERATOR[];
@@ -47,7 +122,7 @@ export type TConditionInputState =
       | {
           status: "inputted operator";
           inputtingCondition: {
-            type: TValueType;
+            type: "string" | "number" | "date" | "select";
             target: Target;
             operator: T_DEFAULT_SEARCH_OPERATOR;
           };
@@ -69,7 +144,7 @@ export type TConditionInputAction =
     }
   | {
       type: "inputValue";
-      payload: { value: string };
+      payload: SearchInput;
     }
   | {
       type: "deleteCondition";
@@ -98,7 +173,7 @@ export type TConditionInputStateContext = TConditionInputState;
 export type TConditionInputActionContext = {
   inputTarget: (targetKey: string) => void;
   inputOperator: (operatorKey: string) => void;
-  inputValue: (value: string) => void;
+  inputValue: (value: SearchInput) => void;
   deleteCondition: (index: number) => void;
   reset: () => void;
   updateTargets: (targets: Target[]) => void;

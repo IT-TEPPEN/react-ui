@@ -23,8 +23,18 @@ export const Default: Story = {
     conditions: [
       {
         target: { key: "name", label: "名前", type: "string" },
-        operator: { key: "string:eq", label: "=", type: "string" },
-        value: "John",
+        operator: {
+          key: "string:eq",
+          label: "=",
+          type: "string",
+          inputType: "single string",
+        },
+        input: {
+          type: "single string",
+          payload: {
+            value: "aaa",
+          },
+        },
       },
     ],
     onChangeCondition(action) {
