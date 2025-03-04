@@ -90,12 +90,34 @@ export function Frame(props: IPropsFrame) {
 
       {scrollInfo.barYHeight < 100 && (
         <>
-          <div className="absolute top-0 right-0 h-full w-2 bg-slate-200 opacity-30" />
+          <div className="absolute top-0 right-0 h-full w-2 bg-slate-200 opacity-30 pointer-events-none" />
+
           <div
-            className="absolute right-0 w-2 bg-slate-500 rounded-full"
+            className={`absolute right-0 w-2 bg-slate-500 rounded-full cursor-grab active:cursor-grabbing`}
             style={{
               top: `${scrollInfo.scrollY}%`,
               height: `${scrollInfo.barYHeight}%`,
+            }}
+            onMouseDown={(e) => {
+              const startY = e.clientY;
+              const startScrollY = ref.current?.scrollTop || 0;
+
+              const onMouseMove = (moveEvent: MouseEvent) => {
+                if (ref.current) {
+                  const deltaY =
+                    ((moveEvent.clientY - startY) / scrollInfo.barYHeight) *
+                    100;
+                  ref.current.scrollTop = startScrollY + deltaY;
+                }
+              };
+
+              const onMouseUp = () => {
+                document.removeEventListener("mousemove", onMouseMove);
+                document.removeEventListener("mouseup", onMouseUp);
+              };
+
+              document.addEventListener("mousemove", onMouseMove);
+              document.addEventListener("mouseup", onMouseUp);
             }}
           />
         </>
@@ -103,12 +125,39 @@ export function Frame(props: IPropsFrame) {
 
       {scrollInfo.barXWidth < 100 && (
         <>
-          <div className="absolute bottom-0 left-0 w-full h-2 bg-slate-200 opacity-30" />
+          <div className="absolute bottom-0 left-0 w-full h-2 bg-slate-200 opacity-30 pointer-events-none" />
+
           <div
-            className={`absolute bottom-0 h-2 bg-slate-500 rounded-full`}
+            className={`absolute bottom-0 h-2 bg-slate-500 rounded-full cursor-grab active:cursor-grabbing`}
             style={{
               left: `${scrollInfo.scrollX}%`,
               width: `${scrollInfo.barXWidth}%`,
+            }}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+
+              const startX = e.clientX;
+              const startScrollX = ref.current?.scrollLeft || 0;
+
+              const onMouseMove = (moveEvent: MouseEvent) => {
+                if (ref.current) {
+                  e.preventDefault();
+                  e.stopPropagation();
+
+                  const deltaX =
+                    ((moveEvent.clientX - startX) / scrollInfo.barXWidth) * 100;
+                  ref.current.scrollLeft = startScrollX + deltaX;
+                }
+              };
+
+              const onMouseUp = () => {
+                document.removeEventListener("mousemove", onMouseMove);
+                document.removeEventListener("mouseup", onMouseUp);
+              };
+
+              document.addEventListener("mousemove", onMouseMove);
+              document.addEventListener("mouseup", onMouseUp);
             }}
           />
         </>
