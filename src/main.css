@@ -1,18 +1,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-.no_scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-}
-
-.no_scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera*/
-}
-
-.no_appearance {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}

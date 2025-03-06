@@ -80,7 +80,7 @@ export function InputArea(props: IPropsInputArea) {
       ref={props.inputRef}
       className={`px-2 py-1 ${
         props.no_appearance
-          ? "no_appearance border-none focus:outline-none focus-visible:outline-none bg-transparent w-full"
+          ? "appearance-none border-none focus:outline-none focus-visible:outline-none bg-transparent w-full"
           : "border border-gray-300 w-full"
       }`}
       type="text"

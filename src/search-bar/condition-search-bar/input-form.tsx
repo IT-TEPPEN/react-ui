@@ -151,7 +151,7 @@ function InputSingleString(props: {
   return (
     <input
       id={generateId("ValueInput")}
-      className={`no_appearance w-full min-w-64 border-none px-2 py-1 focus:outline-none focus-visible:outline-none bg-transparent ${
+      className={`appearance-none w-full min-w-64 border-none px-2 py-1 focus:outline-none focus-visible:outline-none bg-transparent ${
         props.size === "small"
           ? "text-sm"
           : props.size === "large"
@@ -191,7 +191,7 @@ function InputSingleNumber(props: {
   return (
     <input
       id={generateId("ValueInput")}
-      className={`no_appearance w-full min-w-64 border-none px-2 py-1 focus:outline-none focus-visible:outline-none bg-transparent ${
+      className={`appearance-none w-full min-w-64 border-none px-2 py-1 focus:outline-none focus-visible:outline-none bg-transparent ${
         props.size === "small"
           ? "text-sm"
           : props.size === "large"
