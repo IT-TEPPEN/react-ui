@@ -97,9 +97,18 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
         />
       </div>
 
+      <style>{`
+          .teppen-no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+          .teppen-no-scrollbar::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
       <div
         ref={ref}
-        className="relative max-w-full overflow-x-auto no_scrollbar"
+        className="relative max-w-full overflow-x-auto teppen-no-scrollbar"
       >
         <div className="flex h-[32px]">
           {props.checkbox && (

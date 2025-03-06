@@ -78,8 +78,17 @@ export function SearchBar(props: SearcchBarProps) {
       </div>
       <div
         ref={ref}
-        className="relative flex w-full items-center gap-1 overflow-x-auto no_scrollbar"
+        className="relative flex w-full items-center gap-1 overflow-x-auto teppen-no-scrollbar"
       >
+        <style>{`
+          .teppen-no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+          .teppen-no-scrollbar::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
         <ConditionList conditions={props.conditions} />
         <div className="flex items-center min-w-64 w-full">
           <SearchBarInputForm size={props.size} />
