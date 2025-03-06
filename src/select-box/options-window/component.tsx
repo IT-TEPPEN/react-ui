@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useOptionsWindow } from "../options-window";
 import { useIdContext } from "../id/provider";
 import { IdGenerator } from "../lib";
@@ -10,6 +10,7 @@ export function OptionsArea() {
   const [selectingIndex, setSelectingIndex] = useState<number | undefined>(
     undefined
   );
+  const [position, setPosition] = useState({ top: 0, left: 0 });
 
   const selectingValue = state.isOpen
     ? state.options.length === 0
@@ -28,6 +29,7 @@ export function OptionsArea() {
       );
 
       if (!optionElement) return;
+      if (position.top === 0 && position.left === 0) return;
 
       optionElement.scrollIntoView({
         behavior: "smooth",
@@ -37,7 +39,7 @@ export function OptionsArea() {
     } else {
       setSelectingIndex(undefined);
     }
-  }, [state]);
+  }, [state, position, selectingValue]);
 
   useEffect(() => {
     if (state.isOpen) {
@@ -82,22 +84,86 @@ export function OptionsArea() {
     }
   }, [state, selectingIndex, setSelectingIndex]);
 
+  useEffect(() => {
+    const searchParentElement = () => {
+      if (state.isOpen) {
+        let parentElement = document.getElementById(
+          "ReactUI:SelectBox:OptionsArea"
+        );
+
+        while (parentElement) {
+          if (parentElement.className.includes("relative")) {
+            break;
+          }
+
+          parentElement = parentElement.parentElement;
+        }
+
+        const selectBoxElement = document.getElementById(state.selectBoxId);
+
+        if (selectBoxElement) {
+          const rect = selectBoxElement.getBoundingClientRect();
+          let top = rect.top + rect.height;
+          let left = rect.left;
+
+          if (parentElement) {
+            const parentRect = parentElement.getBoundingClientRect();
+            setPosition({
+              top: top - parentRect.top,
+              left: left - parentRect.left,
+            });
+          } else {
+            setPosition({
+              top: top + window.scrollY,
+              left: left + window.scrollX,
+            });
+          }
+        }
+      }
+    };
+
+    const timer = setTimeout(searchParentElement, 0);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [state.isOpen]);
+
+  useEffect(() => {
+    const onClickOutOfSelectBox = (e: MouseEvent) => {
+      if (!state.isOpen) return;
+
+      // SelectBox関連の要素を取得
+      const frameElement = document.getElementById(state.selectBoxId);
+      const optionsElement = document.getElementById(
+        "ReactUI:SelectBox:OptionsArea"
+      );
+
+      // クリックされた要素を取得
+      const ele = e.target;
+
+      if (ele instanceof Node && frameElement?.contains(ele)) return;
+
+      if (ele instanceof Node && optionsElement?.contains(ele)) return;
+
+      actions.setSearchText("");
+      actions.closeOptionsWindow();
+    };
+
+    document.addEventListener("mousedown", onClickOutOfSelectBox);
+
+    return () => {
+      document.removeEventListener("mousedown", onClickOutOfSelectBox);
+    };
+  }, [state.isOpen]);
+
   if (!state.isOpen) return <></>;
-
-  // state.selectBoxIdのElementの直下に表示する
-  const selectBoxElement = document.getElementById(state.selectBoxId);
-
-  if (!selectBoxElement) return <></>;
-
-  const rect = selectBoxElement.getBoundingClientRect();
-  let top = window.scrollY + rect.top + rect.height;
-  let left = window.scrollX + rect.left;
 
   return (
     <div
       id={"ReactUI:SelectBox:OptionsArea"}
       className="absolute min-w-fit max-h-[40vh] overflow-auto border border-gray-300 z-10"
-      style={{ top, left }}
+      style={position}
     >
       {state.options.map((option) => (
         <div
