@@ -1,4 +1,4 @@
-import { useMemo, useReducer } from "react";
+import { useEffect, useMemo, useReducer } from "react";
 import { SearchInput, Target, TConditionInputHook } from "./type";
 import { conditionInputReducer } from "./reducer";
 
@@ -8,9 +8,15 @@ export const useConditionInputHook: TConditionInputHook = (
 ) => {
   const [state, dispatch] = useReducer(conditionInputReducer, {
     targets,
-    onChangeCondition,
     status: "waiting for input",
   });
+
+  useEffect(() => {
+    if (state.changeAction) {
+      onChangeCondition(state.changeAction);
+      dispatch({ type: "executedChangeAction" });
+    }
+  }, [state.changeAction]);
 
   const actions = useMemo(
     () => ({
