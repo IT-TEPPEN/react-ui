@@ -165,7 +165,8 @@ function isMatchCondition(
               );
             case "select:is_not_null":
               return (
-                (targetValue !== null && targetValue !== undefined) ||
+                targetValue !== null &&
+                targetValue !== undefined &&
                 targetValue !== ""
               );
           }
