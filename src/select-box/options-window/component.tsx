@@ -89,10 +89,21 @@ export function OptionsArea() {
       if (state.isOpen) {
         let parentElement = document.getElementById(
           "ReactUI:SelectBox:OptionsArea"
-        );
+        )?.parentElement;
+
+        const positionClasses = ["relative", "fixed", "absolute", "sticky"];
 
         while (parentElement) {
-          if (parentElement.className.includes("relative")) {
+          const hasPositionClass = positionClasses.some((className) =>
+            parentElement!.className.includes(className)
+          );
+
+          const hasPositionStyle = positionClasses.some((style) =>
+            parentElement!.style.position.includes(style)
+          );
+
+          if (hasPositionClass || hasPositionStyle) {
+            console.log(parentElement);
             break;
           }
 
