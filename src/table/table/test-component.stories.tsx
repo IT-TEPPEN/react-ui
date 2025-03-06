@@ -17,7 +17,12 @@ export const Default: Story = {
   args: {},
   render: () => (
     <div className="p-8">
-      <TableTestComponent />
+      <div className="relative flex w-full h-full border border-red-300 p-8">
+        <div className="w-32 shrink-0 h-full"></div>
+        <div className="relative w-full h-full border border-blue-300 p-8">
+          <TableTestComponent />
+        </div>
+      </div>
     </div>
   ),
 };

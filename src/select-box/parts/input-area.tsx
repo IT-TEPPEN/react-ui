@@ -19,59 +19,33 @@ interface IPropsInputArea {
 export function InputArea(props: IPropsInputArea) {
   const id = useIdContext();
   const { state, actions } = useOptionsWindow();
-  const [searchText, setSearchText] = useState("");
 
-  const searchedOptions = useMemo(
-    () =>
-      props.options.filter((option) => {
-        if (option.searchText) {
-          return option.searchText
-            .toLowerCase()
-            .includes(searchText.toLowerCase());
-        } else if (option.searchLabel) {
-          return option.searchLabel
-            .toLowerCase()
-            .includes(searchText.toLowerCase());
-        } else {
-          return option.label.toLowerCase().includes(searchText.toLowerCase());
-        }
-      }),
-    [props.options, searchText]
-  );
+  const searchedOptions = useMemo(() => {
+    if (!state.isOpen) {
+      return [];
+    }
+
+    return props.options.filter((option) => {
+      if (option.searchText) {
+        return option.searchText
+          .toLowerCase()
+          .includes(state.searchText.toLowerCase());
+      } else if (option.searchLabel) {
+        return option.searchLabel
+          .toLowerCase()
+          .includes(state.searchText.toLowerCase());
+      } else {
+        return option.label
+          .toLowerCase()
+          .includes(state.searchText.toLowerCase());
+      }
+    });
+  }, [props.options, state]);
 
   useEffect(() => {
     if (state.isOpen) {
       actions.setSearchText(state.searchText);
     }
-  }, [state]);
-
-  useEffect(() => {
-    const onClickOutOfSelectBox = (e: MouseEvent) => {
-      if (!state.isOpen) return;
-
-      // SelectBox関連の要素を取得
-      const frameElement = document.getElementById(
-        IdGenerator.generateIdSelectBoxFrame(props.id)
-      );
-      const optionsElement = document.getElementById(
-        "ReactUI:SelectBox:OptionsArea"
-      );
-
-      // クリックされた要素を取得
-      const ele = e.target;
-
-      if (ele instanceof Node && frameElement?.contains(ele)) return;
-      if (ele instanceof Node && optionsElement?.contains(ele)) return;
-
-      setSearchText("");
-      props.close();
-    };
-
-    document.addEventListener("mousedown", onClickOutOfSelectBox);
-
-    return () => {
-      document.removeEventListener("mousedown", onClickOutOfSelectBox);
-    };
   }, [state]);
 
   useEffect(() => {
