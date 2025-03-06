@@ -21,7 +21,6 @@ export const conditionInputReducer: TConditionInputReducer = (
 
       return {
         targets: state.targets,
-        onChangeCondition: state.onChangeCondition,
         status: "inputted target",
         inputtingCondition: {
           type: target.type,
@@ -51,29 +50,26 @@ export const conditionInputReducer: TConditionInputReducer = (
       }
 
       if (operator.inputType === "none") {
-        state.onChangeCondition({
-          type: "add",
-          payload: {
-            condition: {
-              target: state.inputtingCondition.target,
-              operator,
-              input: {
-                type: "none",
+        return {
+          targets: state.targets,
+          changeAction: {
+            type: "add",
+            payload: {
+              condition: {
+                target: state.inputtingCondition.target,
+                operator,
+                input: {
+                  type: "none",
+                },
               },
             },
           },
-        });
-
-        return {
-          targets: state.targets,
-          onChangeCondition: state.onChangeCondition,
           status: "waiting for input",
         };
       }
 
       return {
         targets: state.targets,
-        onChangeCondition: state.onChangeCondition,
         status: "inputted operator",
         inputtingCondition: {
           type: state.inputtingCondition.target.type,
@@ -88,39 +84,37 @@ export const conditionInputReducer: TConditionInputReducer = (
         return state;
       }
 
-      state.onChangeCondition({
-        type: "add",
-        payload: {
-          condition: {
-            target: state.inputtingCondition.target,
-            operator: state.inputtingCondition.operator,
-            input: action.payload,
-          },
-        },
-      });
-
       return {
         targets: state.targets,
-        onChangeCondition: state.onChangeCondition,
+        changeAction: {
+          type: "add",
+          payload: {
+            condition: {
+              target: state.inputtingCondition.target,
+              operator: state.inputtingCondition.operator,
+              input: action.payload,
+            },
+          },
+        },
         status: "waiting for input",
       };
     }
 
     case "deleteCondition": {
-      state.onChangeCondition({
-        type: "remove",
-        payload: {
-          index: action.payload.index,
+      return {
+        ...state,
+        changeAction: {
+          type: "remove",
+          payload: {
+            index: action.payload.index,
+          },
         },
-      });
-
-      return state;
+      };
     }
 
     case "reset": {
       return {
         targets: state.targets,
-        onChangeCondition: state.onChangeCondition,
         status: "waiting for input",
       };
     }
@@ -128,7 +122,6 @@ export const conditionInputReducer: TConditionInputReducer = (
     case "updateTargets": {
       return {
         targets: action.payload.targets,
-        onChangeCondition: state.onChangeCondition,
         status: "waiting for input",
       };
     }
@@ -145,7 +138,6 @@ export const conditionInputReducer: TConditionInputReducer = (
 
       return {
         targets: state.targets,
-        onChangeCondition: state.onChangeCondition,
         status: "waiting for input",
       };
     }
@@ -157,7 +149,6 @@ export const conditionInputReducer: TConditionInputReducer = (
 
       return {
         targets: state.targets,
-        onChangeCondition: state.onChangeCondition,
         status: "inputted target",
         inputtingCondition: {
           type: state.inputtingCondition.target.type,
@@ -166,6 +157,13 @@ export const conditionInputReducer: TConditionInputReducer = (
         useableOperators: DEFAULT_SEARCH_OPERATOR.filter(
           (o) => o.type === state.inputtingCondition.target.type
         ),
+      };
+    }
+
+    case "executedChangeAction": {
+      return {
+        ...state,
+        changeAction: undefined,
       };
     }
   }

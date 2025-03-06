@@ -1,5 +1,4 @@
 import { Reducer } from "react";
-import { TValueType } from "../../../share/search-operator";
 import {
   MULTI_SELECT,
   NONE,
@@ -106,7 +105,7 @@ export type TConditionChangeAction =
 export type TConditionInputState =
   | {
       targets: Target[];
-      onChangeCondition: (action: TConditionChangeAction) => void;
+      changeAction?: TConditionChangeAction;
     } & (
       | {
           status: "waiting for input";
@@ -162,6 +161,9 @@ export type TConditionInputAction =
     }
   | {
       type: "removeInputedOperator";
+    }
+  | {
+      type: "executedChangeAction";
     };
 
 export type TConditionInputReducer = Reducer<
