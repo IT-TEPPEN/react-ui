@@ -102,10 +102,7 @@ export function OptionsArea() {
             parentElement!.style.position.includes(style)
           );
 
-          if (hasPositionClass || hasPositionStyle) {
-            console.log(parentElement);
-            break;
-          }
+          if (hasPositionClass || hasPositionStyle) break;
 
           parentElement = parentElement.parentElement;
         }
@@ -120,8 +117,8 @@ export function OptionsArea() {
           if (parentElement) {
             const parentRect = parentElement.getBoundingClientRect();
             setPosition({
-              top: top - parentRect.top,
-              left: left - parentRect.left,
+              top: top - parentRect.top + parentElement.scrollTop,
+              left: left - parentRect.left + parentElement.scrollLeft,
             });
           } else {
             setPosition({
