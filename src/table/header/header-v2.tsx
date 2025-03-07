@@ -112,9 +112,9 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
       >
         <div className="flex h-[32px]">
           {props.checkbox && (
-            <th className="w-8 h-full">
+            <div className="w-8 h-full">
               <AllCheckbox rows={props.rows} />
-            </th>
+            </div>
           )}
           {props.cols.map((col) => {
             return (
