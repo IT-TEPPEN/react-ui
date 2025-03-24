@@ -1,13 +1,70 @@
 "use client";
 
-import { useReducer } from "react";
+import { useEffect, useReducer, useState } from "react";
 import Table from "./base";
+
+interface IOption {
+  value: string;
+  label: string;
+}
+
+const OPTIONS: IOption[] = [
+  {
+    value: "january",
+    label: "1月",
+  },
+  {
+    value: "february",
+    label: "2月",
+  },
+  {
+    value: "march",
+    label: "3月",
+  },
+  {
+    value: "april",
+    label: "4月",
+  },
+  {
+    value: "may",
+    label: "5月",
+  },
+  {
+    value: "june",
+    label: "6月",
+  },
+  {
+    value: "july",
+    label: "7月",
+  },
+  {
+    value: "august",
+    label: "8月",
+  },
+  {
+    value: "september",
+    label: "9月",
+  },
+  {
+    value: "october",
+    label: "10月",
+  },
+  {
+    value: "november",
+    label: "11月",
+  },
+  {
+    value: "december",
+    label: "12月",
+  },
+];
 
 type TState = {
   id: number;
   name: string;
   age: number;
   role: string;
+  birthdayMonth: string;
   button: number;
 }[];
 
@@ -47,9 +104,19 @@ export function TableTestComponent(props: {
       name: `name${1000 - i}`,
       age: 20 + (i % 10),
       role: i % 2 === 0 ? "admin" : i % 4 === 1 ? "user" : "",
+      birthdayMonth: "",
       button: (i * i) % 7,
     })),
   ]);
+  const [options, setOptions] = useState<IOption[]>([]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setOptions(OPTIONS);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <Table
@@ -115,6 +182,21 @@ export function TableTestComponent(props: {
             },
           ],
           allowEmpty: true,
+          onCellBlur: (id, value, current, completeEditing) => {
+            dispatch({
+              type: "update",
+              payload: { id: current.id, key: id, value },
+            });
+            completeEditing();
+          },
+        },
+        {
+          key: "birthdayMonth",
+          label: "誕生月",
+          type: "select",
+          options,
+          allowEmpty: true,
+          editable: true,
           onCellBlur: (id, value, current, completeEditing) => {
             dispatch({
               type: "update",

@@ -18,6 +18,12 @@ export const useConditionInputHook: TConditionInputHook = (
     }
   }, [state.changeAction]);
 
+  useEffect(() => {
+    if (targets && targets.length > 0) {
+      dispatch({ type: "updateTargets", payload: { targets } });
+    }
+  }, [targets]);
+
   const actions = useMemo(
     () => ({
       inputTarget: (targetKey: string) => {
