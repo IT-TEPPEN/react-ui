@@ -245,6 +245,17 @@ export function TableTestComponent(props: {
             payload: { id: newRow.id, key: "role", value: newRow.role },
           });
         }
+
+        if (newRow.birthdayMonth !== oldRow.birthdayMonth) {
+          dispatch({
+            type: "update",
+            payload: {
+              id: newRow.id,
+              key: "birthdayMonth",
+              value: newRow.birthdayMonth,
+            },
+          });
+        }
       }}
       initialCondition={{
         sort: {

@@ -103,6 +103,10 @@ export function usePasteReducer(initial: {
   const range = useRangeStateContext();
 
   useEffect(() => {
+    dispatch({ type: "setCols", payload: { cols: initial.cols } });
+  }, [initial.cols]);
+
+  useEffect(() => {
     if (range.isSelecting) {
       dispatch({
         type: "focus",
