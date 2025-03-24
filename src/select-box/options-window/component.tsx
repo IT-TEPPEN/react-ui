@@ -73,6 +73,9 @@ export function OptionsArea() {
             state.onSelect(value);
             actions.closeOptionsWindow();
           }
+        } else if (e.key === "Escape") {
+          e.preventDefault();
+          actions.closeOptionsWindow();
         }
       };
 
@@ -82,7 +85,7 @@ export function OptionsArea() {
         document.removeEventListener("keydown", handleKeydown);
       };
     }
-  }, [state, selectingIndex, setSelectingIndex]);
+  }, [state, selectingIndex, setSelectingIndex, actions]);
 
   useEffect(() => {
     const searchParentElement = () => {
