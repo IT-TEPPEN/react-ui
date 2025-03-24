@@ -6,9 +6,12 @@ type TPasteState = {
   cols: TTableColumn<any>[];
   colValidators: { [key: string]: (value: any) => boolean };
   onUpdateRowFunction?: (newRow: any, oldRow: any) => void;
-  setRange: (payload: { start: IIndex; end: IIndex }) => void;
   updateParameters: {
     arguments: { newRow: any; oldRow: any }[];
+    pastedRange?: {
+      start: IIndex;
+      end: IIndex;
+    };
     timing: number;
   };
 } & (

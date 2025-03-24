@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useReducer } from "react";
+import { useCallback, useEffect, useMemo, useReducer } from "react";
 import { useRangeStateContext } from "../range/provider";
 import { TCopyReducer, TReturnCopyReducer } from "./types";
 
@@ -24,6 +24,10 @@ export function useCopyReducer(initial: {
     ...initial,
   });
   const range = useRangeStateContext();
+
+  useEffect(() => {
+    dispatch({ type: "setCols", payload: { cols: initial.cols } });
+  }, [initial.cols]);
 
   const copy = useCallback(
     (options?: { enableDeprecatedCopy?: boolean }) => {

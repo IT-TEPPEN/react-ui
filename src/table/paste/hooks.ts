@@ -23,15 +23,8 @@ const reducer: TPasteReducer = (state, action) => {
       }
 
       const { pasteData } = action.payload;
-      const {
-        rows,
-        cols,
-        colValidators,
-        start,
-        end,
-        onUpdateRowFunction,
-        setRange,
-      } = state;
+      const { rows, cols, colValidators, start, end, onUpdateRowFunction } =
+        state;
 
       if (!onUpdateRowFunction) {
         return state;
@@ -62,15 +55,11 @@ const reducer: TPasteReducer = (state, action) => {
         return state;
       }
 
-      setRange({
-        start: res.pasteRange.start,
-        end: res.pasteRange.end,
-      });
-
       return {
         ...state,
         updateParameters: {
           arguments: res.updateArgument,
+          pastedRange: res.pasteRange,
           timing: state.updateParameters.timing + 1,
         },
       };
@@ -97,10 +86,13 @@ export function usePasteReducer(initial: {
     colValidators: {},
     isFocused: false,
     updateParameters: { arguments: [], timing: 0 },
-    setRange,
   });
   const validators = useColumnValidatesContext();
   const range = useRangeStateContext();
+
+  useEffect(() => {
+    dispatch({ type: "setCols", payload: { cols: initial.cols } });
+  }, [initial.cols]);
 
   useEffect(() => {
     if (range.isSelecting) {
@@ -154,6 +146,10 @@ export function usePasteReducer(initial: {
       state.updateParameters.arguments.forEach(({ newRow, oldRow }) => {
         state.onUpdateRowFunction?.(newRow, oldRow);
       });
+    }
+
+    if (state.updateParameters.pastedRange) {
+      setRange(state.updateParameters.pastedRange);
     }
   }, [state.updateParameters.timing, state.onUpdateRowFunction]);
 
