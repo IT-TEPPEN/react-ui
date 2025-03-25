@@ -7,6 +7,7 @@ import {
   RANGE_STRING,
   SELECT,
   SINGLE_DATE,
+  SINGLE_DATETIME,
   SINGLE_NUMBER,
   SINGLE_STRING,
   T_DEFAULT_SEARCH_OPERATOR,
@@ -18,7 +19,7 @@ export type Target = {
   label: string;
 } & (
   | {
-      type: "string" | "number" | "date";
+      type: "string" | "number" | "datetime";
     }
   | {
       type: "select";
@@ -80,6 +81,12 @@ export type SearchInput =
       payload: {
         value: string[];
       };
+    }
+  | {
+      type: typeof SINGLE_DATETIME;
+      payload: {
+        value: Date;
+      };
     };
 
 export type Condition = {
@@ -113,7 +120,7 @@ export type TConditionInputState =
       | {
           status: "inputted target";
           inputtingCondition: {
-            type: "string" | "number" | "date" | "select";
+            type: "string" | "number" | "datetime" | "select";
             target: Target;
           };
           useableOperators: T_DEFAULT_SEARCH_OPERATOR[];
@@ -121,7 +128,7 @@ export type TConditionInputState =
       | {
           status: "inputted operator";
           inputtingCondition: {
-            type: "string" | "number" | "date" | "select";
+            type: "string" | "number" | "datetime" | "select";
             target: Target;
             operator: T_DEFAULT_SEARCH_OPERATOR;
           };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Options, SelectBox } from "../../select-box";
 import {
   useConditionInputAction,
@@ -133,6 +133,8 @@ function SearchValueInputForm(props: { size?: "small" | "medium" | "large" }) {
               : []
           }
         />
+      ) : state.inputtingCondition.operator.inputType === "single datetime" ? (
+        <InputSingleDatetime inputType="single datetime" size={props.size} />
       ) : (
         console.error("Not implemented")
       )}
@@ -243,6 +245,66 @@ function InputSingleSelect(props: { inputType: "select"; options: Options[] }) {
         no_icon
       />
     </div>
+  );
+}
+
+function InputSingleDatetime(props: {
+  inputType: "single datetime";
+  size?: "small" | "medium" | "large";
+}) {
+  const { generateId } = useIdGenerator();
+  const { inputValue } = useConditionInputAction();
+  const ref = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (ref.current) {
+      const element = ref.current;
+
+      element.focus();
+      element.scrollIntoView();
+      element.click();
+    }
+  }, []);
+
+  return (
+    <input
+      ref={ref}
+      id={generateId("ValueInput")}
+      className={`appearance-none w-fit min-w-64 border-none px-2 py-1 focus:outline-none focus-visible:outline-none bg-transparent ${
+        props.size === "small"
+          ? "text-sm"
+          : props.size === "large"
+          ? "text-lg"
+          : ""
+      }`}
+      type="datetime-local"
+      placeholder="Select datetime"
+      defaultValue={new Date(
+        new Date().getTime() - new Date().getTimezoneOffset() * 60000
+      )
+        .toISOString()
+        .slice(0, 16)}
+      // Enterキーが押されたら値を入力する
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          const value = new Date(ref.current?.value ?? "");
+
+          if (isNaN(value.getTime())) {
+            return;
+          }
+
+          inputValue({
+            type: props.inputType,
+            payload: {
+              value,
+            },
+          });
+        }
+      }}
+      onClick={(e) => {
+        e.currentTarget.showPicker();
+      }}
+    />
   );
 }
 

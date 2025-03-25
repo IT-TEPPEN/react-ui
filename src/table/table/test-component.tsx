@@ -65,6 +65,7 @@ type TState = {
   age: number;
   role: string;
   birthdayMonth: string;
+  birthday: Date;
   button: number;
 }[];
 
@@ -105,6 +106,7 @@ export function TableTestComponent(props: {
       age: 20 + (i % 10),
       role: i % 2 === 0 ? "admin" : i % 4 === 1 ? "user" : "",
       birthdayMonth: "",
+      birthday: new Date(2000 + (i % 10), i % 12, (i % 28) + 1),
       button: (i * i) % 7,
     })),
   ]);
@@ -204,6 +206,12 @@ export function TableTestComponent(props: {
             });
             completeEditing();
           },
+        },
+        {
+          key: "birthday",
+          label: "誕生日",
+          type: "datetime",
+          render: (value) => value.toLocaleDateString(),
         },
         {
           key: "button",

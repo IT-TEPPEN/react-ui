@@ -26,6 +26,9 @@ type TPropsGenerateValidateFunction = {
       options: { value: string; label: string }[];
       allowEmpty?: boolean;
     }
+  | {
+      type: "datetime";
+    }
 );
 
 type TStringValidateFunction = (value: string) => boolean;
@@ -63,6 +66,9 @@ export type TErrorValidation = {
       type: "NOT_IN_OPTIONS";
       options: string[];
     }
+  | {
+      type: "NOT_DATETIME";
+    }
 );
 
 function defaultErrorHandler(errors: TErrorValidation[]) {
@@ -97,6 +103,8 @@ function defaultErrorHandler(errors: TErrorValidation[]) {
         return acc + `\n・数値ではない値が入力されています。`;
       case "NOT_IN_OPTIONS":
         return acc + `\n・選択肢に含まれていない値です。`;
+      case "NOT_DATETIME":
+        return acc + `\n・日時の形式ではありません。`;
     }
   }, "");
 
@@ -265,6 +273,37 @@ function generatSelectValidateFunction(
   };
 }
 
+type TDatetimeValidateFunction = (label: string) => boolean;
+
+function generatDatetimeValidateFunction(
+  key: string,
+  columnLabel: string,
+  errorHandler?: (errors: TErrorValidation[]) => void
+): TDatetimeValidateFunction {
+  return (value: string) => {
+    const errors: TErrorValidation[] = [];
+
+    if (isNaN(new Date(value).getTime())) {
+      errors.push({
+        type: "NOT_DATETIME",
+        label: columnLabel,
+        value,
+      });
+    }
+
+    if (errors.length > 0) {
+      if (errorHandler) {
+        errorHandler(errors);
+      } else {
+        defaultErrorHandler(errors);
+      }
+      return false;
+    }
+
+    return true;
+  };
+}
+
 export function generateValidateFunction(
   props: TPropsGenerateValidateFunction,
   errorHandler?: (errors: TErrorValidation[]) => void
@@ -289,6 +328,12 @@ export function generateValidateFunction(
       props.label,
       props.options,
       props.allowEmpty,
+      errorHandler
+    );
+  } else if (props.type === "datetime") {
+    return generatDatetimeValidateFunction(
+      props.key,
+      props.label,
       errorHandler
     );
   } else {

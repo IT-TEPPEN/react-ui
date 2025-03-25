@@ -1,3 +1,4 @@
+import React from "react";
 import { Options } from "../../select-box";
 import {
   TErrorValidation,
@@ -5,7 +6,7 @@ import {
   TStringValidateOption,
 } from "../libs/generate-validate-function";
 
-export type DataRecord = Record<string, string | number>;
+export type DataRecord = Record<string, string | number | Date>;
 
 export type DataObject<T extends DataRecord> = T & {
   id: number | string;
@@ -70,10 +71,19 @@ export type TSelectCellEditingCondition<T extends DataRecord> =
         }
     );
 
+export type TDatetimeCellEditingCondition<T extends DataRecord> =
+  | {
+      type: "datetime";
+      render: (value: Date) => string | React.ReactNode;
+    } & {
+      editable?: false;
+    };
+
 export type TCellEditingCondition<T extends DataRecord> =
   | TStringCellEditingCondition<T>
   | TNumberCellEditingCondition<T>
-  | TSelectCellEditingCondition<T>;
+  | TSelectCellEditingCondition<T>
+  | TDatetimeCellEditingCondition<T>;
 
 export type TColumnProperty<T extends DataRecord> = {
   key: keyof T;

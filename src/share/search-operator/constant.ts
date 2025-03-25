@@ -2,6 +2,7 @@ export const NONE = "none";
 export const SINGLE_STRING = "single string";
 export const SINGLE_NUMBER = "single number";
 export const SINGLE_DATE = "single date";
+export const SINGLE_DATETIME = "single datetime";
 export const RANGE_STRING = "range string";
 export const RANGE_NUMBER = "range number";
 export const RANGE_DATE = "range date";
@@ -115,6 +116,42 @@ export const DEFAULT_SEARCH_OPERATOR = [
   // { key: "date:lte", label: "<=", type: "date" },
   // { key: "date:is_null", label: "is null", type: "date" },
   // { key: "date:is_not_null", label: "is not null", type: "date" },
+  {
+    key: "datetime:gt",
+    label: ">",
+    type: "datetime",
+    inputType: SINGLE_DATETIME,
+  },
+  {
+    key: "datetime:lt",
+    label: "<",
+    type: "datetime",
+    inputType: SINGLE_DATETIME,
+  },
+  {
+    key: "datetime:gte",
+    label: "≧",
+    type: "datetime",
+    inputType: SINGLE_DATETIME,
+  },
+  {
+    key: "datetime:lte",
+    label: "≦",
+    type: "datetime",
+    inputType: SINGLE_DATETIME,
+  },
+  {
+    key: "datetime:is_null",
+    label: "is empty",
+    type: "datetime",
+    inputType: NONE,
+  },
+  {
+    key: "datetime:is_not_null",
+    label: "is not empty",
+    type: "datetime",
+    inputType: NONE,
+  },
 ] as const;
 
 export type T_DEFAULT_SEARCH_OPERATOR =

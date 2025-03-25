@@ -44,6 +44,10 @@ function getLabel(condition: Condition): string {
       return `${condition.target.label} ${condition.operator.label} ${condition.input.payload.value}`;
     case "single date":
       return `${condition.target.label} ${condition.operator.label} ${condition.input.payload.value}`;
+    case "single datetime":
+      return `${condition.target.label} ${
+        condition.operator.label
+      } ${condition.input.payload.value.toLocaleString()}`;
     case "range string":
       return `${condition.target.label} ${condition.operator.label} ${condition.input.payload.from} ～ ${condition.input.payload.to}`;
     case "range number":

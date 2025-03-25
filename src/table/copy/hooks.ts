@@ -73,6 +73,8 @@ export function useCopyReducer(initial: {
                     .label
                 );
               }
+            } else if (col.type === "datetime") {
+              copiedRow.push(row[col.key].toISOString());
             }
           }
           return copiedRow;

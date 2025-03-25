@@ -70,7 +70,7 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
             .reduce((acc, key) => {
               acc[key] = row[key];
               return acc;
-            }, {} as { [key: string]: string | number });
+            }, {} as { [key: string]: string | number | Date });
 
           acc[row.id] = {
             data: rowSortedByKey,

@@ -171,5 +171,44 @@ function isMatchCondition(
               );
           }
       }
+    case "datetime":
+      switch (condition.operator.inputType) {
+        case "single datetime":
+          if (input.type !== condition.operator.inputType) {
+            throw new Error("input type is not match");
+          }
+
+          const dateValue = input.payload.value;
+
+          switch (condition.operator.key) {
+            case "datetime:gt":
+              return targetValue > dateValue;
+            case "datetime:gte":
+              return targetValue >= dateValue;
+            case "datetime:lt":
+              return targetValue < dateValue;
+            case "datetime:lte":
+              return targetValue <= dateValue;
+          }
+        case "none":
+          if (input.type !== condition.operator.inputType) {
+            throw new Error("input type is not match");
+          }
+
+          switch (condition.operator.key) {
+            case "datetime:is_null":
+              return (
+                targetValue === null ||
+                targetValue === undefined ||
+                targetValue === ""
+              );
+            case "datetime:is_not_null":
+              return (
+                targetValue !== null &&
+                targetValue !== undefined &&
+                targetValue !== ""
+              );
+          }
+      }
   }
 }
