@@ -48,7 +48,11 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
         } else if (e.key === "ArrowRight") {
           e.preventDefault();
 
-          if (e.shiftKey) {
+          if (e.ctrlKey && e.shiftKey) {
+            range.extendRightEnd();
+          } else if (e.ctrlKey) {
+            range.moveRightEnd();
+          } else if (e.shiftKey) {
             range.extendRight();
           } else {
             range.moveRight();
@@ -56,7 +60,11 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
         } else if (e.key === "ArrowLeft") {
           e.preventDefault();
 
-          if (e.shiftKey) {
+          if (e.ctrlKey && e.shiftKey) {
+            range.extendLeftEnd();
+          } else if (e.ctrlKey) {
+            range.moveLeftEnd();
+          } else if (e.shiftKey) {
             range.extendLeft();
           } else {
             range.moveLeft();
@@ -64,7 +72,11 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
         } else if (e.key === "ArrowUp") {
           e.preventDefault();
 
-          if (e.shiftKey) {
+          if (e.ctrlKey && e.shiftKey) {
+            range.extendTop();
+          } else if (e.ctrlKey) {
+            range.moveTop();
+          } else if (e.shiftKey) {
             range.extendUp();
           } else {
             range.moveUp();
@@ -72,7 +84,11 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
         } else if (e.key === "ArrowDown") {
           e.preventDefault();
 
-          if (e.shiftKey) {
+          if (e.ctrlKey && e.shiftKey) {
+            range.extendBottom();
+          } else if (e.ctrlKey) {
+            range.moveBottom();
+          } else if (e.shiftKey) {
             range.extendDown();
           } else {
             range.moveDown();
@@ -80,7 +96,7 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
         } else if (e.key === "F2") {
           e.preventDefault();
           edit.startEditing();
-        } else if (e.ctrlKey && e.key === "c") {
+        } else if (e.ctrlKey && e.key.toLowerCase() === "c") {
           e.preventDefault();
           copy({ enableDeprecatedCopy: options?.enableDeprecatedCopy });
         } else if (!e.altKey && !e.ctrlKey && /^[a-zA-Z0-9]$/.test(e.key)) {

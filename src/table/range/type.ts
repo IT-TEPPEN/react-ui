@@ -36,10 +36,18 @@ export type TRangeAction =
   | { type: "moveDown" }
   | { type: "moveLeft" }
   | { type: "moveRight" }
+  | { type: "moveTop" }
+  | { type: "moveBottom" }
+  | { type: "moveRightEnd" }
+  | { type: "moveLeftEnd" }
   | { type: "extendUp" }
   | { type: "extendDown" }
   | { type: "extendLeft" }
   | { type: "extendRight" }
+  | { type: "extendTop" }
+  | { type: "extendBottom" }
+  | { type: "extendRightEnd" }
+  | { type: "extendLeftEnd" }
   | { type: "reset" }
   | {
       type: "setRange";
@@ -85,10 +93,18 @@ export type TRangeActionContext = {
   moveDown: () => void;
   moveLeft: () => void;
   moveRight: () => void;
+  moveTop: () => void;
+  moveBottom: () => void;
+  moveRightEnd: () => void;
+  moveLeftEnd: () => void;
   extendUp: () => void;
   extendDown: () => void;
   extendLeft: () => void;
   extendRight: () => void;
+  extendTop: () => void;
+  extendBottom: () => void;
+  extendRightEnd: () => void;
+  extendLeftEnd: () => void;
   reset: () => void;
   setRange: (payload: { start: IIndex; end: IIndex }) => void;
 };
