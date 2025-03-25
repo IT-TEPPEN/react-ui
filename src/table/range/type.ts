@@ -36,6 +36,10 @@ export type TRangeAction =
   | { type: "moveDown" }
   | { type: "moveLeft" }
   | { type: "moveRight" }
+  | { type: "moveTop" }
+  | { type: "moveBottom" }
+  | { type: "moveRightEnd" }
+  | { type: "moveLeftEnd" }
   | { type: "extendUp" }
   | { type: "extendDown" }
   | { type: "extendLeft" }
@@ -85,6 +89,10 @@ export type TRangeActionContext = {
   moveDown: () => void;
   moveLeft: () => void;
   moveRight: () => void;
+  moveTop: () => void;
+  moveBottom: () => void;
+  moveRightEnd: () => void;
+  moveLeftEnd: () => void;
   extendUp: () => void;
   extendDown: () => void;
   extendLeft: () => void;

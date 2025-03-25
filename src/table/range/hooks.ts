@@ -287,6 +287,134 @@ export const rangeReducer: TRangeReducer = (state, action) => {
     }
 
     /**
+     * Actionが"moveTop"の場合の説明:
+     * - Actionのtypeが"moveTop"の場合、選択範囲を一番上に移動します。
+     * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
+     * - 移動後の位置がstartとendが同じ場合、stateをそのまま返します。
+     * - それ以外の場合、startとendの位置を一番上に設定します。
+     */
+    case "moveTop": {
+      if (!state.isSelecting) {
+        return state;
+      }
+
+      const startIndex = newIndex({
+        rowIndex: 0,
+        colIndex: state.start.colIndex,
+        constraint: state.constraint,
+      });
+
+      if (
+        equalIndex(startIndex, state.start) &&
+        equalIndex(startIndex, state.end)
+      ) {
+        return state;
+      }
+
+      return {
+        ...state,
+        start: startIndex,
+        end: startIndex,
+      };
+    }
+
+    /**
+     * Actionが"moveBottom"の場合の説明:
+     * - Actionのtypeが"moveBottom"の場合、選択範囲を一番下に移動します。
+     * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
+     * - 移動後の位置がstartとendが同じ場合、stateをそのまま返します。
+     * - それ以外の場合、startとendの位置を一番下に設定します。
+     */
+    case "moveBottom": {
+      if (!state.isSelecting) {
+        return state;
+      }
+
+      const startIndex = newIndex({
+        rowIndex: state.constraint.maxRowIndex,
+        colIndex: state.start.colIndex,
+        constraint: state.constraint,
+      });
+
+      if (
+        equalIndex(startIndex, state.start) &&
+        equalIndex(startIndex, state.end)
+      ) {
+        return state;
+      }
+
+      return {
+        ...state,
+        start: startIndex,
+        end: startIndex,
+      };
+    }
+
+    /**
+     * Actionが"moveRightEnd"の場合の説明:
+     * - Actionのtypeが"moveRightEnd"の場合、選択範囲を一番右に移動します。
+     * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
+     * - 移動後の位置がstartとendが同じ場合、stateをそのまま返します。
+     * - それ以外の場合、startとendの位置を一番右に設定します。
+     */
+    case "moveLeftEnd": {
+      if (!state.isSelecting) {
+        return state;
+      }
+
+      const startIndex = newIndex({
+        rowIndex: state.start.rowIndex,
+        colIndex: 0,
+        constraint: state.constraint,
+      });
+
+      if (
+        equalIndex(startIndex, state.start) &&
+        equalIndex(startIndex, state.end)
+      ) {
+        return state;
+      }
+
+      return {
+        ...state,
+        start: startIndex,
+        end: startIndex,
+      };
+    }
+
+    /**
+     * Actionが"moveRightEnd"の場合の説明:
+     * - Actionのtypeが"moveRightEnd"の場合、選択範囲を一番右に移動します。
+     * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
+     * - 移動後の位置がstartとendが同じ場合、stateをそのまま返します。
+     * - それ以外の場合、startとendの位置を一番右に設定します。
+     */
+    case "moveRightEnd": {
+      if (!state.isSelecting) {
+        return state;
+      }
+
+      const startIndex = newIndex({
+        rowIndex: state.start.rowIndex,
+        colIndex: state.constraint.maxColIndex,
+        constraint: state.constraint,
+      });
+
+      if (
+        equalIndex(startIndex, state.start) &&
+        equalIndex(startIndex, state.end)
+      ) {
+        return state;
+      }
+
+      return {
+        ...state,
+        start: startIndex,
+        end: startIndex,
+      };
+    }
+
+    /**
      * Actionが"extendUp"の場合の説明:
      * - Actionのtypeが"extendUp"の場合、選択範囲を上に拡張します。
      * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
@@ -457,6 +585,18 @@ export function useRangeReducer(): TReturnRangeReducer {
       },
       moveRight: () => {
         dispatch({ type: "moveRight" });
+      },
+      moveTop: () => {
+        dispatch({ type: "moveTop" });
+      },
+      moveBottom: () => {
+        dispatch({ type: "moveBottom" });
+      },
+      moveRightEnd: () => {
+        dispatch({ type: "moveRightEnd" });
+      },
+      moveLeftEnd: () => {
+        dispatch({ type: "moveLeftEnd" });
       },
       extendUp: () => {
         dispatch({ type: "extendUp" });
