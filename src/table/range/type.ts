@@ -44,6 +44,10 @@ export type TRangeAction =
   | { type: "extendDown" }
   | { type: "extendLeft" }
   | { type: "extendRight" }
+  | { type: "extendTop" }
+  | { type: "extendBottom" }
+  | { type: "extendRightEnd" }
+  | { type: "extendLeftEnd" }
   | { type: "reset" }
   | {
       type: "setRange";
@@ -97,6 +101,10 @@ export type TRangeActionContext = {
   extendDown: () => void;
   extendLeft: () => void;
   extendRight: () => void;
+  extendTop: () => void;
+  extendBottom: () => void;
+  extendRightEnd: () => void;
+  extendLeftEnd: () => void;
   reset: () => void;
   setRange: (payload: { start: IIndex; end: IIndex }) => void;
 };

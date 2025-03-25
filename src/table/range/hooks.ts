@@ -527,6 +527,118 @@ export const rangeReducer: TRangeReducer = (state, action) => {
     }
 
     /**
+     * Actionが"extendTop"の場合の説明:
+     * - Actionのtypeが"extendTop"の場合、選択範囲を一番上に拡張します。
+     * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
+     * - 移動後の位置がstartとendが同じ場合、stateをそのまま返します。
+     * - それ以外の場合、endの位置を一番上に拡張します。
+     */
+    case "extendTop": {
+      if (!state.isSelecting) {
+        return state;
+      }
+
+      const endIndex = newIndex({
+        rowIndex: 0,
+        colIndex: state.end.colIndex,
+        constraint: state.constraint,
+      });
+
+      if (equalIndex(endIndex, state.end)) {
+        return state;
+      }
+
+      return {
+        ...state,
+        end: endIndex,
+      };
+    }
+
+    /**
+     * Actionが"extendBottom"の場合の説明:
+     * - Actionのtypeが"extendBottom"の場合、選択範囲を一番下に拡張します。
+     * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
+     * - 移動後の位置がstartとendが同じ場合、stateをそのまま返します。
+     * - それ以外の場合、endの位置を一番下に拡張します。
+     */
+    case "extendBottom": {
+      if (!state.isSelecting) {
+        return state;
+      }
+
+      const endIndex = newIndex({
+        rowIndex: state.constraint.maxRowIndex,
+        colIndex: state.end.colIndex,
+        constraint: state.constraint,
+      });
+
+      if (equalIndex(endIndex, state.end)) {
+        return state;
+      }
+
+      return {
+        ...state,
+        end: endIndex,
+      };
+    }
+
+    /**
+     * Actionが"extendRightEnd"の場合の説明:
+     * - Actionのtypeが"extendRightEnd"の場合、選択範囲を一番右に拡張します。
+     * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
+     * - 移動後の位置がstartとendが同じ場合、stateをそのまま返します。
+     * - それ以外の場合、endの位置を一番右に拡張します。
+     */
+    case "extendLeftEnd": {
+      if (!state.isSelecting) {
+        return state;
+      }
+
+      const endIndex = newIndex({
+        rowIndex: state.end.rowIndex,
+        colIndex: 0,
+        constraint: state.constraint,
+      });
+
+      if (equalIndex(endIndex, state.end)) {
+        return state;
+      }
+
+      return {
+        ...state,
+        end: endIndex,
+      };
+    }
+
+    /**
+     * Actionが"extendRightEnd"の場合の説明:
+     * - Actionのtypeが"extendRightEnd"の場合、選択範囲を一番右に拡張します。
+     * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
+     * - 移動後の位置がstartとendが同じ場合、stateをそのまま返します。
+     * - それ以外の場合、endの位置を一番右に拡張します。
+     */
+    case "extendRightEnd": {
+      if (!state.isSelecting) {
+        return state;
+      }
+
+      const endIndex = newIndex({
+        rowIndex: state.end.rowIndex,
+        colIndex: state.constraint.maxColIndex,
+        constraint: state.constraint,
+      });
+
+      if (equalIndex(endIndex, state.end)) {
+        return state;
+      }
+
+      return {
+        ...state,
+        end: endIndex,
+      };
+    }
+
+    /**
      * Actionが"reset"の場合の説明:
      * - Actionのtypeが"reset"の場合、選択範囲をリセットします。
      * - isSelectingをfalseに設定します。
@@ -609,6 +721,18 @@ export function useRangeReducer(): TReturnRangeReducer {
       },
       extendRight: () => {
         dispatch({ type: "extendRight" });
+      },
+      extendTop: () => {
+        dispatch({ type: "extendTop" });
+      },
+      extendBottom: () => {
+        dispatch({ type: "extendBottom" });
+      },
+      extendRightEnd: () => {
+        dispatch({ type: "extendRightEnd" });
+      },
+      extendLeftEnd: () => {
+        dispatch({ type: "extendLeftEnd" });
       },
       reset: () => {
         dispatch({ type: "reset" });

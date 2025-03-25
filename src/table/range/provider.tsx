@@ -26,6 +26,10 @@ const RangeActionContext = createContext<TRangeActionContext>({
   extendDown: NoImplementeFunction,
   extendLeft: NoImplementeFunction,
   extendRight: NoImplementeFunction,
+  extendTop: NoImplementeFunction,
+  extendBottom: NoImplementeFunction,
+  extendRightEnd: NoImplementeFunction,
+  extendLeftEnd: NoImplementeFunction,
   reset: NoImplementeFunction,
   setRange: NoImplementeFunction,
 });

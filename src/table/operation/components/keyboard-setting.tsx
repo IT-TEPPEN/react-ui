@@ -48,7 +48,9 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
         } else if (e.key === "ArrowRight") {
           e.preventDefault();
 
-          if (e.ctrlKey) {
+          if (e.ctrlKey && e.shiftKey) {
+            range.extendRightEnd();
+          } else if (e.ctrlKey) {
             range.moveRightEnd();
           } else if (e.shiftKey) {
             range.extendRight();
@@ -58,7 +60,9 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
         } else if (e.key === "ArrowLeft") {
           e.preventDefault();
 
-          if (e.ctrlKey) {
+          if (e.ctrlKey && e.shiftKey) {
+            range.extendLeftEnd();
+          } else if (e.ctrlKey) {
             range.moveLeftEnd();
           } else if (e.shiftKey) {
             range.extendLeft();
@@ -68,7 +72,9 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
         } else if (e.key === "ArrowUp") {
           e.preventDefault();
 
-          if (e.ctrlKey) {
+          if (e.ctrlKey && e.shiftKey) {
+            range.extendTop();
+          } else if (e.ctrlKey) {
             range.moveTop();
           } else if (e.shiftKey) {
             range.extendUp();
@@ -78,7 +84,9 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
         } else if (e.key === "ArrowDown") {
           e.preventDefault();
 
-          if (e.ctrlKey) {
+          if (e.ctrlKey && e.shiftKey) {
+            range.extendBottom();
+          } else if (e.ctrlKey) {
             range.moveBottom();
           } else if (e.shiftKey) {
             range.extendDown();
