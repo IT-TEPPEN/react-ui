@@ -80,7 +80,7 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
         } else if (e.key === "F2") {
           e.preventDefault();
           edit.startEditing();
-        } else if (e.ctrlKey && e.key === "c") {
+        } else if (e.ctrlKey && e.key.toLowerCase() === "c") {
           e.preventDefault();
           copy({ enableDeprecatedCopy: options?.enableDeprecatedCopy });
         } else if (!e.altKey && !e.ctrlKey && /^[a-zA-Z0-9]$/.test(e.key)) {
