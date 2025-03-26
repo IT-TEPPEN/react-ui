@@ -19,6 +19,7 @@ export const Default: Story = {
     targets: [
       { key: "name", label: "名前", type: "string" },
       { key: "age", label: "年齢", type: "number" },
+      { key: "birthday", label: "誕生日", type: "date" },
     ],
     conditions: [
       {

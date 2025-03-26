@@ -58,6 +58,7 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
         (col) =>
           !!col.label &&
           (col.type === "datetime" ||
+            col.type === "date" ||
             col.editable ||
             (!col.editable && !col.render))
       )
@@ -81,6 +82,12 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
               label: col.label as string,
               type: col.type,
               options: col.options,
+            };
+          case "date":
+            return {
+              key: col.key.toString(),
+              label: col.label as string,
+              type: col.type,
             };
           case "datetime":
             return {
@@ -135,7 +142,10 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
                 colWidth={getColumnWidth(col.key as string)}
                 disableSort={
                   col.disableSort ||
-                  (col.type !== "datetime" && !col.editable && !!col.render)
+                  (col.type !== "datetime" &&
+                    col.type !== "date" &&
+                    !col.editable &&
+                    !!col.render)
                 }
                 generateSortButton={props.generateSortButton}
               />

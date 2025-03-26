@@ -19,7 +19,7 @@ export type Target = {
   label: string;
 } & (
   | {
-      type: "string" | "number" | "datetime";
+      type: "string" | "number" | "date" | "datetime";
     }
   | {
       type: "select";
@@ -46,7 +46,7 @@ export type SearchInput =
   | {
       type: typeof SINGLE_DATE;
       payload: {
-        value: string;
+        value: Date;
       };
     }
   | {
@@ -120,7 +120,7 @@ export type TConditionInputState =
       | {
           status: "inputted target";
           inputtingCondition: {
-            type: "string" | "number" | "datetime" | "select";
+            type: T_DEFAULT_SEARCH_OPERATOR["type"];
             target: Target;
           };
           useableOperators: T_DEFAULT_SEARCH_OPERATOR[];
@@ -128,7 +128,7 @@ export type TConditionInputState =
       | {
           status: "inputted operator";
           inputtingCondition: {
-            type: "string" | "number" | "datetime" | "select";
+            type: T_DEFAULT_SEARCH_OPERATOR["type"];
             target: Target;
             operator: T_DEFAULT_SEARCH_OPERATOR;
           };

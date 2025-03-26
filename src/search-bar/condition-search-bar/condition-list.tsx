@@ -43,7 +43,9 @@ function getLabel(condition: Condition): string {
     case "single number":
       return `${condition.target.label} ${condition.operator.label} ${condition.input.payload.value}`;
     case "single date":
-      return `${condition.target.label} ${condition.operator.label} ${condition.input.payload.value}`;
+      return `${condition.target.label} ${
+        condition.operator.label
+      } ${condition.input.payload.value.toLocaleDateString()}`;
     case "single datetime":
       return `${condition.target.label} ${
         condition.operator.label

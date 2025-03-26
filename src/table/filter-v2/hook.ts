@@ -52,25 +52,6 @@ function isMatchCondition(
   input: SearchInput
 ): boolean {
   switch (condition.operator.type) {
-    // case "date":
-    //   switch (condition.operator.key) {
-    //     case "date:eq":
-    //       return false;
-    //     case "date:gt":
-    //       return false;
-    //     case "date:gte":
-    //       return false;
-    //     case "date:lt":
-    //       return false;
-    //     case "date:lte":
-    //       return false;
-    //     case "date:neq":
-    //       return false;
-    //     case "date:is_not_null":
-    //       return false;
-    //     case "date:is_null":
-    //       return false;
-    //   }
     case "number":
       switch (condition.operator.inputType) {
         case "single number":
@@ -164,6 +145,61 @@ function isMatchCondition(
                 targetValue === ""
               );
             case "select:is_not_null":
+              return (
+                targetValue !== null &&
+                targetValue !== undefined &&
+                targetValue !== ""
+              );
+          }
+      }
+    case "date":
+      switch (condition.operator.inputType) {
+        case "single date":
+          if (input.type !== condition.operator.inputType) {
+            throw new Error("input type is not match");
+          }
+
+          const dateValue = input.payload.value;
+
+          if (!(targetValue instanceof Date)) {
+            throw new Error("date value is not Date object");
+          }
+
+          switch (condition.operator.key) {
+            case "date:eq":
+              return (
+                targetValue.getFullYear() === dateValue.getFullYear() &&
+                targetValue.getMonth() === dateValue.getMonth() &&
+                targetValue.getDate() === dateValue.getDate()
+              );
+            case "date:neq":
+              return (
+                targetValue.getFullYear() !== dateValue.getFullYear() ||
+                targetValue.getMonth() !== dateValue.getMonth() ||
+                targetValue.getDate() !== dateValue.getDate()
+              );
+            case "date:gt":
+              return targetValue > dateValue;
+            case "date:gte":
+              return targetValue >= dateValue;
+            case "date:lt":
+              return targetValue < dateValue;
+            case "date:lte":
+              return targetValue <= dateValue;
+          }
+        case "none":
+          if (input.type !== condition.operator.inputType) {
+            throw new Error("input type is not match");
+          }
+
+          switch (condition.operator.key) {
+            case "date:is_null":
+              return (
+                targetValue === null ||
+                targetValue === undefined ||
+                targetValue === ""
+              );
+            case "date:is_not_null":
               return (
                 targetValue !== null &&
                 targetValue !== undefined &&

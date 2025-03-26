@@ -71,6 +71,14 @@ export type TSelectCellEditingCondition<T extends DataRecord> =
         }
     );
 
+export type TDateCellEditingCondition<T extends DataRecord> =
+  | {
+      type: "date";
+      render: (value: Date) => string | React.ReactNode;
+    } & {
+      editable?: false;
+    };
+
 export type TDatetimeCellEditingCondition<T extends DataRecord> =
   | {
       type: "datetime";
@@ -83,6 +91,7 @@ export type TCellEditingCondition<T extends DataRecord> =
   | TStringCellEditingCondition<T>
   | TNumberCellEditingCondition<T>
   | TSelectCellEditingCondition<T>
+  | TDateCellEditingCondition<T>
   | TDatetimeCellEditingCondition<T>;
 
 export type TColumnProperty<T extends DataRecord> = {

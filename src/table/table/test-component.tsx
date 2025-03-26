@@ -210,7 +210,7 @@ export function TableTestComponent(props: {
         {
           key: "birthday",
           label: "誕生日",
-          type: "datetime",
+          type: "date",
           render: (value) => value.toLocaleDateString(),
         },
         {
