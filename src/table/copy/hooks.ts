@@ -73,7 +73,16 @@ export function useCopyReducer(initial: {
                     .label
                 );
               }
+              continue;
+            } else if (col.type === "date") {
+              copiedRow.push(row[col.key].toISOString().split("T")[0]);
+              continue;
+            } else if (col.type === "datetime") {
+              copiedRow.push(row[col.key].toISOString());
+              continue;
             }
+
+            col satisfies never;
           }
           return copiedRow;
         });

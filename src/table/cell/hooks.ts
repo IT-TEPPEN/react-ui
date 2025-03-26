@@ -16,11 +16,13 @@ export function useCell(id: string, row: DataObject<DataRecord>) {
 
   const label =
     col.type === "select"
-      ? col.options?.find((op) => op.value === value)?.label
-      : value;
+      ? col.options?.find((op) => op.value === value)?.label ?? ""
+      : col.type === "date" || col.type === "datetime"
+      ? col.render(value instanceof Date ? value : new Date(value))
+      : (value as string | number);
 
   const component = useMemo(() => {
-    if (col.editable) {
+    if (col.type === "date" || col.type === "datetime" || col.editable) {
       return label;
     } else {
       return col.render ? col.render(value as never, row) : label;

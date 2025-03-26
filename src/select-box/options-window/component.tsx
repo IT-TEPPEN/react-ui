@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { useOptionsWindow } from "../options-window";
 import { useIdContext } from "../id/provider";
 import { IdGenerator } from "../lib";
+import { useOptionsWindow } from "./context";
 
 export function OptionsArea() {
   const id = useIdContext();

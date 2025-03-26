@@ -5,6 +5,7 @@ import { CancelIcon } from "../../../icon/cancel-icon";
 import { useTableIdGenerator } from "../../id";
 
 export function CellInput(props: {
+  type?: "text";
   value: string | number;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur: (e: React.FocusEvent<HTMLInputElement>) => void;
@@ -32,7 +33,7 @@ export function CellInput(props: {
         id={IdGenerator.getEditorId()}
         ref={ref}
         className="w-full py-1 px-2 bg-white text-gray-900"
-        type="text"
+        type={props.type ?? "text"}
         value={props.value}
         onChange={props.onChange}
         onBlur={props.onBlur}
