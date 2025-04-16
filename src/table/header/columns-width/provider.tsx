@@ -26,10 +26,11 @@ export function ColumnsWidthProvider(props: {
 const convertToColumnsWidthState = (
   cols: TTableColumn<DataRecord>[]
 ): Parameters<TColumnsWidthHook>[0] => {
-  return cols.reduce((acc, col) => {
+  return cols.reduce((acc, col, i) => {
     acc[col.key] = {
       colWidth: col.initialWidth || DEFAULT_COL_WIDTH,
       minWidth: col.minWidth || DEFAULT_MIN_COL_WIDTH,
+      index: i,
     };
 
     return acc;
