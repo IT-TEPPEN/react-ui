@@ -2,6 +2,7 @@ type TColumnsWidthState = {
   [key in string]: {
     colWidth: number;
     minWidth: number;
+    index: number;
   };
 };
 
