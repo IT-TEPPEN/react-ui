@@ -92,7 +92,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
   const generateSortButton = useGenerateSortButton();
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-full max-h-full">
       <div>
         <TableHeader
           cols={cols}

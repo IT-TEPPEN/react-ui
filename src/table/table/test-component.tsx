@@ -122,6 +122,7 @@ export function TableTestComponent(props: {
 
   return (
     <Table
+      maxHeight="50vh"
       id={props.id}
       rows={state}
       cols={[
@@ -311,8 +312,6 @@ export function TableTestComponent(props: {
       deprecatedOptions={{
         enableDeprecatedCopy: props.enableDeprecatedCopy,
       }}
-      maxHeight="80vh"
-      maxWidth="80vw"
     />
   );
 }

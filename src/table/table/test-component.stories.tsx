@@ -16,12 +16,18 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {},
   render: () => (
-    <div className="p-8 w-[200vw] h-[200vh]">
-      <div className="relative flex w-full h-full border border-red-300 p-8">
-        <div className="w-32 shrink-0 h-full"></div>
-        <div className="absolute w-full h-[50vh] overflow-auto border border-blue-300 p-8">
-          <TableTestComponent />
-        </div>
+    <div className="flex">
+      <div className="p-4 w-[24rem] shrink-0">
+        <ul className="flex flex-col gap-2">
+          <li>Click the cell to edit</li>
+          <li>Click the button to edit</li>
+          <li>Click the select to edit</li>
+          <li>Click the date to edit</li>
+          <li>Click the checkbox to edit</li>
+        </ul>
+      </div>
+      <div className="p-8 w-[calc(100%-24rem)] h-[80vh]">
+        <TableTestComponent />
       </div>
     </div>
   ),
