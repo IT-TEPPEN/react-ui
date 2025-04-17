@@ -69,10 +69,7 @@ export function Frame(props: IPropsFrame) {
   }, [x]);
 
   return (
-    <div
-      className="relative"
-      style={{ maxHeight: props.maxHeight, maxWidth: props.maxWidth }}
-    >
+    <div className="relative" style={{ maxWidth: props.maxWidth }}>
       <style>{`
           .teppen-no-scrollbar {
             -ms-overflow-style: none;
@@ -85,9 +82,10 @@ export function Frame(props: IPropsFrame) {
       <div
         ref={ref}
         id={props.id}
-        className={`relative w-full h-full max-w-full max-h-full border border-gray-200 bg-white rounded-b-md overflow-auto ${
+        className={`relative w-full h-full max-w-full border border-gray-200 bg-white rounded-b-md overflow-auto ${
           props.displayScroll ? "" : "teppen-no-scrollbar"
         }`}
+        style={{ maxHeight: props.maxHeight }}
       >
         {props.children}
       </div>

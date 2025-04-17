@@ -122,8 +122,7 @@ export function TableTestComponent(props: {
 
   return (
     <Table
-      maxHeight="80vh"
-      maxWidth="80%"
+      maxHeight="50vh"
       id={props.id}
       rows={state}
       cols={[
