@@ -26,7 +26,7 @@ export const Default: Story = {
           <li>Click the checkbox to edit</li>
         </ul>
       </div>
-      <div className="p-8 w-[calc(100%-24rem)] h-[800px]">
+      <div className="p-8 w-[calc(100%-24rem)] h-[80vh]">
         <TableTestComponent />
       </div>
     </div>
