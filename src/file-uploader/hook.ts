@@ -3,13 +3,15 @@ import { useRef, useState } from "react";
 interface IPropsFileUploader {
   addFiles: (files: File[]) => void;
   onValidationError?: (rejectedFiles: File[]) => void;
+  acceptedFileTypes?: string[];
+  allowedExtensions?: string[];
+  maxFileSize?: number;
 }
 
 interface IReturnFileUploader {
   inputProps: {
     ref: React.RefObject<HTMLInputElement>;
     type: "file";
-    multiple?: boolean;
     accept?: string;
     className?: string;
     onChange: React.ChangeEventHandler<HTMLInputElement>;
@@ -23,7 +25,8 @@ interface IReturnFileUploader {
   };
 }
 
-const ACCEPTED_TYPES = [
+// Default accepted file types
+const DEFAULT_ACCEPTED_TYPES = [
   "image/*", // image
   "text/*", // .txt
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
@@ -44,13 +47,28 @@ const ACCEPTED_TYPES = [
   "application/zip", // .zip
 ];
 
-const ALLOWED_EXTENSIONS = [".msg"];
+// Default allowed extensions
+const DEFAULT_ALLOWED_EXTENSIONS = [
+  ".msg",
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".pdf",
+  ".xlsx",
+  ".docx",
+  ".txt",
+  ".zip",
+];
 
 export function useFileUploader(
   props: IPropsFileUploader
 ): IReturnFileUploader {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+
+  const acceptedTypes = props.acceptedFileTypes || DEFAULT_ACCEPTED_TYPES;
+  const allowedExtensions =
+    props.allowedExtensions || DEFAULT_ALLOWED_EXTENSIONS;
 
   const validateFiles = (
     files: File[]
@@ -59,12 +77,34 @@ export function useFileUploader(
     const rejectedFiles: File[] = [];
 
     files.forEach((file) => {
+      // Check file size if maxFileSize is specified
+      if (props.maxFileSize && file.size > props.maxFileSize) {
+        rejectedFiles.push(file);
+        return;
+      }
+
       const extension = file.name.split(".").pop();
-      if (extension && ALLOWED_EXTENSIONS.includes(`.${extension}`)) {
+      if (
+        extension &&
+        allowedExtensions.some(
+          (ext) =>
+            ext.toLowerCase() === `.${extension.toLowerCase()}` ||
+            ext.toLowerCase() === extension.toLowerCase()
+        )
+      ) {
         validFiles.push(file);
         return;
       }
-      if (ACCEPTED_TYPES.some((type) => file.type.match(type))) {
+
+      if (
+        acceptedTypes.some((type) => {
+          if (type.endsWith("/*")) {
+            const mainType = type.split("/")[0];
+            return file.type.startsWith(`${mainType}/`);
+          }
+          return file.type === type;
+        })
+      ) {
         validFiles.push(file);
       } else {
         rejectedFiles.push(file);
@@ -106,9 +146,8 @@ export function useFileUploader(
     inputProps: {
       ref: inputRef,
       type: "file",
-      multiple: true,
       className: "hidden",
-      accept: ACCEPTED_TYPES.join(","),
+      accept: acceptedTypes.join(","),
       onChange: (e) => {
         if (e.target.files) {
           const selectedFiles = Array.from(e.target.files);
