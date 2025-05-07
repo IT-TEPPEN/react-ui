@@ -14,6 +14,9 @@ jobs:
     permissions:
       contents: write
       pages: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     if: |
       github.event_name == 'workflow_dispatch' ||
       (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release'))
