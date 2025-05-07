@@ -1,6 +1,6 @@
 {
   "name": "@teppen/react-ui",
-  "version": "1.8.13",
+  "version": "1.8.14",
   "description": "React UI Component",
   "main": "dist/cjs/src/index.js",
   "module": "dist/esm/src/index.js",
