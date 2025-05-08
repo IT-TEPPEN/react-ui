@@ -54,13 +54,11 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
 
   const targets = useMemo(() => {
     return props.cols
+      .filter((col) => !col.disableFilter)
       .filter(
         (col) =>
           !!col.label &&
-          (col.type === "datetime" ||
-            col.type === "date" ||
-            col.editable ||
-            (!col.editable && !col.render))
+          (col.type === "datetime" || col.type === "date" || col.editable)
       )
       .map((col) => {
         switch (col.type) {
@@ -144,8 +142,7 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
                   col.disableSort ||
                   (col.type !== "datetime" &&
                     col.type !== "date" &&
-                    !col.editable &&
-                    !!col.render)
+                    !col.editable)
                 }
                 generateSortButton={props.generateSortButton}
               />
