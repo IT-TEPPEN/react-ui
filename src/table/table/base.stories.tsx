@@ -19,7 +19,15 @@ const meta = {
 >;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<
+  typeof Table<{
+    id: number;
+    name: string;
+    age: number;
+    role: string;
+    button: number | string;
+  }>
+>;
 
 export const Default: Story = {
   args: {

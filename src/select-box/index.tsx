@@ -10,7 +10,7 @@ export { type Options } from "./options-window";
 
 interface IPropsSelectBox {
   id: string;
-  inputRef?: React.RefObject<HTMLInputElement>;
+  inputRef?: React.Ref<HTMLInputElement>;
   defaultIsOpen?: boolean;
   options: Options[];
   value?: string;

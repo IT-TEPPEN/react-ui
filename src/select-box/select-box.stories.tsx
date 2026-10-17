@@ -26,7 +26,7 @@ const meta = {
 } as Meta<typeof TestSelectBox>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof TestSelectBox>;
 
 export const Default: Story = {
   args: {

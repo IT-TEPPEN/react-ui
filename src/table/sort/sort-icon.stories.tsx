@@ -11,7 +11,7 @@ const meta = {
 } as Meta<typeof SortIcon>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof SortIcon>;
 
 export const Default: Story = {
   args: {

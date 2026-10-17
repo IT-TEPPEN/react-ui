@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext } from "react";
 import { SortButton } from "../../sort";
 
 const GenerateSortButtonContext = createContext<
-  (columnKey: string) => JSX.Element
+  (columnKey: string) => React.JSX.Element
 >(() => <></>);
 
 export function ComponentProvider(props: { children: React.ReactNode }) {

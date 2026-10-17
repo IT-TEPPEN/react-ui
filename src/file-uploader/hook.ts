@@ -1,5 +1,11 @@
 import { useRef, useState } from "react";
 
+// Type returned by useRef<T>(null).
+// React 18: RefObject<T> (current: T | null) / React 19: RefObject<T | null>
+type NullableRefObject<T> = null extends React.RefObject<T>["current"]
+  ? React.RefObject<T>
+  : React.RefObject<T | null>;
+
 interface IPropsFileUploader {
   addFiles: (files: File[]) => void;
   onValidationError?: (rejectedFiles: File[]) => void;
@@ -10,7 +16,7 @@ interface IPropsFileUploader {
 
 interface IReturnFileUploader {
   inputProps: {
-    ref: React.RefObject<HTMLInputElement>;
+    ref: NullableRefObject<HTMLInputElement>;
     type: "file";
     accept?: string;
     className?: string;

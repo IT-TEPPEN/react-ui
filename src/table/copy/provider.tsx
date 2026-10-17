@@ -16,7 +16,7 @@ export function CopyProvider({
   rows,
   cols,
 }: {
-  children: JSX.Element | JSX.Element[];
+  children: React.JSX.Element | React.JSX.Element[];
   rows: any[];
   cols: any[];
 }) {

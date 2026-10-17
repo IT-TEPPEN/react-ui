@@ -11,7 +11,7 @@ const meta = {
 } as Meta<typeof TableTestComponent>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof TableTestComponent>;
 
 export const Default: Story = {
   args: {},

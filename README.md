@@ -18,8 +18,8 @@ npm i @teppen/react-ui
 
 This library has the following peer dependencies:
 
-- react
-- react-dom
+- react (18.2 or later, 19 supported)
+- react-dom (18.2 or later, 19 supported)
 
 ### Tailwind CSS Installation and Setup
 

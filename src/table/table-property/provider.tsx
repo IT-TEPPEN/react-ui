@@ -13,7 +13,7 @@ const TablePropertyActionContext = createContext<TTablePropertyActionContext>({
 });
 
 export function TablePropertyProvider(props: {
-  children: JSX.Element | JSX.Element[];
+  children: React.JSX.Element | React.JSX.Element[];
 }) {
   const { state, setMaxDisplayColCount, setMaxDisplayRowCount } =
     useTablePropertyReducer();

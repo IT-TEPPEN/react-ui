@@ -18,7 +18,7 @@ export function CheckboxStatusProvider({
   children,
   checkboxCount,
 }: {
-  children: JSX.Element;
+  children: React.JSX.Element;
   checkboxCount: number;
 }) {
   return (
