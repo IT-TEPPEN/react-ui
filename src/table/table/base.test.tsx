@@ -5,7 +5,7 @@ afterEach(cleanup);
 
 describe("SmartRating", () => {
   test("renders the Rating component", () => {
-    const { getByTestId, getByRole } = render(
+    const { getByTestId, getByText } = render(
       <Table
         rows={[
           { id: "1", name: "a" },
@@ -24,7 +24,8 @@ describe("SmartRating", () => {
     expect(item2).toBeDefined();
     expect(() => within(getByTestId("1")).getByText("b")).toThrow();
 
-    const header2 = getByRole("columnheader", { name: /名前/ });
+    // The visible header is rendered by TableHeader (div-based), not <th>.
+    const header2 = getByText("名前");
     expect(header2).toBeDefined();
   });
 });
