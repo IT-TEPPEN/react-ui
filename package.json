@@ -15,6 +15,10 @@
   },
   "author": "Yasufumi Kamiyama <yk.iteppen@gmail.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IT-TEPPEN/react-ui.git"
+  },
   "devDependencies": {
     "@babel/core": "^7.23.9",
     "@babel/preset-env": "^7.23.9",
