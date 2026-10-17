@@ -127,7 +127,7 @@ export function TestRange(props: { isCopied?: boolean }) {
 export function RangeProvider({
   children,
 }: {
-  children: JSX.Element | JSX.Element[];
+  children: React.JSX.Element | React.JSX.Element[];
 }) {
   const { state, actions } = useRangeReducer();
 

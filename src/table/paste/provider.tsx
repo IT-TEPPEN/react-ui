@@ -16,7 +16,7 @@ export function PasteProvider({
   cols,
   onUpdateRowFunction = () => {},
 }: {
-  children: JSX.Element | JSX.Element[];
+  children: React.JSX.Element | React.JSX.Element[];
   rows: any[];
   cols: any[];
   onUpdateRowFunction?: (newRow: any, oldRow: any) => void;

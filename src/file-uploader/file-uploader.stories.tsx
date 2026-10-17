@@ -43,7 +43,7 @@ const meta = {
 } as Meta<typeof FileUploader>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof FileUploader>;
 
 export const Default: Story = {
   args: {

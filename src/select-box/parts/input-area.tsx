@@ -7,7 +7,7 @@ import { Options, useOptionsWindow } from "../options-window";
 
 interface IPropsInputArea {
   id: string;
-  inputRef?: React.RefObject<HTMLInputElement>;
+  inputRef?: React.Ref<HTMLInputElement>;
   open: () => void;
   close: () => void;
   options: Options[];

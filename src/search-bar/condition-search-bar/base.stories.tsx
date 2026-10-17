@@ -11,7 +11,7 @@ const meta = {
 } as Meta<typeof ConditionSearchBar>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof ConditionSearchBar>;
 
 export const Default: Story = {
   args: {
