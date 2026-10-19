@@ -12,14 +12,14 @@ export function Pagenation() {
   return (
     <div className="flex justify-center gap-2">
       <button
-        className="text-sm"
+        className="text-sm cursor-pointer disabled:cursor-default"
         onClick={() => jump(1)}
         disabled={current === 1}
       >
         &#x226A;
       </button>
       <button
-        className="text-sm"
+        className="text-sm cursor-pointer disabled:cursor-default"
         onClick={() => prev()}
         disabled={current === 1}
       >
@@ -30,21 +30,21 @@ export function Pagenation() {
         .map((i) => (
           <button
             key={i}
-            className={`text-sm ${current === i ? "text-blue-600" : ""}`}
+            className={`text-sm cursor-pointer disabled:cursor-default ${current === i ? "text-blue-600" : ""}`}
             onClick={() => jump(i)}
           >
             {i}
           </button>
         ))}
       <button
-        className="text-sm"
+        className="text-sm cursor-pointer disabled:cursor-default"
         onClick={() => next()}
         disabled={current === pageCount}
       >
         &gt;
       </button>
       <button
-        className="text-sm"
+        className="text-sm cursor-pointer disabled:cursor-default"
         onClick={() => jump(pageCount)}
         disabled={current === pageCount}
       >

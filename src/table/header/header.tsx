@@ -13,6 +13,7 @@ export const TableHeaderElement = memo(function THE(props: TPropsTableHeader) {
 
   return (
     <th
+      className="p-px"
       style={{ width: colWidth, maxWidth: colWidth, minWidth: colWidth }}
     ></th>
   );

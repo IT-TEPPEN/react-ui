@@ -23,7 +23,7 @@ export const Row = memo(function R<T extends DataRecord>(props: TPropsRow<T>) {
 
   return (
     <tr
-      className={`relative border border-gray-200 after:absolute after:w-full after:h-full after:top-0 after:left-0 after:pointer-events-none after:hover:bg-gray-500/10 ${
+      className={`relative border border-gray-200 after:absolute after:w-full after:h-full after:top-0 after:left-0 after:pointer-events-none hover:after:bg-gray-500/10 ${
         !!props.onClickRow ? "hover:cursor-pointer" : ""
       } ${props.applyRowFormatting ? props.applyRowFormatting(row) : ""}`}
       onClick={(e) => {
@@ -38,7 +38,7 @@ export const Row = memo(function R<T extends DataRecord>(props: TPropsRow<T>) {
     >
       {props.existCheckbox && (
         <td
-          className="w-8 h-full"
+          className="w-8 h-full p-px"
           onClick={(e) => {
             e.stopPropagation();
           }}

@@ -9,7 +9,7 @@ const EditButton = memo(function EB() {
 
   return (
     <button
-      className="w-fit h-fit p-1 rounded-full text-gray-500 hover:bg-gray-200"
+      className="w-fit h-fit p-1 rounded-full cursor-pointer text-gray-500 hover:bg-gray-200"
       onClick={(e) => {
         e.preventDefault();
         startEditing();

@@ -167,7 +167,7 @@ function InputSingleString(props: {
   return (
     <input
       id={generateId("ValueInput")}
-      className={`appearance-none w-full min-w-64 border-none px-2 py-1 focus:outline-none focus-visible:outline-none bg-transparent ${
+      className={`appearance-none w-full min-w-64 border-none px-2 py-1 placeholder:text-gray-400 focus:outline-none focus-visible:outline-none bg-transparent ${
         props.size === "small"
           ? "text-sm"
           : props.size === "large"
@@ -207,7 +207,7 @@ function InputSingleNumber(props: {
   return (
     <input
       id={generateId("ValueInput")}
-      className={`appearance-none w-full min-w-64 border-none px-2 py-1 focus:outline-none focus-visible:outline-none bg-transparent ${
+      className={`appearance-none w-full min-w-64 border-none px-2 py-1 placeholder:text-gray-400 focus:outline-none focus-visible:outline-none bg-transparent ${
         props.size === "small"
           ? "text-sm"
           : props.size === "large"
@@ -393,7 +393,7 @@ function InputSingleDate(props: {
 
 function FixedValue(props: { label: string; onClickDelete?: () => void }) {
   return (
-    <div className="flex items-center gap-2 w-fit px-2 border rounded bg-slate-100">
+    <div className="flex items-center gap-2 w-fit px-2 border border-gray-200 rounded bg-slate-100">
       <p className="whitespace-nowrap">{props.label}</p>
       {props.onClickDelete && (
         <div>

@@ -48,6 +48,7 @@ export function CellInput(props: {
         }}
       />
       <button
+        className="cursor-pointer"
         onMouseDown={(e) => {
           e.preventDefault();
           e.stopPropagation();
