@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useReducer } from "react";
 import { useRangeStateContext } from "../range/provider";
 import { TCopyReducer, TReturnCopyReducer } from "./types";
+import { formatDateForCopy, formatDatetimeForCopy } from "./format";
 
 const reducer: TCopyReducer = (state, action) => {
   switch (action.type) {
@@ -75,10 +76,10 @@ export function useCopyReducer(initial: {
               }
               continue;
             } else if (col.type === "date") {
-              copiedRow.push(row[col.key].toISOString().split("T")[0]);
+              copiedRow.push(formatDateForCopy(row[col.key]));
               continue;
             } else if (col.type === "datetime") {
-              copiedRow.push(row[col.key].toISOString());
+              copiedRow.push(formatDatetimeForCopy(row[col.key]));
               continue;
             }
 
