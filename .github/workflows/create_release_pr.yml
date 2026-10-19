@@ -45,9 +45,7 @@ jobs:
         uses: actions/create-github-app-token@v3
         id: generate-token
         with:
-          # GitHub App Client ID. Falls back to the App ID until
-          # RELEASE_APP_CLIENT_ID is registered (the action accepts either).
-          client-id: ${{ secrets.RELEASE_APP_CLIENT_ID || secrets.RELEASE_APP_ID }}
+          client-id: ${{ secrets.RELEASE_APP_CLIENT_ID }}
           private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
 
       - name: Create Pull Request
