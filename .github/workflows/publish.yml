@@ -1,4 +1,4 @@
-name: release
+name: publish
 
 on:
   pull_request:
@@ -7,6 +7,12 @@ on:
     branches:
       - main
   workflow_dispatch:
+
+permissions:
+  # Trusted Publishing (OIDC) for npm
+  id-token: write
+  # push the version tag and create the GitHub Release
+  contents: write
 
 jobs:
   release:
@@ -18,15 +24,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Trusted Publishing needs Node >= 22.14 and npm >= 11.5.1 (updated below)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
           registry-url: "https://registry.npmjs.org"
           scope: "@teppen"
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build Pacakge
         run: npm run rollup
@@ -37,11 +44,13 @@ jobs:
           echo "NEW_VERSION=v${NEW_VERSION}" >> $GITHUB_ENV
           echo "RELEASE_TAG=v${NEW_VERSION}" >> $GITHUB_ENV
 
+      # Updated only for publishing, so dependency install keeps the bundled npm.
+      - name: Update npm
+        run: npm install -g npm@11
+
+      # No token: npm authenticates this workflow via Trusted Publishing.
       - name: Publish Package
-        run: |
-          npm publish --access=public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access=public
 
       - name: push new version tag
         run: |

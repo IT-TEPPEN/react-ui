@@ -1,11 +1,13 @@
-name: release
+name: publish_catalog
 
+# Run after the npm publish succeeds. workflow_run runs on the default branch,
+# which the github-pages environment allows (a pull_request event does not).
 on:
-  pull_request:
+  workflow_run:
+    workflows:
+      - publish
     types:
-      - closed
-    branches:
-      - main
+      - completed
   workflow_dispatch:
 
 permissions:
@@ -21,7 +23,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     if: |
       github.event_name == 'workflow_dispatch' ||
-      (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release'))
+      github.event.workflow_run.conclusion == 'success'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
