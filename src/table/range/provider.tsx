@@ -99,7 +99,7 @@ export function TestRange(props: { isCopied?: boolean }) {
   return (
     <>
       <div
-        className={`absolute border border-gray-500 bg-gray-500 bg-opacity-10 ${
+        className={`absolute border border-gray-500 bg-gray-500/10 ${
           props.isCopied ? "border-dashed" : "border-solid"
         }`}
         style={{

@@ -21,7 +21,7 @@ export function TableCell(props: {
   return (
     <td
       id={props.id}
-      className={`table-col-${colIndex} ${props.cellFormatClassName}`}
+      className={`table-col-${colIndex} p-px ${props.cellFormatClassName}`}
       onDoubleClick={!props.isExistOnClickRow ? onDoubleClick : undefined}
       onMouseDown={onMouseDown}
       onMouseEnter={onMouseEnter}

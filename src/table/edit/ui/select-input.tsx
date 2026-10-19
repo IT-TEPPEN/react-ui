@@ -90,6 +90,7 @@ export function SelectCellInput(props: TPropsCellInput) {
         }}
       />
       <button
+        className="cursor-pointer"
         onMouseDown={(e) => {
           e.preventDefault();
           e.stopPropagation();

@@ -27,7 +27,20 @@ Please follow the installation procedure described in the following tailwindcss 
 
 - URL: https://tailwindcss.com/docs/installation/framework-guides
 
-To use the React-UI library, add a `content` in `tailwind.config.js` to `"./node_modules/@teppen/react-ui/dist/**/*.js"`.
+This library works with both Tailwind CSS v4 and v3. Tell Tailwind to scan the library's files so that the classes it uses are generated.
+
+#### Tailwind CSS v4
+
+Add an `@source` for the library to the CSS file that imports Tailwind CSS. The path is relative to that CSS file.
+
+```css
+@import "tailwindcss";
+@source "../node_modules/@teppen/react-ui/dist";
+```
+
+#### Tailwind CSS v3
+
+Add `"./node_modules/@teppen/react-ui/dist/**/*.js"` to `content` in `tailwind.config.js`.
 
 ```js
 /** @type {import('tailwindcss').Config} */
