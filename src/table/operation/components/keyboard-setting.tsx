@@ -6,6 +6,7 @@ import { useColumnsContext } from "../../sheet/providers";
 import { useRangeContext } from "../../range/provider";
 import { useCopyActionContext } from "../../copy/provider";
 import { useTableIdGenerator } from "../../id";
+import { isComposingKey, isTextEntryTarget } from "../event-target";
 
 const setInitialValueToInputForm = (key: string, id: string) => {
   const inputElement = document.getElementById(id);
@@ -33,12 +34,16 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
 
   useEffect(() => {
     const listener = (e: KeyboardEvent) => {
+      if (isComposingKey(e)) {
+        return;
+      }
+
       if (edit.isEditing) {
         if (e.key === "Escape") {
           e.preventDefault();
           edit.endEditing();
         }
-      } else if (range.isSelecting) {
+      } else if (range.isSelecting && !isTextEntryTarget(e.target)) {
         if (e.key === "Enter") {
           e.preventDefault();
           range.moveDown();
@@ -96,10 +101,15 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
         } else if (e.key === "F2") {
           e.preventDefault();
           edit.startEditing();
-        } else if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "c") {
           e.preventDefault();
           copy({ enableDeprecatedCopy: options?.enableDeprecatedCopy });
-        } else if (!e.altKey && !e.ctrlKey && /^[a-zA-Z0-9]$/.test(e.key)) {
+        } else if (
+          !e.altKey &&
+          !e.ctrlKey &&
+          !e.metaKey &&
+          /^[a-zA-Z0-9]$/.test(e.key)
+        ) {
           e.preventDefault();
           e.stopPropagation();
           edit.startEditing();
