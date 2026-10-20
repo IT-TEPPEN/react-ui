@@ -1,18 +1,28 @@
 "use client";
 
-import { DEFAULT_COL_WIDTH, DEFAULT_MIN_COL_WIDTH } from "../../constant";
+import { useMemo } from "react";
 import { DataRecord, TTableColumn } from "../../table/type";
-import { ColumnsWidthActionContext, ColumnsWidthStateContext } from "./context";
+import {
+  ColumnsWidthActionContext,
+  ColumnsWidthStateContext,
+  useColumnsWidthState,
+} from "./context";
 import { useColumnsWidthReducer } from "./reducer";
-import { TColumnsWidthHook } from "./type";
 
 export function ColumnsWidthProvider(props: {
   children: React.ReactNode;
-  initialState: TTableColumn<DataRecord>[];
+  cols: TTableColumn<DataRecord>[];
 }) {
-  const { state, action } = useColumnsWidthReducer(
-    convertToColumnsWidthState(props.initialState)
+  const cols = useMemo(
+    () =>
+      props.cols.map((col) => ({
+        key: col.key.toString(),
+        initialWidth: col.initialWidth,
+        minWidth: col.minWidth,
+      })),
+    [props.cols]
   );
+  const { state, action } = useColumnsWidthReducer(cols);
 
   return (
     <ColumnsWidthStateContext.Provider value={state}>
@@ -23,16 +33,27 @@ export function ColumnsWidthProvider(props: {
   );
 }
 
-const convertToColumnsWidthState = (
-  cols: TTableColumn<DataRecord>[]
-): Parameters<TColumnsWidthHook>[0] => {
-  return cols.reduce((acc, col, i) => {
-    acc[col.key] = {
-      colWidth: col.initialWidth || DEFAULT_COL_WIDTH,
-      minWidth: col.minWidth || DEFAULT_MIN_COL_WIDTH,
-      index: i,
-    };
+// Escapes a value for use inside a double-quoted CSS attribute selector.
+function escapeCssString(value: string) {
+  return value.replace(/["\\]/g, "\\$&").replace(/\n/g, "\\a ");
+}
 
-    return acc;
-  }, {} as any);
-};
+/**
+ * Applies the column widths to the body cells (`.table-col-N`) of one table.
+ * The rules are scoped to the element with `scopeId`, so several tables on
+ * the same page do not affect each other, and cells rendered later (e.g.
+ * after changing pages) get their width automatically.
+ */
+export function ColumnsWidthStyle(props: { scopeId: string }) {
+  const { columns } = useColumnsWidthState();
+  const scope = `[id="${escapeCssString(props.scopeId)}"]`;
+
+  const css = columns
+    .map(
+      ({ index, colWidth }) =>
+        `${scope} .table-col-${index}{width:${colWidth}px;min-width:${colWidth}px;max-width:${colWidth}px;}`
+    )
+    .join("\n");
+
+  return <style>{css}</style>;
+}

@@ -1,5 +1,6 @@
 export {
   ColumnsWidthProvider,
+  ColumnsWidthStyle,
   useColumnsWidth,
   useColumnsWidthAction,
   useColumnsWidthState,

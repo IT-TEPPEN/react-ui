@@ -25,7 +25,11 @@ import { CopyProvider } from "../copy/provider";
 import { CopiedMessage } from "../copy/components";
 import { TableIdGeneratorProvider, useTableIdGenerator } from "../id";
 import { TableHeader } from "../header/header-v2";
-import { ColumnsWidthProvider, ScrollXPositionProvider } from "../header";
+import {
+  ColumnsWidthProvider,
+  ColumnsWidthStyle,
+  ScrollXPositionProvider,
+} from "../header";
 import { Frame } from "../frame";
 import { ComponentProvider } from "./component-provider";
 import { useGenerateSortButton } from "./component-provider/provider";
@@ -35,9 +39,7 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   return (
     <ComponentProvider>
       <TableIdGeneratorProvider id={props.id}>
-        <ColumnsWidthProvider
-          initialState={props.cols as TTableColumn<DataRecord>[]}
-        >
+        <ColumnsWidthProvider cols={props.cols as TTableColumn<DataRecord>[]}>
           <FilterProvider initialConditions={[]}>
             <SortProvider initialCondition={props.initialCondition?.sort}>
               <PagenationProvider
@@ -102,6 +104,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
           generateSortButton={generateSortButton}
         />
 
+        <ColumnsWidthStyle scopeId={IdGenerator.getTableId()} />
         <SelectBoxProvider>
           <Frame
             id={IdGenerator.getTableId()}
