@@ -19,9 +19,16 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { setMaxDisplayColCount, setMaxDisplayRowCount } =
     useTablePropertyActionContext();
 
+  // Re-run filter/sort only when the set of rows changes (rows added, removed
+  // or replaced). Edits that keep the same ids keep the current order.
+  const rowIdsKey = useMemo(
+    () => JSON.stringify(props.rows.map((row) => row.id)),
+    [props.rows]
+  );
+
   const filteredRows = useMemo(
     () => filter(props.rows),
-    [filter, sortTiming, props.rows.length]
+    [filter, sortTiming, rowIdsKey]
   );
 
   useEffect(() => {

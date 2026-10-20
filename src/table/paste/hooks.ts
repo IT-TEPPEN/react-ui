@@ -3,6 +3,7 @@ import { TPasteReducer, TPasteReducerReturn } from "./types";
 import { useColumnValidatesContext } from "../sheet/providers";
 import { useRangeActionContext, useRangeStateContext } from "../range/provider";
 import { paste } from "./logic";
+import { parseClipboardText } from "./parse";
 
 const reducer: TPasteReducer = (state, action) => {
   switch (action.type) {
@@ -163,14 +164,7 @@ export function usePasteReducer(initial: {
         e.preventDefault();
         const pastedData = e.clipboardData.getData("Text");
 
-        onPaste(
-          pastedData
-            .replace(/\t/g, ",")
-            .trim()
-            .replace(/\r\n/g, "\n")
-            .split("\n")
-            .map((row) => row.split(","))
-        );
+        onPaste(parseClipboardText(pastedData));
       }
     };
 
