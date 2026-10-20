@@ -39,14 +39,14 @@ export function Pagenation() {
       <button
         className="text-sm cursor-pointer disabled:cursor-default"
         onClick={() => next()}
-        disabled={current === pageCount}
+        disabled={current >= pageCount}
       >
         &gt;
       </button>
       <button
         className="text-sm cursor-pointer disabled:cursor-default"
         onClick={() => jump(pageCount)}
-        disabled={current === pageCount}
+        disabled={current >= pageCount}
       >
         &#x226B;
       </button>
@@ -63,7 +63,8 @@ export function DisplayRange() {
 
   return (
     <p className="text-center text-sm text-gray-600">
-      {from + 1} - {to < rowCount ? to : rowCount} of {rowCount}
+      {rowCount === 0 ? 0 : from + 1} - {to < rowCount ? to : rowCount} of{" "}
+      {rowCount}
     </p>
   );
 }
