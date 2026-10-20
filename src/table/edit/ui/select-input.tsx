@@ -22,6 +22,7 @@ export function SelectCellInput(props: TPropsCellInput) {
   const col = props.col;
   const { endEditing } = useEditActionContext();
   const prevValue = props.row[col.key] as string;
+  const allowEmpty = col.editable ? col.allowEmpty : false;
   const [value, setValue] = useState(prevValue);
   const ref = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -37,8 +38,6 @@ export function SelectCellInput(props: TPropsCellInput) {
       col.onCellBlur(col.key, value, props.row, endEditing);
     }
   };
-
-  if (!col.editable) return <></>;
 
   useEffect(() => {
     const onClickOutOfSelectBox = (e: MouseEvent) => {
@@ -63,7 +62,7 @@ export function SelectCellInput(props: TPropsCellInput) {
   }, [value, updateCellValue, endEditing, prevValue]);
 
   const options = useMemo(() => {
-    if (col.allowEmpty) {
+    if (allowEmpty) {
       return [
         {
           value: "",
@@ -74,7 +73,11 @@ export function SelectCellInput(props: TPropsCellInput) {
     } else {
       return col.options;
     }
-  }, [col.options, col.allowEmpty, prevValue]);
+  }, [col.options, allowEmpty, prevValue]);
+
+  // Return only after every hook has run, so hooks are always called in the
+  // same order.
+  if (!col.editable) return <></>;
 
   return (
     <div ref={ref} className="flex justify-between gap-1 w-full items-center">
