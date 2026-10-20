@@ -39,7 +39,7 @@ export function useResizeColWidthHook(keyName: string) {
         document.addEventListener("mousemove", onMouseMove);
         document.addEventListener("mouseup", onMouseUp);
       },
-      [isDragging, minWidth]
+      [isDragging, minWidth, colWidth, keyName, setColWidth]
     );
 
   return {

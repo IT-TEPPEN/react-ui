@@ -4,6 +4,7 @@ import { useColumnValidatesContext } from "../sheet/providers";
 import { useRangeActionContext, useRangeStateContext } from "../range/provider";
 import { paste } from "./logic";
 import { parseClipboardText } from "./parse";
+import { isTextEntryTarget } from "../operation/event-target";
 
 const reducer: TPasteReducer = (state, action) => {
   switch (action.type) {
@@ -157,6 +158,11 @@ export function usePasteReducer(initial: {
   useEffect(() => {
     const paste = (e: ClipboardEvent) => {
       if (!range.isSelecting) {
+        return;
+      }
+
+      // Leave pastes into text fields (including the cell editor) to them.
+      if (isTextEntryTarget(e.target)) {
         return;
       }
 

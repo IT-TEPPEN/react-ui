@@ -3,4 +3,4 @@ export {
   useColumnsWidthAction,
   useColumnsWidthState,
 } from "./context";
-export { ColumnsWidthProvider } from "./provider";
+export { ColumnsWidthProvider, ColumnsWidthStyle } from "./provider";
