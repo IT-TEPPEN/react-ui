@@ -61,6 +61,7 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
                                 rows={props.rows}
                                 cols={props.cols}
                                 onUpdateRowFunction={props.onUpdateRow}
+                                onPasteError={props.onPasteError}
                               >
                                 <KeyboardSetting
                                   enableDeprecatedCopy={

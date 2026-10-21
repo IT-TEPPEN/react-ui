@@ -1,34 +1,20 @@
 import { createContext, useContext } from "react";
-import { TPasteReducerReturn } from "./types";
+import { TPasteHookArguments, TPasteReducerReturn } from "./types";
 import { usePasteReducer } from "./hooks";
 
 const PasteContext = createContext<TPasteReducerReturn>({
   setRows: () => {},
-  setCols: () => {},
-  setColValidators: () => {},
-  setOnUpdateRowFunction: () => {},
   onPaste: () => {},
 });
 
 export function PasteProvider({
   children,
-  rows,
-  cols,
-  onUpdateRowFunction = () => {},
-}: {
+  ...args
+}: TPasteHookArguments & {
   children: React.JSX.Element | React.JSX.Element[];
-  rows: any[];
-  cols: any[];
-  onUpdateRowFunction?: (newRow: any, oldRow: any) => void;
 }) {
   return (
-    <PasteContext.Provider
-      value={usePasteReducer({
-        rows,
-        cols,
-        onUpdateRowFunction,
-      })}
-    >
+    <PasteContext.Provider value={usePasteReducer(args)}>
       {children}
     </PasteContext.Provider>
   );

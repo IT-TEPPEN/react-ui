@@ -219,7 +219,7 @@ A component that displays a table based on the row and column information passed
 
 #### Arguments
 
-The table component only accepts the arguments `rows`, `cols`, `initialCondition`, `onClickRow`, `onUpdateRow`, `applyRowFormatting`, `conditionalFormattings`. Details for each argument are described below.
+The table component only accepts the arguments `rows`, `cols`, `initialCondition`, `onClickRow`, `onUpdateRow`, `onPasteError`, `applyRowFormatting`, `conditionalFormattings`. Details for each argument are described below.
 
 ##### rows
 
@@ -300,6 +300,18 @@ For multi-line data, this function is executed one line at a time.
 
 ```ts
 type TOnUpdateRow = (newRow: DataObject, oldRow: DataObject) => void;
+```
+
+##### onPasteError
+
+In `onPasteError`, you can handle pasted data that cannot be applied, for example when it does not fit in the table or targets a column that is not editable. This is optional; if it is not set, the message is shown with `window.alert`.
+Invalid values are reported to `errorHandler` instead.
+
+```ts
+type TOnPasteError = (error: {
+  type: "NOT_ENOUGH_ROWS" | "NOT_ENOUGH_COLUMNS" | "NOT_EDITABLE_COLUMN";
+  message: string;
+}) => void;
 ```
 
 ##### applyRowFormatting
