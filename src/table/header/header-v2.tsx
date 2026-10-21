@@ -8,6 +8,21 @@ import { useTableIdGenerator } from "../id";
 import { useFilter } from "../filter-v2";
 import { TConditionChangeAction } from "../../search-bar/condition-search-bar/condition-input-management/type";
 
+/**
+ * Whether the column shows its value as is, so it can be sorted and
+ * filtered. Read-only columns that render their own component are excluded,
+ * because what the user sees may not match the underlying value.
+ */
+export function hasComparableValue<T extends DataRecord>(
+  col: TTableColumn<T>
+): boolean {
+  if (col.type === "date" || col.type === "datetime" || col.editable) {
+    return true;
+  }
+
+  return !col.render;
+}
+
 interface IPropsTableHeader<T extends DataRecord> {
   cols: TTableColumn<T>[];
   checkbox?: boolean;
@@ -55,11 +70,7 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
   const targets = useMemo(() => {
     return props.cols
       .filter((col) => !col.disableFilter)
-      .filter(
-        (col) =>
-          !!col.label &&
-          (col.type === "datetime" || col.type === "date" || col.editable)
-      )
+      .filter((col) => !!col.label && hasComparableValue(col))
       .map((col) => {
         switch (col.type) {
           case "string":
@@ -138,12 +149,7 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
                 keyName={col.key.toString()}
                 label={col.label}
                 colWidth={getColumnWidth(col.key as string)}
-                disableSort={
-                  col.disableSort ||
-                  (col.type !== "datetime" &&
-                    col.type !== "date" &&
-                    !col.editable)
-                }
+                disableSort={col.disableSort || !hasComparableValue(col)}
                 generateSortButton={props.generateSortButton}
               />
             );
