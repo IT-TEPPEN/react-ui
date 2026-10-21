@@ -44,7 +44,7 @@ function pagenationReducer(state: TPageState, action: TPageAction): TPageState {
         return state;
       }
 
-      if (state.currentPage === Math.ceil(state.rowCount / state.perPage)) {
+      if (state.currentPage >= Math.ceil(state.rowCount / state.perPage)) {
         return state;
       }
 

@@ -127,7 +127,10 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
               <tbody>
                 {pageRowIds.length === 0 && (
                   <tr>
-                    <td colSpan={cols.length} className="px-px py-5">
+                    <td
+                      colSpan={cols.length + (props.checkbox ? 1 : 0)}
+                      className="px-px py-5"
+                    >
                       <p className="text-center font-bold text-lg">NO DATA</p>
                     </td>
                   </tr>
