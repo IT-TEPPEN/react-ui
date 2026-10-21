@@ -140,7 +140,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
                     key={rowId}
                     existCheckbox={!!props.checkbox}
                     rowIndex={i}
-                    dataString={rowMaps[rowId].stringValue}
+                    row={rowMaps[rowId].data}
                     cols={props.cols as TTableColumn<DataRecord>[]}
                     onClickRow={props.onClickRow}
                     applyRowFormatting={props.applyRowFormatting}

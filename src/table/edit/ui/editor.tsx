@@ -13,11 +13,9 @@ type TPropsEditor = {
   rowMaps: {
     [id: string]: {
       data: DataObject<DataRecord>;
-      stringValue: string;
     };
     [id: number]: {
       data: DataObject<DataRecord>;
-      stringValue: string;
     };
   };
 };

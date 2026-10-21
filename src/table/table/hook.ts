@@ -67,24 +67,16 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
   const pageRowIds = useMemo(() => pageRows.map((row) => row.id), [pageRows]);
   const pageRowIdSets = useMemo(() => new Set(pageRowIds), [pageRowIds]);
 
+  // Rows on the current page by id. `data` is the row object passed in
+  // through props, so callbacks receive it unchanged (Date values stay Date).
   const rowMaps = useMemo(
     () =>
       props.rows
         .filter((row) => pageRowIdSets.has(row.id))
         .reduce((acc, row) => {
-          const rowSortedByKey = Object.keys(row)
-            .sort()
-            .reduce((acc, key) => {
-              acc[key] = row[key];
-              return acc;
-            }, {} as { [key: string]: string | number | Date });
-
-          acc[row.id] = {
-            data: rowSortedByKey,
-            stringValue: JSON.stringify(rowSortedByKey),
-          };
+          acc[row.id] = { data: row };
           return acc;
-        }, {} as { [id: string | number]: { data: DataObject<any>; stringValue: string } }),
+        }, {} as { [id: string | number]: { data: DataObject<any> } }),
     [props.rows, pageRowIdSets]
   );
 
