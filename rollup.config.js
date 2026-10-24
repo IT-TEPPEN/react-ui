@@ -33,6 +33,22 @@ const useClientBanner = (chunk) => {
   return /^["']use client["']/.test(source) ? '"use client";' : "";
 };
 
+// Marks dist/esm as ES modules for Node. The package root has no "type", so
+// without this Node treats the .js files there as CommonJS, warns, and
+// re-parses them. dist/cjs is unaffected.
+const esmPackageJson = () => ({
+  name: "esm-package-json",
+  generateBundle(options) {
+    if (options.format !== "es") return;
+
+    this.emitFile({
+      type: "asset",
+      fileName: "package.json",
+      source: JSON.stringify({ type: "module" }, null, 2) + "\n",
+    });
+  },
+});
+
 // Rollup strips module-level directives and warns about it; the banner above
 // adds "use client" back, so the warning is expected.
 const onwarn = (warning, warn) => {
@@ -71,6 +87,7 @@ export default [
       }),
       // Keep the "use client" directive added by the banner.
       terser({ compress: { directives: false } }),
+      esmPackageJson(),
     ],
     external: ["react", "react-dom"],
     onwarn,
