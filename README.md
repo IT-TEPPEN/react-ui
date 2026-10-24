@@ -7,6 +7,7 @@ This is a React component library that provides some useful UI elements for your
 This library includes the following components:
 
 - Table: A simple Table. (1.0.0 ～) (※ Not compatible with 0.\*.\*)
+- FileUploader: A drop area and file picker with file type and size checks.
 
 ## Installation
 
@@ -219,7 +220,13 @@ A component that displays a table based on the row and column information passed
 
 #### Arguments
 
-The table component only accepts the arguments `rows`, `cols`, `initialCondition`, `onClickRow`, `onUpdateRow`, `onPasteError`, `applyRowFormatting`, `conditionalFormattings`. Details for each argument are described below.
+The table component accepts the arguments `id`, `rows`, `cols`, `initialCondition`, `onClickRow`, `onUpdateRow`, `onPasteError`, `errorHandler`, `applyRowFormatting`, `checkbox`, `conditionalFormattings`, `maxHeight` and `maxWidth`. Details for each argument are described below.
+
+All of these types are exported from the package, e.g. `import type { TTableColumn, TPropsTable } from "@teppen/react-ui";`.
+
+##### id
+
+`id` is used for the element ids inside the table. It is optional; without it, each table gets a unique id automatically.
 
 ##### rows
 
@@ -227,10 +234,12 @@ The table component only accepts the arguments `rows`, `cols`, `initialCondition
 
 ```ts
 export type DataObject = {
-  [key: string]: number | string;
+  [key: string]: number | string | Date;
   id: number | string;
 };
 ```
+
+The row objects you pass are given back unchanged to callbacks such as `onClickRow`, `onCellBlur` and `checkbox`, so `Date` values stay `Date` objects.
 
 ※ `onClick` property has been deprecated since version 1.0.0 in favor of the new Table argument `onClickRow`
 
@@ -241,7 +250,7 @@ In `cols`, you specify the data to be displayed in the table from left to right.
 it is not necessary to always include the key `label`, but it is required for some functions, so it is recommended to set it.
 
 ```ts
-export type TColumnType = "string" | "number" | "select";
+export type TColumnType = "string" | "number" | "select" | "date" | "datetime";
 
 export type TTableColumn = {
   key: string;
@@ -252,6 +261,8 @@ export type TTableColumn = {
   options: { value: string; label: string }[]; // Only When "type" is "select"
   editable?: boolean;
   render?: (value: string | number, row: DataObject) => React.ReactNode; // Only When "editable" is false
+  // When "type" is "date" or "datetime", "render" is required and "editable" must be false:
+  // render: (value: Date) => React.ReactNode;
   allowEmpty?: boolean; // Only When "type" is "select"
   constraints?: {
     maxLength?: number; // Only when "type" is "string"
@@ -297,6 +308,7 @@ type TOnClickRow = (row: DataObject) => void;
 
 In `onUpdateRow`, You can define the behavior when you paste data from Excel or spreadsheets into a table. This is optional.
 For multi-line data, this function is executed one line at a time.
+Pasted data is read as tab-separated cells, as copied from Excel or Google Sheets. For number columns, values such as `1,000` are accepted.
 
 ```ts
 type TOnUpdateRow = (newRow: DataObject, oldRow: DataObject) => void;
@@ -313,6 +325,18 @@ type TOnPasteError = (error: {
   message: string;
 }) => void;
 ```
+
+##### errorHandler
+
+In `errorHandler`, you can handle values that break a column's `constraints` (when editing a cell or pasting). This is optional; if it is not set, the errors are shown with `window.alert`.
+
+```ts
+type TErrorHandler = (errors: TErrorValidation[]) => void;
+```
+
+##### maxHeight / maxWidth
+
+CSS sizes (e.g. `"600px"`) that limit the table area. The table scrolls inside it.
 
 ##### applyRowFormatting
 
@@ -354,6 +378,37 @@ type TConditionalFormatting = {
   style: string;
 };
 ```
+
+### FileUploader Component
+
+A drop area that also opens the file picker when clicked.
+
+```tsx
+import { FileUploader } from "@teppen/react-ui";
+
+<FileUploader
+  allowedExtensions={[".pdf", ".xlsx"]}
+  maxFileSize={10 * 1024 * 1024}
+  onFilesAdded={(files) => console.log(files)}
+  onFilesRejected={(files) => console.log("rejected", files)}
+/>;
+```
+
+Files are checked as follows:
+
+- With only `allowedExtensions`, only the extension is checked. With only `acceptedFileTypes` (MIME types such as `"image/*"`), only the MIME type is checked.
+- With neither or both, a file is accepted if it matches either list. The defaults cover common images, Office documents, PDF, text and archives.
+- Files larger than `maxFileSize` (bytes) are rejected.
+
+For a custom UI, use the `useFileUploader` hook, which returns the props for the drop area and the hidden file input.
+
+## Breaking changes since 1.10.2
+
+- Table callbacks (`onClickRow`, `applyRowFormatting`, `checkbox`, `onCellBlur`, `onUpdateRow`) receive the row objects passed in `rows` as they are. Before, some of them received copies in which `Date` values had become ISO strings.
+- FileUploader: when only `allowedExtensions` or only `acceptedFileTypes` is given, files are checked against that list alone. Before, files that matched the other (default) list were also accepted.
+- Read-only columns without `render` can now be sorted and filtered. Use `disableSort` / `disableFilter` to turn this off.
+- Copying a `datetime` cell gives `YYYY-MM-DD HH:mm:ss` in local time instead of an ISO string in UTC.
+- Pasted text is split only on tabs, so a value such as `a,b` stays in one cell.
 
 ## License
 

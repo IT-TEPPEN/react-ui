@@ -69,10 +69,11 @@ export function useCopyReducer(initial: {
               if (value === null || value === undefined || value === "") {
                 copiedRow.push("");
               } else {
-                copiedRow.push(
-                  col.options.find((option) => option.value === row[col.key])!
-                    .label
+                // Fall back to the value itself when it is not an option.
+                const option = col.options.find(
+                  (option) => option.value === value
                 );
+                copiedRow.push(option ? option.label : String(value));
               }
               continue;
             } else if (col.type === "date") {
