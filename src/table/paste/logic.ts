@@ -58,6 +58,22 @@ type TPasteResult =
       };
     };
 
+// A number with thousands separators, as Excel copies formatted numbers.
+const GROUPED_NUMBER = /^-?\d{1,3}(,\d{3})+(\.\d+)?$/;
+
+/**
+ * Turns pasted text into the form the column's validator expects. For number
+ * columns, surrounding spaces and thousands separators ("1,000") are removed.
+ */
+function normalizePastedValue(col: TTableColumn<any>, value: string): string {
+  if (col.type !== "number") {
+    return value;
+  }
+
+  const trimmed = value.trim();
+  return GROUPED_NUMBER.test(trimmed) ? trimmed.replace(/,/g, "") : trimmed;
+}
+
 export function paste(args: TPasteArgument): TPasteResult {
   // ペーストデータの行数と列数を取得
   const pasteDataRowLength = args.pasteData.length;
@@ -129,8 +145,8 @@ export function paste(args: TPasteArgument): TPasteResult {
 
     for (let j = 0; j < pasteColLength; j++) {
       const colIndexForData = j % pasteRow.length;
-      const pasteValue = pasteRow[colIndexForData];
       const col = args.currentCols[args.pasteArea.start.colIndex + j];
+      const pasteValue = normalizePastedValue(col, pasteRow[colIndexForData]);
       const validate = args.validators[col.key as string];
 
       if (!validate(pasteValue)) {
@@ -152,8 +168,8 @@ export function paste(args: TPasteArgument): TPasteResult {
     let checkUpdatedRow = false;
 
     for (let j = 0; j < pasteColLength; j++) {
-      const pasteValue = pasteRow[j % pasteRow.length];
       const col = args.currentCols[args.pasteArea.start.colIndex + j];
+      const pasteValue = normalizePastedValue(col, pasteRow[j % pasteRow.length]);
       const value =
         col.type === "number"
           ? Number(pasteValue)
