@@ -1,4 +1,5 @@
 import React from "react";
+import { TPasteError } from "../paste/types";
 import { Options } from "../../select-box";
 import {
   TErrorValidation,
@@ -141,6 +142,11 @@ export type TPropsTable<T extends DataRecord> = {
   applyRowFormatting?: (row: DataObject<T>) => TailwindCssStyle;
   conditionalFormattings?: TConditionalFormatting<T>[];
   errorHandler?: (errors: TErrorValidation[]) => void;
+  /**
+   * Called when pasted data cannot be applied, e.g. it does not fit in the
+   * table or targets a read-only column. Defaults to window.alert.
+   */
+  onPasteError?: (error: TPasteError) => void;
   deprecatedOptions?: {
     enableDeprecatedCopy?: boolean;
   };

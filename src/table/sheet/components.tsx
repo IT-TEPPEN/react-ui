@@ -1,12 +1,12 @@
 import { memo } from "react";
-import { DataRecord, TTableColumn } from "../table/type";
+import { DataObject, DataRecord, TTableColumn } from "../table/type";
 import { Checkbox } from "../checkbox/components";
 import { TableCell } from "../cell/ui/cell";
 import { useRangeActionContext } from "../range/provider";
 import { useTableIdGenerator } from "../id";
 
 interface TPropsRow<T extends DataRecord> {
-  dataString: string;
+  row: DataObject<DataRecord>;
   cols: TTableColumn<T>[];
   existCheckbox?: boolean;
   rowIndex: number;
@@ -18,7 +18,7 @@ interface TPropsRow<T extends DataRecord> {
 export const Row = memo(function R<T extends DataRecord>(props: TPropsRow<T>) {
   const IdGenerator = useTableIdGenerator();
   const { reset } = useRangeActionContext();
-  const row = JSON.parse(props.dataString);
+  const row = props.row;
   const conditionalFormatting = props.conditionalFormattingString.split(",");
 
   return (

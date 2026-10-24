@@ -72,9 +72,41 @@ export function useFileUploader(
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  const acceptedTypes = props.acceptedFileTypes || DEFAULT_ACCEPTED_TYPES;
-  const allowedExtensions =
-    props.allowedExtensions || DEFAULT_ALLOWED_EXTENSIONS;
+  // When only one of the two lists is given, files are checked against that
+  // list alone, so e.g. `allowedExtensions: [".pdf"]` accepts only PDFs.
+  // With neither (or both), a file passes if it matches either list.
+  const extensionOnly =
+    props.allowedExtensions !== undefined &&
+    props.acceptedFileTypes === undefined;
+  const typeOnly =
+    props.acceptedFileTypes !== undefined &&
+    props.allowedExtensions === undefined;
+
+  const acceptedTypes = extensionOnly
+    ? []
+    : props.acceptedFileTypes ?? DEFAULT_ACCEPTED_TYPES;
+  const allowedExtensions = typeOnly
+    ? []
+    : props.allowedExtensions ?? DEFAULT_ALLOWED_EXTENSIONS;
+
+  const matchesExtension = (file: File) => {
+    const dot = file.name.lastIndexOf(".");
+    if (dot <= 0) return false;
+
+    const extension = file.name.slice(dot + 1).toLowerCase();
+    return allowedExtensions.some(
+      (ext) => ext.toLowerCase().replace(/^\./, "") === extension
+    );
+  };
+
+  const matchesType = (file: File) =>
+    acceptedTypes.some((type) => {
+      if (type.endsWith("/*")) {
+        const mainType = type.split("/")[0];
+        return file.type.startsWith(`${mainType}/`);
+      }
+      return file.type === type;
+    });
 
   const validateFiles = (
     files: File[]
@@ -89,28 +121,7 @@ export function useFileUploader(
         return;
       }
 
-      const extension = file.name.split(".").pop();
-      if (
-        extension &&
-        allowedExtensions.some(
-          (ext) =>
-            ext.toLowerCase() === `.${extension.toLowerCase()}` ||
-            ext.toLowerCase() === extension.toLowerCase()
-        )
-      ) {
-        validFiles.push(file);
-        return;
-      }
-
-      if (
-        acceptedTypes.some((type) => {
-          if (type.endsWith("/*")) {
-            const mainType = type.split("/")[0];
-            return file.type.startsWith(`${mainType}/`);
-          }
-          return file.type === type;
-        })
-      ) {
+      if (matchesExtension(file) || matchesType(file)) {
         validFiles.push(file);
       } else {
         rejectedFiles.push(file);
@@ -153,12 +164,21 @@ export function useFileUploader(
       ref: inputRef,
       type: "file",
       className: "hidden",
-      accept: acceptedTypes.join(","),
+      // List extensions too, so that files without a known MIME type (such as
+      // .msg) can be picked in the file dialog.
+      accept: [
+        ...allowedExtensions.map((ext) =>
+          ext.startsWith(".") ? ext : `.${ext}`
+        ),
+        ...acceptedTypes,
+      ].join(","),
       onChange: (e) => {
         if (e.target.files) {
           const selectedFiles = Array.from(e.target.files);
           addFiles(selectedFiles);
         }
+        // Clear the value so that picking the same file again fires onChange.
+        e.target.value = "";
       },
     },
     isDragging,

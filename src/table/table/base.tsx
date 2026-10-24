@@ -61,6 +61,7 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
                                 rows={props.rows}
                                 cols={props.cols}
                                 onUpdateRowFunction={props.onUpdateRow}
+                                onPasteError={props.onPasteError}
                               >
                                 <KeyboardSetting
                                   enableDeprecatedCopy={
@@ -140,7 +141,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
                     key={rowId}
                     existCheckbox={!!props.checkbox}
                     rowIndex={i}
-                    dataString={rowMaps[rowId].stringValue}
+                    row={rowMaps[rowId].data}
                     cols={props.cols as TTableColumn<DataRecord>[]}
                     onClickRow={props.onClickRow}
                     applyRowFormatting={props.applyRowFormatting}

@@ -1,83 +1,19 @@
-import { IIndex } from "../range/type";
-import { DataObject, TTableColumn } from "../table/type";
+import { DataObject } from "../table/type";
 
-type TPasteState = {
-  rows: DataObject<any>[];
-  cols: TTableColumn<any>[];
-  colValidators: { [key: string]: (value: any) => boolean };
-  onUpdateRowFunction?: (newRow: any, oldRow: any) => void;
-  updateParameters: {
-    arguments: { newRow: any; oldRow: any }[];
-    pastedRange?: {
-      start: IIndex;
-      end: IIndex;
-    };
-    timing: number;
-  };
-} & (
-  | {
-      isFocused: false;
-    }
-  | {
-      isFocused: true;
-      start: IIndex;
-      end: IIndex;
-    }
-);
-
-type IPasteAction =
-  | {
-      type: "setRows";
-      payload: {
-        rows: DataObject<any>[];
-      };
-    }
-  | {
-      type: "setCols";
-      payload: {
-        cols: TTableColumn<any>[];
-      };
-    }
-  | {
-      type: "setColValidators";
-      payload: {
-        colValidators: { [key: string]: (value: any) => boolean };
-      };
-    }
-  | {
-      type: "setOnUpdateRowFunction";
-      payload: {
-        onUpdateRowFunction?: (newRow: any, oldRow: any) => void;
-      };
-    }
-  | {
-      type: "onPaste";
-      payload: {
-        pasteData: string[][];
-      };
-    }
-  | {
-      type: "focus";
-      payload: {
-        start: IIndex;
-        end: IIndex;
-      };
-    }
-  | { type: "unfocus" };
-
-export type TPasteReducer = (
-  state: TPasteState,
-  action: IPasteAction
-) => TPasteState;
+/** Errors reported to `onPasteError` when pasted data cannot be applied. */
+export type TPasteError = {
+  type: "NOT_ENOUGH_ROWS" | "NOT_ENOUGH_COLUMNS" | "NOT_EDITABLE_COLUMN";
+  message: string;
+};
 
 export type TPasteReducerReturn = {
   setRows: (rows: DataObject<any>[]) => void;
-  setCols: (cols: TTableColumn<any>[]) => void;
-  setColValidators: (colValidators: {
-    [key: string]: (value: any) => boolean;
-  }) => void;
-  setOnUpdateRowFunction: (
-    onUpdateRowFunction?: (newRow: any, oldRow: any) => void
-  ) => void;
   onPaste: (pasteData: string[][]) => void;
+};
+
+export type TPasteHookArguments = {
+  rows: any[];
+  cols: any[];
+  onUpdateRowFunction?: (newRow: any, oldRow: any) => void;
+  onPasteError?: (error: TPasteError) => void;
 };

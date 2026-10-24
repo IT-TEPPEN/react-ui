@@ -210,8 +210,8 @@ export default App;
 A component that displays a table based on the row and column information passed as arguments. The table component has the following features:
 
 - Pagination function
-- Sorting function
-- Filtering function (only when `label` is set in the column information)
+- Sorting function (except for columns that use `render` while `editable` is false, or that set `disableSort`)
+- Filtering function (only when `label` is set in the column information; the same columns as sorting are excluded, and `disableFilter` turns it off)
 - Editing function (only when `editable` is true and `onCellBlur` is set in the column information)
 - Checkbox function
 - Paste function
@@ -219,7 +219,7 @@ A component that displays a table based on the row and column information passed
 
 #### Arguments
 
-The table component only accepts the arguments `rows`, `cols`, `initialCondition`, `onClickRow`, `onUpdateRow`, `applyRowFormatting`, `conditionalFormattings`. Details for each argument are described below.
+The table component only accepts the arguments `rows`, `cols`, `initialCondition`, `onClickRow`, `onUpdateRow`, `onPasteError`, `applyRowFormatting`, `conditionalFormattings`. Details for each argument are described below.
 
 ##### rows
 
@@ -270,7 +270,7 @@ export type TTableColumn = {
 ```
 
 ※ TColumnType no longer supports `component` since version 1.0.0. Instead, `render`
-is now supported, allowing for sorting and filtering functions that were not previously supported by `component`.
+is now supported. Columns that use `render` (when `editable` is false) are not sortable or filterable, because what they display may differ from the underlying value.
 
 ##### initialCondition
 
@@ -300,6 +300,18 @@ For multi-line data, this function is executed one line at a time.
 
 ```ts
 type TOnUpdateRow = (newRow: DataObject, oldRow: DataObject) => void;
+```
+
+##### onPasteError
+
+In `onPasteError`, you can handle pasted data that cannot be applied, for example when it does not fit in the table or targets a column that is not editable. This is optional; if it is not set, the message is shown with `window.alert`.
+Invalid values are reported to `errorHandler` instead.
+
+```ts
+type TOnPasteError = (error: {
+  type: "NOT_ENOUGH_ROWS" | "NOT_ENOUGH_COLUMNS" | "NOT_EDITABLE_COLUMN";
+  message: string;
+}) => void;
 ```
 
 ##### applyRowFormatting

@@ -4,7 +4,7 @@ type TPasteArgument = {
   pasteData: string[][];
   currentRows: any[];
   currentCols: TTableColumn<any>[];
-  tableArea: {
+  tableArea?: {
     start: {
       rowIndex: number;
       colIndex: number;
@@ -32,7 +32,12 @@ type TPasteArgument = {
 type TPasteResult =
   | {
       isError: true;
-      type: "ValidationError" | "NoPasteData" | "OtherError";
+      type:
+        | "ValidationError"
+        | "NoPasteData"
+        | "NOT_ENOUGH_ROWS"
+        | "NOT_ENOUGH_COLUMNS"
+        | "NOT_EDITABLE_COLUMN";
       message: string;
     }
   | {
@@ -87,7 +92,7 @@ export function paste(args: TPasteArgument): TPasteResult {
   ) {
     return {
       isError: true,
-      type: "OtherError",
+      type: "NOT_ENOUGH_ROWS",
       message: "貼り付け先の行数が足りません。",
     };
   }
@@ -98,7 +103,7 @@ export function paste(args: TPasteArgument): TPasteResult {
   ) {
     return {
       isError: true,
-      type: "OtherError",
+      type: "NOT_ENOUGH_COLUMNS",
       message: "貼り付け先の列数が足りません。",
     };
   }
@@ -110,7 +115,7 @@ export function paste(args: TPasteArgument): TPasteResult {
     if (!col.editable) {
       return {
         isError: true,
-        type: "OtherError",
+        type: "NOT_EDITABLE_COLUMN",
         message: `編集できない列にデータを貼り付けることはできません。\n\n編集不可列: ${
           col.label ?? (col.key as string)
         }`,
