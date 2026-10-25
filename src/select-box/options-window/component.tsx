@@ -65,9 +65,10 @@ export function OptionsArea() {
             )
               return;
 
+            // "" is a valid value (e.g. the option that clears the cell).
             const value = state.options[selectingIndex].value;
 
-            if (!value) return;
+            if (typeof value !== "string") return;
 
             setValue(value);
             state.onSelect(value);
