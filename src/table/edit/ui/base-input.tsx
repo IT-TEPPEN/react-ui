@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { CancelIcon } from "../../../icon/cancel-icon";
 import { useTableIdGenerator } from "../../id";
+import { isComposingKey } from "../../operation/event-target";
 
 export function CellInput(props: {
   type?: "text";
@@ -37,11 +38,19 @@ export function CellInput(props: {
         value={props.value}
         onChange={props.onChange}
         onBlur={props.onBlur}
-        onKeyUp={(e: React.KeyboardEvent<HTMLInputElement>) => {
-          e.preventDefault();
+        // Handled on keydown so that keys used by an IME (e.g. Enter to
+        // confirm or Escape to cancel Japanese conversion) can be told apart
+        // and ignored; on keyup they look like plain Enter / Escape.
+        onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+          if (isComposingKey(e.nativeEvent)) {
+            return;
+          }
+
           if (e.key === "Enter") {
+            e.preventDefault();
             (e.target as HTMLInputElement).blur();
           } else if (e.key === "Escape") {
+            e.preventDefault();
             props.reset();
             props.endEditing();
           }
