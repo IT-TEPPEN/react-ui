@@ -11,7 +11,8 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test": "jest",
-    "test:lint": "tsc --noEmit"
+    "test:lint": "tsc --noEmit",
+    "test:package": "npm run rollup && node scripts/check-package.mjs"
   },
   "author": "Yasufumi Kamiyama <yk.iteppen@gmail.com>",
   "license": "MIT",
