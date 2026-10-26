@@ -63,6 +63,22 @@ describe("date filter", () => {
 });
 
 describe("string filter", () => {
+  test.each([
+    ["tokyo", "Tokyo"],
+    ["トウキョウ", "ﾄｳｷｮｳ"],
+    ["とうきょう", "トウキョウ都"],
+    ["ABC", "ＡＢＣ"],
+    ["１２", "No.12"],
+  ])("like %j matches %j", (input, value) => {
+    expect(match(stringCondition("string:like", input), value)).toBe(true);
+    expect(match(stringCondition("string:not_like", input), value)).toBe(false);
+  });
+
+  test("like still needs the text to be contained", () => {
+    expect(match(stringCondition("string:like", "京都"), "東京都")).toBe(true);
+    expect(match(stringCondition("string:like", "大阪"), "東京都")).toBe(false);
+  });
+
   test("like / not like work with numbers and empty values", () => {
     expect(match(stringCondition("string:like", "12"), 1234)).toBe(true);
     expect(match(stringCondition("string:like", "x"), undefined)).toBe(false);

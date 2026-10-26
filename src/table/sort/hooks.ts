@@ -1,6 +1,24 @@
 import { useCallback, useMemo, useReducer } from "react";
 import { TReturnSortReducer, TSortReducer } from "./types";
 import { DataObject, DataRecord } from "../table/type";
+import { compareText } from "../../share/text/normalize";
+
+function isEmpty(value: unknown): boolean {
+  return (
+    value === null ||
+    value === undefined ||
+    value === "" ||
+    (typeof value === "number" && isNaN(value)) ||
+    (value instanceof Date && isNaN(value.getTime()))
+  );
+}
+
+/** Numbers and dates by value; text in Japanese order ("2" before "10"). */
+function compareValues(a: unknown, b: unknown): number {
+  if (typeof a === "number" && typeof b === "number") return a - b;
+  if (a instanceof Date && b instanceof Date) return a.getTime() - b.getTime();
+  return compareText(String(a), String(b));
+}
 
 const reducer: TSortReducer = (state, action) => {
   switch (action.type) {
@@ -50,23 +68,21 @@ export function useSortReducer<T extends DataRecord>(initial?: {
   };
 
   const sort = useCallback(
-    <U extends DataRecord>(rows: DataObject<U>[]) =>
-      [...rows].sort((a, b) => {
-        if (a[state.key] === "" && b[state.key] === "") {
-          return 0;
-        } else if (a[state.key] === "") {
-          return 1;
-        } else if (b[state.key] === "") {
-          return -1;
-        }
+    <U extends DataRecord>(
+      rows: DataObject<U>[],
+      getValue: (row: DataObject<U>) => unknown = (row) => row[state.key]
+    ) =>
+      [...rows].sort((rowA, rowB) => {
+        const a = getValue(rowA);
+        const b = getValue(rowB);
 
-        if (a[state.key] < b[state.key]) {
-          return state.asc ? -1 : 1;
-        }
-        if (a[state.key] > b[state.key]) {
-          return state.asc ? 1 : -1;
-        }
-        return 0;
+        // Empty values stay at the end in both orders.
+        if (isEmpty(a) && isEmpty(b)) return 0;
+        if (isEmpty(a)) return 1;
+        if (isEmpty(b)) return -1;
+
+        const result = compareValues(a, b);
+        return state.asc ? result : -result;
       }),
     [state.key, state.asc]
   );

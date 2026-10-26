@@ -2,7 +2,11 @@ import { useEffect, useMemo } from "react";
 import { DataObject, DataRecord, TPropsTable } from "./type";
 import { usePageContext } from "../pagenation/providers";
 import { useCheckboxStatusContext } from "../checkbox/provider";
-import { useSortActionContext, useSortTimingContext } from "../sort/provider";
+import {
+  useSortActionContext,
+  useSortStateContext,
+  useSortTimingContext,
+} from "../sort/provider";
 import { useTablePropertyActionContext } from "../table-property/provider";
 import { usePasteActionContext } from "../paste/provider";
 import { useCopyActionContext } from "../copy/provider";
@@ -12,6 +16,7 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { filter } = useFilterFunctions();
   const { sort, updatedData } = useSortActionContext();
   const sortTiming = useSortTimingContext();
+  const { key: sortKey } = useSortStateContext();
   const { setRowCount, pageFilter } = usePageContext();
   const { dispatchCheckboxStatus } = useCheckboxStatusContext();
   const { setRows: setRowsForPaste } = usePasteActionContext();
@@ -50,9 +55,27 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
     });
   }, [checkBoxes]);
 
+  // Select columns are sorted by the labels shown, not the stored values.
+  // Keyed on the options' content so that a new cols array with the same
+  // options (e.g. defined inline) does not re-sort on every render.
+  const sortCol = props.cols.find((c) => c.key === sortKey);
+  const sortLabelsKey =
+    sortCol?.type === "select"
+      ? JSON.stringify(sortCol.options.map((o) => [o.value, o.label]))
+      : "";
+  const getSortValue = useMemo(() => {
+    if (sortLabelsKey === "") return undefined;
+
+    const labels = new Map<unknown, string>(JSON.parse(sortLabelsKey));
+    return (row: DataObject<T>) => {
+      const value = row[sortKey as keyof T];
+      return labels.get(value) ?? value;
+    };
+  }, [sortKey, sortLabelsKey]);
+
   const sortedRows = useMemo(
-    () => sort(filteredRows),
-    [filteredRows, sortTiming]
+    () => sort(filteredRows, getSortValue),
+    [filteredRows, sortTiming, getSortValue]
   );
 
   useEffect(() => {

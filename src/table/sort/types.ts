@@ -34,7 +34,14 @@ export type TReturnSortReducer<T extends DataRecord> = {
     changeKey: (key: string) => void;
     changeOrder: () => void;
     updatedData: () => void;
-    sort: <U extends DataRecord>(rows: DataObject<U>[]) => DataObject<U>[];
+    /**
+     * Sorts rows by the current key. `getValue` gives the value to compare
+     * (e.g. the label of a select option); defaults to the row's value.
+     */
+    sort: <U extends DataRecord>(
+      rows: DataObject<U>[],
+      getValue?: (row: DataObject<U>) => unknown
+    ) => DataObject<U>[];
   };
   sortTiming: number;
 };
