@@ -270,7 +270,7 @@ export function TableTestComponent(props: {
         sort: {
           key: "age",
         },
-        pagenation: { rowCountPerPage: "all" },
+        pagination: { rowCountPerPage: "all" },
       }}
       conditionalFormattings={[
         {

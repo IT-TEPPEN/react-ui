@@ -125,6 +125,10 @@ export type TConditionalFormatting<T extends DataRecord> = {
 
 type TailwindCssStyle = string;
 
+type TPaginationCondition = {
+  rowCountPerPage?: 20 | 50 | 100 | "all";
+};
+
 export type TPropsTable<T extends DataRecord> = {
   id?: string;
   cols: TTableColumn<T>[];
@@ -135,9 +139,9 @@ export type TPropsTable<T extends DataRecord> = {
   onUpdateRow?: (newRow: DataObject<T>, oldRow: DataObject<T>) => void;
   initialCondition?: {
     sort?: { key: string; asc?: boolean };
-    pagenation?: {
-      rowCountPerPage?: 20 | 50 | 100 | "all";
-    };
+    pagination?: TPaginationCondition;
+    /** @deprecated Use `pagination`. Kept for compatibility. */
+    pagenation?: TPaginationCondition;
   };
   applyRowFormatting?: (row: DataObject<T>) => TailwindCssStyle;
   conditionalFormattings?: TConditionalFormatting<T>[];
