@@ -8,6 +8,8 @@ import {
 } from "./condition-input-management";
 import { useIdGenerator } from "../id-generator";
 import { TiDeleteOutline } from "react-icons/ti";
+import { parseNumberText } from "../../share/text/normalize";
+import { isComposingKey } from "../../table/operation/event-target";
 
 export function SearchBarInputForm(props: {
   size?: "small" | "medium" | "large";
@@ -181,8 +183,9 @@ function InputSingleString(props: {
         setValue(e.target.value);
       }}
       // 文字列が確定し、Enterキーが押されたら値を入力する
+      // (The Enter that confirms IME conversion is ignored.)
       onKeyDown={(e) => {
-        if (e.key === "Enter") {
+        if (e.key === "Enter" && !isComposingKey(e.nativeEvent)) {
           inputValue({
             type: props.inputType,
             payload: {
@@ -202,12 +205,16 @@ function InputSingleNumber(props: {
 }) {
   const { generateId } = useIdGenerator();
   const [value, setValue] = useState("");
+  const [isInvalid, setIsInvalid] = useState(false);
   const { inputValue } = useConditionInputAction();
 
   return (
     <input
       id={generateId("ValueInput")}
+      aria-invalid={isInvalid}
       className={`appearance-none w-full min-w-64 border-none px-2 py-1 placeholder:text-gray-400 focus:outline-none focus-visible:outline-none bg-transparent ${
+        isInvalid ? "text-red-600 underline decoration-wavy" : ""
+      } ${
         props.size === "small"
           ? "text-sm"
           : props.size === "large"
@@ -219,14 +226,23 @@ function InputSingleNumber(props: {
       value={value}
       onChange={(e) => {
         setValue(e.target.value);
+        setIsInvalid(false);
       }}
       // 文字列が確定し、Enterキーが押されたら値を入力する
       onKeyDown={(e) => {
-        if (e.key === "Enter") {
+        if (e.key === "Enter" && !isComposingKey(e.nativeEvent)) {
+          // Do not add a condition for text that is not a number; before,
+          // "" became 0 and other text NaN, which matched nothing.
+          const number = parseNumberText(value);
+          if (number === null) {
+            setIsInvalid(true);
+            return;
+          }
+
           inputValue({
             type: props.inputType,
             payload: {
-              value: Number(value),
+              value: number,
             },
           });
           setValue("");

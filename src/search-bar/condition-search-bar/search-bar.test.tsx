@@ -104,4 +104,41 @@ describe("filtering with the search bar", () => {
     expect(getByText("名前 is empty")).toBeDefined();
     expect(renderedIds(container)).toEqual(["4"]);
   });
+
+  test("a number condition needs a number", () => {
+    const { container, queryByText, getByText } = render(
+      <Table cols={cols} rows={rows} />
+    );
+
+    addCondition(container, "年齢", "≧", "abc");
+    expect(queryByText(/年齢 ≧/)).toBeNull();
+    const valueInput = container.querySelector(
+      'input[placeholder="Search text"]'
+    ) as HTMLInputElement;
+    expect(valueInput.getAttribute("aria-invalid")).toBe("true");
+
+    // Empty input does not become 0 either.
+    fireEvent.change(valueInput, { target: { value: "" } });
+    fireEvent.keyDown(valueInput, { key: "Enter" });
+    expect(queryByText(/年齢 ≧/)).toBeNull();
+
+    // Full-width digits are accepted.
+    fireEvent.change(valueInput, { target: { value: "２５" } });
+    fireEvent.keyDown(valueInput, { key: "Enter" });
+    expect(getByText("年齢 ≧ 25")).toBeDefined();
+    expect(renderedIds(container)).toEqual(["1", "3"]);
+  });
+
+  test("the Enter that confirms IME conversion does not add the condition", () => {
+    const { container, queryByText } = render(<Table cols={cols} rows={rows} />);
+
+    addCondition(container, "名前", "like");
+    const valueInput = container.querySelector(
+      'input[placeholder="Search text"]'
+    ) as HTMLInputElement;
+    fireEvent.change(valueInput, { target: { value: "たろう" } });
+    fireEvent.keyDown(valueInput, { key: "Enter", isComposing: true, keyCode: 229 });
+
+    expect(queryByText(/名前 like/)).toBeNull();
+  });
 });
