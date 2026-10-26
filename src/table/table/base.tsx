@@ -44,7 +44,12 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
             <SortProvider initialCondition={props.initialCondition?.sort}>
               <PagenationProvider
                 rowCount={props.rows.length}
-                perPage={props.initialCondition?.pagenation?.rowCountPerPage}
+                perPage={
+                  (
+                    props.initialCondition?.pagination ??
+                    props.initialCondition?.pagenation
+                  )?.rowCountPerPage
+                }
               >
                 <CheckboxProvider checkbox={props.checkbox}>
                   <CheckboxStatusProvider checkboxCount={props.rows.length}>

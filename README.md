@@ -158,7 +158,7 @@ const App = () => {
             key: "id",
             asc: true,
           },
-          pagenation: {
+          pagination: {
             rowCountPerPage: 50,
           },
         }}
@@ -290,11 +290,13 @@ In `initialCondition`, you can set initial values for each function. This is opt
 ```ts
 type TInitialCondition = {
   sort?: { key: string; asc?: boolean };
-  pagenation?: {
+  pagination?: {
     rowCountPerPage?: 20 | 50 | 100 | "all";
   };
 };
 ```
+
+※ `pagenation` (the earlier spelling) still works but is deprecated. If both are set, `pagination` is used.
 
 ##### onClickRow
 

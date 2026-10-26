@@ -117,7 +117,7 @@ export const Default: Story = {
         key: "age",
         asc: true,
       },
-      pagenation: {
+      pagination: {
         rowCountPerPage: "all",
       },
     },
@@ -228,7 +228,7 @@ export const Readme: Story = {
         key: "id",
         asc: true,
       },
-      pagenation: {
+      pagination: {
         rowCountPerPage: 50,
       },
     },

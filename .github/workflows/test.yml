@@ -67,5 +67,15 @@ jobs:
       - name: Build package
         run: npm run rollup
 
+      # Install the packed tarball into an empty project and render it through
+      # the ESM and CommonJS entries, with each supported React version.
+      - name: Check package (React 19)
+        run: node scripts/check-package.mjs
+
+      - name: Check package (React 18)
+        run: node scripts/check-package.mjs
+        env:
+          REACT_VERSION: "18"
+
       - name: Build Storybook
         run: npm run build-storybook
