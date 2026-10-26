@@ -5,18 +5,20 @@ import { useRangeActionContext, useRangeStateContext } from "../range/provider";
 import { paste } from "./logic";
 import { parseClipboardText } from "./parse";
 import { isTextEntryTarget } from "../operation/event-target";
+import { useMessages } from "../locale/provider";
 
 export function usePasteReducer(args: TPasteHookArguments): TPasteReducerReturn {
   const { setRange } = useRangeActionContext();
   const validators = useColumnValidatesContext();
   const range = useRangeStateContext();
+  const messages = useMessages();
   const rowsRef = useRef(args.rows);
 
   // Read the latest props when a paste happens, so callbacks passed in later
   // renders are the ones that get called.
-  const latest = useRef({ ...args, validators, range });
+  const latest = useRef({ ...args, validators, range, messages });
   useEffect(() => {
-    latest.current = { ...args, validators, range };
+    latest.current = { ...args, validators, range, messages };
   });
 
   const setRows = useCallback((rows: any[]) => {
@@ -25,8 +27,14 @@ export function usePasteReducer(args: TPasteHookArguments): TPasteReducerReturn 
 
   const onPaste = useCallback(
     (pasteData: string[][]) => {
-      const { cols, validators, range, onUpdateRowFunction, onPasteError } =
-        latest.current;
+      const {
+        cols,
+        validators,
+        range,
+        messages,
+        onUpdateRowFunction,
+        onPasteError,
+      } = latest.current;
 
       if (!range.isSelecting || !onUpdateRowFunction) {
         return;
@@ -49,6 +57,7 @@ export function usePasteReducer(args: TPasteHookArguments): TPasteReducerReturn 
         currentRows: rowsRef.current,
         currentCols: cols,
         validators,
+        messages: messages.paste,
       });
 
       if (res.isError) {

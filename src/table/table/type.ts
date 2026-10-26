@@ -1,5 +1,6 @@
 import React from "react";
 import { TPasteError } from "../paste/types";
+import { TLocale } from "../locale/messages";
 import { Options } from "../../select-box";
 import {
   TErrorValidation,
@@ -126,6 +127,11 @@ export type TConditionalFormatting<T extends DataRecord> = {
 type TailwindCssStyle = string;
 
 type TPaginationCondition = {
+  /**
+   * Rows per page. Defaults to 50.
+   * "all" renders every row at once and gets slow with many rows; use
+   * pagination for more than about 1,000 rows.
+   */
   rowCountPerPage?: 20 | 50 | 100 | "all";
 };
 
@@ -151,6 +157,11 @@ export type TPropsTable<T extends DataRecord> = {
    * table or targets a read-only column. Defaults to window.alert.
    */
   onPasteError?: (error: TPasteError) => void;
+  /**
+   * Language of the messages the table shows by itself, such as the default
+   * validation alert and the "copied" notice. Defaults to "ja".
+   */
+  locale?: TLocale;
   deprecatedOptions?: {
     enableDeprecatedCopy?: boolean;
   };

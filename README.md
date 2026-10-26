@@ -220,7 +220,7 @@ A component that displays a table based on the row and column information passed
 
 #### Arguments
 
-The table component accepts the arguments `id`, `rows`, `cols`, `initialCondition`, `onClickRow`, `onUpdateRow`, `onPasteError`, `errorHandler`, `applyRowFormatting`, `checkbox`, `conditionalFormattings`, `maxHeight` and `maxWidth`. Details for each argument are described below.
+The table component accepts the arguments `id`, `rows`, `cols`, `initialCondition`, `onClickRow`, `onUpdateRow`, `onPasteError`, `errorHandler`, `locale`, `applyRowFormatting`, `checkbox`, `conditionalFormattings`, `maxHeight` and `maxWidth`. Details for each argument are described below.
 
 All of these types are exported from the package, e.g. `import type { TTableColumn, TPropsTable } from "@teppen/react-ui";`.
 
@@ -298,6 +298,8 @@ type TInitialCondition = {
 
 ※ `pagenation` (the earlier spelling) still works but is deprecated. If both are set, `pagination` is used.
 
+`rowCountPerPage` defaults to 50. With pagination, the table stays fast regardless of the number of rows (all operations took under 50 ms with 10,000 rows in our measurements). `"all"` renders every row at once, so it gets slower as rows increase: with 1,000 rows sorting takes about 0.6 s, and with 10,000 rows the first render and sorting take several seconds. For more than about 1,000 rows, use pagination.
+
 ##### onClickRow
 
 In `onClickRow`, you may define the behavior when a row is clicked. This is optional.
@@ -334,6 +336,14 @@ In `errorHandler`, you can handle values that break a column's `constraints` (wh
 
 ```ts
 type TErrorHandler = (errors: TErrorValidation[]) => void;
+```
+
+##### locale
+
+`locale` sets the language of the messages the table shows by itself: the default `errorHandler` alert, paste error messages, the "copied" notice and the empty option of select cells. `"ja"` (default) or `"en"`.
+
+```ts
+type TLocale = "ja" | "en";
 ```
 
 ##### maxHeight / maxWidth

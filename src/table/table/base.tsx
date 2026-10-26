@@ -16,6 +16,7 @@ import { CheckboxProvider, CheckboxStatusProvider } from "../checkbox/provider";
 import { EditProvider } from "../edit/provider";
 import { TablePropertyProvider } from "../table-property/provider";
 import { KeyboardSetting } from "../operation/components/keyboard-setting";
+import { KeyCatcher } from "../operation/components/key-catcher";
 import { Row } from "../sheet/components";
 import { PasteProvider } from "../paste/provider";
 import { generateFormattingString } from "../libs/conditional-formatting";
@@ -34,63 +35,66 @@ import { Frame } from "../frame";
 import { ComponentProvider } from "./component-provider";
 import { useGenerateSortButton } from "./component-provider/provider";
 import { SelectBoxProvider } from "../../select-box/provider";
+import { LocaleProvider } from "../locale/provider";
 
 export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   return (
-    <ComponentProvider>
-      <TableIdGeneratorProvider id={props.id}>
-        <ColumnsWidthProvider cols={props.cols as TTableColumn<DataRecord>[]}>
-          <FilterProvider initialConditions={[]}>
-            <SortProvider initialCondition={props.initialCondition?.sort}>
-              <PagenationProvider
-                rowCount={props.rows.length}
-                perPage={
-                  (
-                    props.initialCondition?.pagination ??
-                    props.initialCondition?.pagenation
-                  )?.rowCountPerPage
-                }
-              >
-                <CheckboxProvider checkbox={props.checkbox}>
-                  <CheckboxStatusProvider checkboxCount={props.rows.length}>
-                    <ColumnsProvider
-                      cols={props.cols}
-                      errorHandler={props.errorHandler}
-                    >
-                      <EditProvider>
-                        <TablePropertyProvider>
-                          <RangeProvider>
-                            <CopyProvider rows={props.rows} cols={props.cols}>
-                              <CopiedMessage />
-                              <PasteProvider
-                                rows={props.rows}
-                                cols={props.cols}
-                                onUpdateRowFunction={props.onUpdateRow}
-                                onPasteError={props.onPasteError}
-                              >
-                                <KeyboardSetting
-                                  enableDeprecatedCopy={
-                                    props.deprecatedOptions
-                                      ?.enableDeprecatedCopy
-                                  }
-                                />
-                                <ScrollXPositionProvider>
-                                  <BaseTable {...props} />
-                                </ScrollXPositionProvider>
-                              </PasteProvider>
-                            </CopyProvider>
-                          </RangeProvider>
-                        </TablePropertyProvider>
-                      </EditProvider>
-                    </ColumnsProvider>
-                  </CheckboxStatusProvider>
-                </CheckboxProvider>
-              </PagenationProvider>
-            </SortProvider>
-          </FilterProvider>
-        </ColumnsWidthProvider>
-      </TableIdGeneratorProvider>
-    </ComponentProvider>
+    <LocaleProvider locale={props.locale}>
+      <ComponentProvider>
+        <TableIdGeneratorProvider id={props.id}>
+          <ColumnsWidthProvider cols={props.cols as TTableColumn<DataRecord>[]}>
+            <FilterProvider initialConditions={[]}>
+              <SortProvider initialCondition={props.initialCondition?.sort}>
+                <PagenationProvider
+                  rowCount={props.rows.length}
+                  perPage={
+                    (
+                      props.initialCondition?.pagination ??
+                      props.initialCondition?.pagenation
+                    )?.rowCountPerPage
+                  }
+                >
+                  <CheckboxProvider checkbox={props.checkbox}>
+                    <CheckboxStatusProvider checkboxCount={props.rows.length}>
+                      <ColumnsProvider
+                        cols={props.cols}
+                        errorHandler={props.errorHandler}
+                      >
+                        <EditProvider>
+                          <TablePropertyProvider>
+                            <RangeProvider>
+                              <CopyProvider rows={props.rows} cols={props.cols}>
+                                <CopiedMessage />
+                                <PasteProvider
+                                  rows={props.rows}
+                                  cols={props.cols}
+                                  onUpdateRowFunction={props.onUpdateRow}
+                                  onPasteError={props.onPasteError}
+                                >
+                                  <KeyboardSetting
+                                    enableDeprecatedCopy={
+                                      props.deprecatedOptions
+                                        ?.enableDeprecatedCopy
+                                    }
+                                  />
+                                  <ScrollXPositionProvider>
+                                    <BaseTable {...props} />
+                                  </ScrollXPositionProvider>
+                                </PasteProvider>
+                              </CopyProvider>
+                            </RangeProvider>
+                          </TablePropertyProvider>
+                        </EditProvider>
+                      </ColumnsProvider>
+                    </CheckboxStatusProvider>
+                  </CheckboxProvider>
+                </PagenationProvider>
+              </SortProvider>
+            </FilterProvider>
+          </ColumnsWidthProvider>
+        </TableIdGeneratorProvider>
+      </ComponentProvider>
+    </LocaleProvider>
   );
 }
 
@@ -160,6 +164,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
               </tbody>
             </table>
             <TestRange />
+            <KeyCatcher />
             <Editor rowMaps={rowMaps} pageRowIds={pageRowIds} />
           </Frame>
         </SelectBoxProvider>

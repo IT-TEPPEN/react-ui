@@ -1,3 +1,4 @@
+import { MESSAGES, TMessages } from "../locale/messages";
 import { TTableColumn } from "../table/type";
 
 type TPasteArgument = {
@@ -27,6 +28,8 @@ type TPasteArgument = {
   validators: {
     [key: string]: (value: any) => boolean;
   };
+  /** Messages for the errors. Japanese when omitted. */
+  messages?: TMessages["paste"];
 };
 
 type TPasteResult =
@@ -75,6 +78,8 @@ function normalizePastedValue(col: TTableColumn<any>, value: string): string {
 }
 
 export function paste(args: TPasteArgument): TPasteResult {
+  const messages = args.messages ?? MESSAGES.ja.paste;
+
   // ペーストデータの行数と列数を取得
   const pasteDataRowLength = args.pasteData.length;
   const pasteDataColLength = Math.max(
@@ -86,7 +91,7 @@ export function paste(args: TPasteArgument): TPasteResult {
     return {
       isError: true,
       type: "NoPasteData",
-      message: "ペーストデータがありません。",
+      message: messages.noData,
     };
   }
 
@@ -109,7 +114,7 @@ export function paste(args: TPasteArgument): TPasteResult {
     return {
       isError: true,
       type: "NOT_ENOUGH_ROWS",
-      message: "貼り付け先の行数が足りません。",
+      message: messages.notEnoughRows,
     };
   }
   // ペースト先の列数が足りない場合はエラー
@@ -120,7 +125,7 @@ export function paste(args: TPasteArgument): TPasteResult {
     return {
       isError: true,
       type: "NOT_ENOUGH_COLUMNS",
-      message: "貼り付け先の列数が足りません。",
+      message: messages.notEnoughColumns,
     };
   }
 
@@ -132,9 +137,9 @@ export function paste(args: TPasteArgument): TPasteResult {
       return {
         isError: true,
         type: "NOT_EDITABLE_COLUMN",
-        message: `編集できない列にデータを貼り付けることはできません。\n\n編集不可列: ${
+        message: messages.notEditableColumn(
           col.label ?? (col.key as string)
-        }`,
+        ),
       };
     }
   }
@@ -153,7 +158,7 @@ export function paste(args: TPasteArgument): TPasteResult {
         return {
           isError: true,
           type: "ValidationError",
-          message: `バリデーションエラー: ${pasteValue}`,
+          message: messages.invalidValue(pasteValue),
         };
       }
     }

@@ -7,23 +7,7 @@ import { useRangeContext } from "../../range/provider";
 import { useCopyActionContext } from "../../copy/provider";
 import { useTableIdGenerator } from "../../id";
 import { isComposingKey, isTextEntryTarget } from "../event-target";
-
-const setInitialValueToInputForm = (key: string, id: string) => {
-  const inputElement = document.getElementById(id);
-  if (inputElement) {
-    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-      window.HTMLInputElement.prototype,
-      "value"
-    )?.set;
-
-    if (nativeInputValueSetter) {
-      nativeInputValueSetter.call(inputElement, key);
-    }
-
-    const ev = new Event("input", { bubbles: true });
-    inputElement.dispatchEvent(ev);
-  }
-};
+import { setEditorInitialValue } from "../editor-input";
 
 export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
   const IdGenerator = useTableIdGenerator();
@@ -108,14 +92,16 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
           !e.altKey &&
           !e.ctrlKey &&
           !e.metaKey &&
-          /^[a-zA-Z0-9]$/.test(e.key)
+          // Any key that types one character (letters, digits, symbols,
+          // space). IME input is handled by KeyCatcher instead.
+          Array.from(e.key).length === 1
         ) {
           e.preventDefault();
           e.stopPropagation();
           edit.startEditing();
 
           setTimeout(() => {
-            setInitialValueToInputForm(e.key, IdGenerator.getEditorId());
+            setEditorInitialValue(e.key, IdGenerator.getEditorId());
           }, 10);
         } else if (e.key === "Backspace" || e.key === "Delete") {
           e.preventDefault();
@@ -123,7 +109,7 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
           edit.startEditing();
 
           setTimeout(() => {
-            setInitialValueToInputForm("", IdGenerator.getEditorId());
+            setEditorInitialValue("", IdGenerator.getEditorId());
           }, 10);
         }
       }

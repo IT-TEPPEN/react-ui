@@ -15,5 +15,6 @@ export type {
   TNumberValidateOption,
 } from "./table/libs/generate-validate-function";
 export type { TPasteError } from "./table/paste/types";
+export type { TLocale } from "./table/locale/messages";
 export type { Options } from "./select-box";
 export type { FileUploaderProps } from "./file-uploader/component";
