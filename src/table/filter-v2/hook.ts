@@ -3,6 +3,7 @@ import { TFilterHook } from "./type";
 import { filterReducer } from "./reducer";
 import { Condition } from "../../search-bar";
 import { DataObject, DataRecord } from "../table/type";
+import { normalizeForSearch } from "../../share/text/normalize";
 import { SearchInput } from "../../search-bar/condition-search-bar/condition-input-management/type";
 
 export const useFilterHook: TFilterHook = (initialConditions) => {
@@ -126,11 +127,15 @@ export function isMatchCondition(
             case "string:eq":
               return targetValue === value;
             case "string:like":
-              return toText(targetValue).includes(value);
+              return normalizeForSearch(toText(targetValue)).includes(
+                normalizeForSearch(value)
+              );
             case "string:neq":
               return targetValue !== value;
             case "string:not_like":
-              return !toText(targetValue).includes(value);
+              return !normalizeForSearch(toText(targetValue)).includes(
+                normalizeForSearch(value)
+              );
           }
       }
 
