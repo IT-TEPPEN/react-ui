@@ -16,6 +16,7 @@ import { CheckboxProvider, CheckboxStatusProvider } from "../checkbox/provider";
 import { EditProvider } from "../edit/provider";
 import { TablePropertyProvider } from "../table-property/provider";
 import { KeyboardSetting } from "../operation/components/keyboard-setting";
+import { KeyCatcher } from "../operation/components/key-catcher";
 import { Row } from "../sheet/components";
 import { PasteProvider } from "../paste/provider";
 import { generateFormattingString } from "../libs/conditional-formatting";
@@ -160,6 +161,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
               </tbody>
             </table>
             <TestRange />
+            <KeyCatcher />
             <Editor rowMaps={rowMaps} pageRowIds={pageRowIds} />
           </Frame>
         </SelectBoxProvider>
