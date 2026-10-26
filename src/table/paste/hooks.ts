@@ -34,7 +34,18 @@ export function usePasteReducer(args: TPasteHookArguments): TPasteReducerReturn 
 
       const res = paste({
         pasteData,
-        pasteArea: { start: range.start, end: range.end },
+        // The selection may have been made bottom-up or right-to-left, so
+        // paste from its top-left cell.
+        pasteArea: {
+          start: {
+            rowIndex: Math.min(range.start.rowIndex, range.end.rowIndex),
+            colIndex: Math.min(range.start.colIndex, range.end.colIndex),
+          },
+          end: {
+            rowIndex: Math.max(range.start.rowIndex, range.end.rowIndex),
+            colIndex: Math.max(range.start.colIndex, range.end.colIndex),
+          },
+        },
         currentRows: rowsRef.current,
         currentCols: cols,
         validators,
