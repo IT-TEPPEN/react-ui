@@ -1,3 +1,5 @@
+import { MESSAGES } from "../locale/messages";
+
 export type TStringValidateOption = {
   maxLength?: number;
   minLength?: number;
@@ -77,46 +79,10 @@ export type TErrorValidation = {
     }
 );
 
+// Used when no errorHandler is given. The table passes its own handler with
+// the messages of its locale, so this is only a fallback.
 function defaultErrorHandler(errors: TErrorValidation[]) {
-  let message = `入力値が不正のため、エラーを確認し修正してください。\n\n`;
-  message += `[対象の列名]: ${errors[0].label}\n`;
-  message += `[入力値]　　: ${errors[0].value}\n\n`;
-  message += `[エラー内容]:`;
-
-  message += errors.reduce((acc, error) => {
-    switch (error.type) {
-      case "STRING_IS_TOO_LONG":
-        return (
-          acc +
-          `\n・文字数が最大の長さ${error.maxLength}文字を超えています。(現在${error.currentLength}文字)`
-        );
-      case "STRING_IS_TOO_SHORT":
-        return (
-          acc +
-          `\n・文字数が最小の長さ${error.minLength}文字に満たないです。(現在${error.currentLength}文字)`
-        );
-      case "STRING_PATTERN_NOT_MATCH":
-        return acc + `\n・パターンに一致しません。(パターン${error.pattern})`;
-      case "NUMBER_IS_TOO_LARGE":
-        return (
-          acc + `\n・最大値${error.max}を超えています。(入力値${error.value})`
-        );
-      case "NUMBER_IS_TOO_SMALL":
-        return (
-          acc + `\n・最小値${error.min}を下回っています。(入力値${error.value})`
-        );
-      case "NOT_NUMBER":
-        return acc + `\n・数値ではない値が入力されています。`;
-      case "NOT_IN_OPTIONS":
-        return acc + `\n・選択肢に含まれていない値です。`;
-      case "NOT_DATE":
-        return acc + `\n・日付の形式ではありません。`;
-      case "NOT_DATETIME":
-        return acc + `\n・日時の形式ではありません。`;
-    }
-  }, "");
-
-  alert(message);
+  alert(MESSAGES.ja.validation(errors));
 }
 
 function generateStringValidateFunction(

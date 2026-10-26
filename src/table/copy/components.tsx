@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useCopyStateContext } from "./provider";
 import { useTableIdGenerator } from "../id";
+import { useMessages } from "../locale/provider";
 
 export function CopiedMessage() {
   const IdGenerator = useTableIdGenerator();
   const [isDisplay, setIsDisplay] = useState(false);
   const { copiedAt } = useCopyStateContext();
+  const messages = useMessages();
 
   useEffect(() => {
     if (copiedAt) {
@@ -44,7 +46,7 @@ export function CopiedMessage() {
       }`}
       style={{ top: y, left: x }}
     >
-      <p className="text-white text-xs">コピーしました!!!</p>
+      <p className="text-white text-xs">{messages.copied}</p>
     </div>
   );
 }

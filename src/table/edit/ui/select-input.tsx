@@ -11,6 +11,7 @@ import {
 } from "../../table/type";
 import { SelectBox } from "../../../select-box";
 import { useTableIdGenerator } from "../../id";
+import { useMessages } from "../../locale/provider";
 
 type TPropsCellInput = {
   col: TColumnProperty<DataRecord> & TSelectCellEditingCondition<DataRecord>;
@@ -19,6 +20,7 @@ type TPropsCellInput = {
 
 export function SelectCellInput(props: TPropsCellInput) {
   const IdGenerator = useTableIdGenerator();
+  const messages = useMessages();
   const col = props.col;
   const { endEditing } = useEditActionContext();
   const prevValue = props.row[col.key] as string;
@@ -66,14 +68,14 @@ export function SelectCellInput(props: TPropsCellInput) {
       return [
         {
           value: "",
-          label: prevValue === "" ? "-- 未選択 --" : "-- 選択解除 --",
+          label: prevValue === "" ? messages.selectNone : messages.selectClear,
         },
         ...col.options,
       ];
     } else {
       return col.options;
     }
-  }, [col.options, allowEmpty, prevValue]);
+  }, [col.options, allowEmpty, prevValue, messages]);
 
   // Return only after every hook has run, so hooks are always called in the
   // same order.
@@ -87,6 +89,7 @@ export function SelectCellInput(props: TPropsCellInput) {
         value={value}
         defaultIsOpen={true}
         options={options}
+        placeholder={messages.selectPlaceholder}
         onSelect={(value) => {
           setValue(value);
           updateCellValue(value);

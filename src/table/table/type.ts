@@ -1,5 +1,6 @@
 import React from "react";
 import { TPasteError } from "../paste/types";
+import { TLocale } from "../locale/messages";
 import { Options } from "../../select-box";
 import {
   TErrorValidation,
@@ -156,6 +157,11 @@ export type TPropsTable<T extends DataRecord> = {
    * table or targets a read-only column. Defaults to window.alert.
    */
   onPasteError?: (error: TPasteError) => void;
+  /**
+   * Language of the messages the table shows by itself, such as the default
+   * validation alert and the "copied" notice. Defaults to "ja".
+   */
+  locale?: TLocale;
   deprecatedOptions?: {
     enableDeprecatedCopy?: boolean;
   };

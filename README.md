@@ -220,7 +220,7 @@ A component that displays a table based on the row and column information passed
 
 #### Arguments
 
-The table component accepts the arguments `id`, `rows`, `cols`, `initialCondition`, `onClickRow`, `onUpdateRow`, `onPasteError`, `errorHandler`, `applyRowFormatting`, `checkbox`, `conditionalFormattings`, `maxHeight` and `maxWidth`. Details for each argument are described below.
+The table component accepts the arguments `id`, `rows`, `cols`, `initialCondition`, `onClickRow`, `onUpdateRow`, `onPasteError`, `errorHandler`, `locale`, `applyRowFormatting`, `checkbox`, `conditionalFormattings`, `maxHeight` and `maxWidth`. Details for each argument are described below.
 
 All of these types are exported from the package, e.g. `import type { TTableColumn, TPropsTable } from "@teppen/react-ui";`.
 
@@ -336,6 +336,14 @@ In `errorHandler`, you can handle values that break a column's `constraints` (wh
 
 ```ts
 type TErrorHandler = (errors: TErrorValidation[]) => void;
+```
+
+##### locale
+
+`locale` sets the language of the messages the table shows by itself: the default `errorHandler` alert, paste error messages, the "copied" notice and the empty option of select cells. `"ja"` (default) or `"en"`.
+
+```ts
+type TLocale = "ja" | "en";
 ```
 
 ##### maxHeight / maxWidth
