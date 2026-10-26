@@ -126,6 +126,11 @@ export type TConditionalFormatting<T extends DataRecord> = {
 type TailwindCssStyle = string;
 
 type TPaginationCondition = {
+  /**
+   * Rows per page. Defaults to 50.
+   * "all" renders every row at once and gets slow with many rows; use
+   * pagination for more than about 1,000 rows.
+   */
   rowCountPerPage?: 20 | 50 | 100 | "all";
 };
 

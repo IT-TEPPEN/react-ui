@@ -298,6 +298,8 @@ type TInitialCondition = {
 
 ※ `pagenation` (the earlier spelling) still works but is deprecated. If both are set, `pagination` is used.
 
+`rowCountPerPage` defaults to 50. With pagination, the table stays fast regardless of the number of rows (all operations took under 50 ms with 10,000 rows in our measurements). `"all"` renders every row at once, so it gets slower as rows increase: with 1,000 rows sorting takes about 0.6 s, and with 10,000 rows the first render and sorting take several seconds. For more than about 1,000 rows, use pagination.
+
 ##### onClickRow
 
 In `onClickRow`, you may define the behavior when a row is clicked. This is optional.
