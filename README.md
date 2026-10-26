@@ -213,6 +213,9 @@ A component that displays a table based on the row and column information passed
 - Pagination function
 - Sorting function (except for columns that use `render` while `editable` is false, or that set `disableSort`)
 - Filtering function (only when `label` is set in the column information; the same columns as sorting are excluded, and `disableFilter` turns it off)
+
+Sorting compares numbers and dates by value and text in Japanese order (`"2"` before `"10"`, hiragana and katakana together in kana order). Select columns are sorted by their labels. Empty values stay at the end in both orders.
+The `like` / `not like` filters ignore differences between upper and lower case, full-width and half-width characters, and hiragana and katakana (`"tokyo"` matches `"Tokyo"`, `"とうきょう"` matches `"ﾄｳｷｮｳ"`). `=` and `≠` compare the text exactly.
 - Editing function (only when `editable` is true and `onCellBlur` is set in the column information)
 - Checkbox function
 - Paste function
