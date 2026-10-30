@@ -13,20 +13,6 @@ import {
 import { KEYWORD_TARGET_KEY } from "../../share/search-operator";
 import { useMessages } from "../locale/provider";
 
-/**
- * Whether the column shows its value as is, so it can be sorted and
- * filtered. Read-only columns that render their own component are excluded,
- * because what the user sees may not match the underlying value.
- */
-export function hasComparableValue<T extends DataRecord>(
-  col: TTableColumn<T>
-): boolean {
-  if (col.type === "date" || col.type === "datetime" || col.editable) {
-    return true;
-  }
-
-  return !col.render;
-}
 
 interface IPropsTableHeader<T extends DataRecord> {
   cols: TTableColumn<T>[];
@@ -75,7 +61,7 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
 
   const columnTargets = props.cols
     .filter((col) => !col.disableFilter)
-    .filter((col) => !!col.label && hasComparableValue(col))
+    .filter((col) => !!col.label)
     .map((col): Target => {
       const base = { key: col.key.toString(), label: col.label as string };
       return col.type === "select"
@@ -144,7 +130,7 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
                 keyName={col.key.toString()}
                 label={col.label}
                 colWidth={getColumnWidth(col.key as string)}
-                disableSort={col.disableSort || !hasComparableValue(col)}
+                disableSort={col.disableSort}
                 generateSortButton={props.generateSortButton}
               />
             );

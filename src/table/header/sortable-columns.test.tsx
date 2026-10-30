@@ -35,14 +35,24 @@ const renderedNames = (container: HTMLElement) =>
   );
 
 describe("sortable columns", () => {
-  test("read-only columns can be sorted unless they render a component or disable sort", () => {
+  test("every column can be sorted unless it sets disableSort", () => {
     const { container } = render(<Table cols={cols} rows={rows} />);
     const buttons = sortButtons(container);
 
     expect(buttons["名前"]).not.toBeNull();
     expect(buttons["年齢"]).not.toBeNull();
-    expect(buttons["備考"]).toBeNull();
+    expect(buttons["備考"]).not.toBeNull();
     expect(buttons["固定"]).toBeNull();
+  });
+
+  test("a column with render is sorted by its value", () => {
+    const { container } = render(<Table cols={cols} rows={rows} />);
+
+    fireEvent.click(sortButtons(container)["備考"]!);
+    expect(renderedNames(container)).toEqual(["1", "2", "3"]);
+
+    fireEvent.click(sortButtons(container)["備考"]!);
+    expect(renderedNames(container)).toEqual(["3", "2", "1"]);
   });
 
   test("sorting a read-only column orders the rows", () => {

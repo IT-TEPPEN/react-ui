@@ -3,8 +3,8 @@ import { formatDateForCopy, formatDatetimeForCopy } from "../copy/format";
 
 /**
  * Builds the text that the all-columns keyword search looks in for a row:
- * what each column shows (the label of a select option, the rendered text of
- * a date), joined. Columns with disableFilter are left out.
+ * each column's value and what it shows (the label of a select option, text
+ * returned by render), joined. Columns with disableFilter are left out.
  */
 export function buildKeywordTextGetter<T extends DataRecord>(
   cols: TTableColumn<T>[]
@@ -19,7 +19,8 @@ export function buildKeywordTextGetter<T extends DataRecord>(
           const labels = new Map(col.options.map((o) => [o.value, o.label]));
           return (row) => {
             const value = row[key];
-            return labels.get(value as string) ?? toText(value);
+            const text = labels.get(value as string) ?? toText(value);
+            return withRenderedText(col, text, row);
           };
         }
         case "date":
@@ -38,11 +39,35 @@ export function buildKeywordTextGetter<T extends DataRecord>(
           };
         }
         default:
-          return (row) => toText(row[key]);
+          return (row) => withRenderedText(col, toText(row[key]), row);
       }
     });
 
   return (row) => getters.map((get) => get(row)).join("\n");
+}
+
+/**
+ * Adds the text a read-only column's render returns, when it returns text
+ * (or a number). A component's inner text cannot be read, so only the value
+ * is searched then.
+ */
+function withRenderedText<T extends DataRecord>(
+  col: TTableColumn<T>,
+  text: string,
+  row: DataObject<T>
+): string {
+  if (col.editable || col.type === "date" || col.type === "datetime" || !col.render) {
+    return text;
+  }
+
+  try {
+    const shown = col.render(row[col.key] as never, row);
+    return typeof shown === "string" || typeof shown === "number"
+      ? `${text}\n${shown}`
+      : text;
+  } catch {
+    return text;
+  }
 }
 
 function toText(value: unknown): string {
