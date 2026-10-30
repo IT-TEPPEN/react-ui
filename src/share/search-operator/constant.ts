@@ -97,6 +97,18 @@ export const DEFAULT_SEARCH_OPERATOR = [
     inputType: SELECT,
   },
   {
+    key: "select:in",
+    label: "in",
+    type: "select",
+    inputType: MULTI_SELECT,
+  },
+  {
+    key: "select:not_in",
+    label: "not in",
+    type: "select",
+    inputType: MULTI_SELECT,
+  },
+  {
     key: "select:is_null",
     label: "is empty",
     type: "select",

@@ -11,6 +11,7 @@ import { useTablePropertyActionContext } from "../table-property/provider";
 import { usePasteActionContext } from "../paste/provider";
 import { useCopyActionContext } from "../copy/provider";
 import { useFilterFunctions } from "../filter-v2/context";
+import { buildKeywordTextGetter } from "../filter-v2/keyword";
 
 export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { filter } = useFilterFunctions();
@@ -31,8 +32,15 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
     [props.rows]
   );
 
+  // Text the all-columns keyword search looks in. Not a dependency of
+  // filteredRows, so a new cols array (e.g. defined inline) does not re-filter.
+  const getKeywordText = useMemo(
+    () => buildKeywordTextGetter(props.cols),
+    [props.cols]
+  );
+
   const filteredRows = useMemo(
-    () => filter(props.rows),
+    () => filter(props.rows, getKeywordText),
     [filter, sortTiming, rowIdsKey]
   );
 
