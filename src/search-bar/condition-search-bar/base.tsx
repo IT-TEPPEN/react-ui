@@ -16,6 +16,9 @@ import { BiSearchAlt } from "react-icons/bi";
 interface SearcchBarProps {
   size: "small" | "medium" | "large";
   conditions: Condition[];
+  /** How conditions are combined. The toggle is shown with 2+ conditions. */
+  mode?: "and" | "or";
+  onChangeMode?: (mode: "and" | "or") => void;
 }
 
 interface ConditionSearchBarProps extends SearcchBarProps {
@@ -34,7 +37,12 @@ export const ConditionSearchBar = memo(function CS(
           targets={props.targets}
           onChangeCondition={props.onChangeCondition}
         >
-          <SearchBar size={props.size} conditions={props.conditions} />
+          <SearchBar
+            size={props.size}
+            conditions={props.conditions}
+            mode={props.mode}
+            onChangeMode={props.onChangeMode}
+          />
         </ConditionInputProvider>
       </IdGeneratorProvider>
     </SelectBoxProvider>
@@ -90,6 +98,25 @@ export function SearchBar(props: SearcchBarProps) {
           }
         `}</style>
         <ConditionList conditions={props.conditions} />
+        {props.onChangeMode && props.conditions.length >= 2 && (
+          <button
+            type="button"
+            className="shrink-0 px-2 rounded border border-slate-400 text-xs font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+            title={
+              props.mode === "or"
+                ? "Match any condition (click for all)"
+                : "Match all conditions (click for any)"
+            }
+            aria-label={`Combine conditions with ${
+              props.mode === "or" ? "OR" : "AND"
+            }`}
+            onClick={() =>
+              props.onChangeMode?.(props.mode === "or" ? "and" : "or")
+            }
+          >
+            {props.mode === "or" ? "OR" : "AND"}
+          </button>
+        )}
         <div className="flex items-center min-w-64 w-full">
           <SearchBarInputForm size={props.size} />
         </div>

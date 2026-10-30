@@ -65,9 +65,16 @@ function getLabel(condition: Condition): string {
       return `${condition.target.label} ${condition.operator.label} ${
         condition.target.options.find((o) => o.value === selectedKey)?.label
       }`;
-    case "multi select":
+    case "multi select": {
+      // Show option labels instead of the stored values.
+      const options =
+        condition.target.type === "select" ? condition.target.options : [];
+      const labels = condition.input.payload.value.map(
+        (value) => options.find((o) => o.value === value)?.label ?? value
+      );
       return `${condition.target.label} ${
         condition.operator.label
-      } ${condition.input.payload.value.join(", ")}`;
+      } ${labels.join(", ")}`;
+    }
   }
 }

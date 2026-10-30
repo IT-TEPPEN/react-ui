@@ -4,10 +4,10 @@ import { filterReducer } from "./reducer";
 import { Condition } from "../../search-bar";
 import { DataObject, DataRecord } from "../table/type";
 import { normalizeForSearch } from "../../share/text/normalize";
+import { KEYWORD_TARGET_KEY } from "../../share/search-operator/constant";
 import { SearchInput } from "../../search-bar/condition-search-bar/condition-input-management/type";
 
-/** Target key of the condition that searches every column. */
-export const KEYWORD_TARGET_KEY = "*";
+export { KEYWORD_TARGET_KEY };
 
 export const useFilterHook: TFilterHook = (initialConditions, initialMode) => {
   const [state, dispatch] = useReducer(filterReducer, {

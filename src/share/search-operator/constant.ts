@@ -171,7 +171,27 @@ export const DEFAULT_SEARCH_OPERATOR = [
   },
 ] as const;
 
+/** Target key of the condition that searches every column. */
+export const KEYWORD_TARGET_KEY = "*";
+
 export type T_DEFAULT_SEARCH_OPERATOR =
   (typeof DEFAULT_SEARCH_OPERATOR)[number];
 
 export type T_SEARCH_INPUT_TYPE = T_DEFAULT_SEARCH_OPERATOR["inputType"];
+
+/**
+ * Operators that can be used for a target. The all-columns keyword target
+ * only supports like / not like.
+ */
+export function usableOperatorsFor(target: {
+  key: string;
+  type: T_DEFAULT_SEARCH_OPERATOR["type"];
+}): T_DEFAULT_SEARCH_OPERATOR[] {
+  return DEFAULT_SEARCH_OPERATOR.filter(
+    (o) =>
+      o.type === target.type &&
+      (target.key !== KEYWORD_TARGET_KEY ||
+        o.key === "string:like" ||
+        o.key === "string:not_like")
+  );
+}

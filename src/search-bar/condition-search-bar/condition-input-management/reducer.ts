@@ -1,4 +1,7 @@
-import { DEFAULT_SEARCH_OPERATOR } from "../../../share/search-operator";
+import {
+  DEFAULT_SEARCH_OPERATOR,
+  usableOperatorsFor,
+} from "../../../share/search-operator";
 import { TConditionInputReducer } from "./type";
 
 export const conditionInputReducer: TConditionInputReducer = (
@@ -26,9 +29,7 @@ export const conditionInputReducer: TConditionInputReducer = (
           type: target.type,
           target,
         },
-        useableOperators: DEFAULT_SEARCH_OPERATOR.filter(
-          (o) => o.type === target.type
-        ),
+        useableOperators: usableOperatorsFor(target),
       };
     }
 
@@ -154,9 +155,7 @@ export const conditionInputReducer: TConditionInputReducer = (
           type: state.inputtingCondition.target.type,
           target: state.inputtingCondition.target,
         },
-        useableOperators: DEFAULT_SEARCH_OPERATOR.filter(
-          (o) => o.type === state.inputtingCondition.target.type
-        ),
+        useableOperators: usableOperatorsFor(state.inputtingCondition.target),
       };
     }
 

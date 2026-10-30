@@ -6,7 +6,12 @@ import { AllCheckbox } from "../checkbox/components";
 import { ConditionSearchBar } from "../../search-bar";
 import { useTableIdGenerator } from "../id";
 import { useFilter } from "../filter-v2";
-import { TConditionChangeAction } from "../../search-bar/condition-search-bar/condition-input-management/type";
+import {
+  Target,
+  TConditionChangeAction,
+} from "../../search-bar/condition-search-bar/condition-input-management/type";
+import { KEYWORD_TARGET_KEY } from "../../share/search-operator";
+import { useMessages } from "../locale/provider";
 
 /**
  * Whether the column shows its value as is, so it can be sorted and
@@ -34,7 +39,8 @@ interface IPropsTableHeader<T extends DataRecord> {
 export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
   const idGenerator = useTableIdGenerator();
   const { getColumnWidth } = useColumnsWidthState();
-  const { conditions, addFilter, removeFilter } = useFilter();
+  const { conditions, mode, addFilter, removeFilter, setMode } = useFilter();
+  const messages = useMessages();
   const ref = useScrollXRef();
 
   useEffect(() => {
@@ -67,46 +73,33 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
     }
   }, []);
 
-  const targets = useMemo(() => {
-    return props.cols
-      .filter((col) => !col.disableFilter)
-      .filter((col) => !!col.label && hasComparableValue(col))
-      .map((col) => {
-        switch (col.type) {
-          case "string":
-            return {
-              key: col.key.toString(),
-              label: col.label as string,
-              type: col.type,
-            };
-          case "number":
-            return {
-              key: col.key.toString(),
-              label: col.label as string,
-              type: col.type,
-            };
-          case "select":
-            return {
-              key: col.key.toString(),
-              label: col.label as string,
-              type: col.type,
-              options: col.options,
-            };
-          case "date":
-            return {
-              key: col.key.toString(),
-              label: col.label as string,
-              type: col.type,
-            };
-          case "datetime":
-            return {
-              key: col.key.toString(),
-              label: col.label as string,
-              type: col.type,
-            };
-        }
-      });
-  }, [props.cols]);
+  const columnTargets = props.cols
+    .filter((col) => !col.disableFilter)
+    .filter((col) => !!col.label && hasComparableValue(col))
+    .map((col): Target => {
+      const base = { key: col.key.toString(), label: col.label as string };
+      return col.type === "select"
+        ? { ...base, type: col.type, options: col.options }
+        : { ...base, type: col.type };
+    });
+
+  // Keyed on the content, so that a new cols array with the same columns
+  // (e.g. defined inline) does not reset a condition being entered.
+  const targetsKey = JSON.stringify([messages.allColumns, columnTargets]);
+  const targets = useMemo(
+    () =>
+      columnTargets.length === 0
+        ? []
+        : [
+            {
+              key: KEYWORD_TARGET_KEY,
+              label: messages.allColumns,
+              type: "string" as const,
+            },
+            ...columnTargets,
+          ],
+    [targetsKey]
+  );
 
   return (
     <div
@@ -119,6 +112,8 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
           targets={targets}
           conditions={conditions}
           onChangeCondition={onChangeCondition}
+          mode={mode}
+          onChangeMode={setMode}
           size="small"
         />
       </div>

@@ -18,6 +18,8 @@ export type TMessages = {
   selectNone: string;
   selectClear: string;
   selectPlaceholder: string;
+  /** Search bar target that searches every column. */
+  allColumns: string;
 };
 
 const ja: TMessages = {
@@ -66,6 +68,7 @@ const ja: TMessages = {
   selectNone: "-- 未選択 --",
   selectClear: "-- 選択解除 --",
   selectPlaceholder: "選択してください",
+  allColumns: "すべての列",
 };
 
 const en: TMessages = {
@@ -114,6 +117,7 @@ const en: TMessages = {
   selectNone: "-- None --",
   selectClear: "-- Clear --",
   selectPlaceholder: "Select...",
+  allColumns: "All columns",
 };
 
 export const MESSAGES: Record<TLocale, TMessages> = { ja, en };

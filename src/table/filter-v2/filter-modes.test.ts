@@ -72,7 +72,7 @@ describe("keyword text", () => {
 });
 
 describe("useFilterHook", () => {
-  const ids = (list: { id: string }[]) => list.map((r) => r.id);
+  const ids = (list: { id: string | number }[]) => list.map((r) => r.id);
   const getText = buildKeywordTextGetter(cols);
 
   test("combines conditions with AND by default and with OR when set", () => {
