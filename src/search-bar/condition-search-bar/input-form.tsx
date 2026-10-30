@@ -141,6 +141,15 @@ function SearchValueInputForm(props: { size?: "small" | "medium" | "large" }) {
               : []
           }
         />
+      ) : state.inputtingCondition.operator.inputType === "multi select" ? (
+        <InputMultiSelect
+          inputType={state.inputtingCondition.operator.inputType}
+          options={
+            state.inputtingCondition.target.type === "select"
+              ? state.inputtingCondition.target.options
+              : []
+          }
+        />
       ) : state.inputtingCondition.operator.inputType === "single datetime" ? (
         <InputSingleDatetime
           inputType={state.inputtingCondition.operator.inputType}
@@ -274,6 +283,63 @@ function InputSingleSelect(props: { inputType: "select"; options: Options[] }) {
         no_appearance
         no_icon
       />
+    </div>
+  );
+}
+
+function InputMultiSelect(props: {
+  inputType: "multi select";
+  options: Options[];
+}) {
+  const { inputValue } = useConditionInputAction();
+  const [selected, setSelected] = useState<string[]>([]);
+
+  const toggle = (value: string) => {
+    setSelected((current) =>
+      current.includes(value)
+        ? current.filter((v) => v !== value)
+        : [...current, value]
+    );
+  };
+
+  return (
+    <div className="flex items-center gap-1 w-full min-w-64" role="group">
+      {props.options.map((option) => {
+        const isSelected = selected.includes(option.value);
+        return (
+          <button
+            key={option.value}
+            type="button"
+            aria-pressed={isSelected}
+            className={`shrink-0 px-2 rounded border whitespace-nowrap cursor-pointer ${
+              isSelected
+                ? "bg-sky-600 border-sky-600 text-white"
+                : "bg-white border-gray-300 hover:bg-gray-100"
+            }`}
+            onClick={() => toggle(option.value)}
+          >
+            {option.label}
+          </button>
+        );
+      })}
+      <button
+        type="button"
+        disabled={selected.length === 0}
+        className="shrink-0 px-2 rounded bg-slate-700 text-white font-bold cursor-pointer disabled:opacity-40 disabled:cursor-default"
+        onClick={() =>
+          inputValue({
+            type: props.inputType,
+            // In the order of the options, not the order they were clicked.
+            payload: {
+              value: props.options
+                .map((option) => option.value)
+                .filter((value) => selected.includes(value)),
+            },
+          })
+        }
+      >
+        OK
+      </button>
     </div>
   );
 }

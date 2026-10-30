@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { DataObject, DataRecord, TPropsTable } from "./type";
 import { usePageContext } from "../pagenation/providers";
 import { useCheckboxStatusContext } from "../checkbox/provider";
@@ -10,13 +10,16 @@ import {
 import { useTablePropertyActionContext } from "../table-property/provider";
 import { usePasteActionContext } from "../paste/provider";
 import { useCopyActionContext } from "../copy/provider";
-import { useFilterFunctions } from "../filter-v2/context";
+import { useFilterFunctions, useFilterState } from "../filter-v2/context";
+import { fromCondition } from "../filter-v2/public";
+import { buildKeywordTextGetter } from "../filter-v2/keyword";
 
 export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { filter } = useFilterFunctions();
   const { sort, updatedData } = useSortActionContext();
   const sortTiming = useSortTimingContext();
-  const { key: sortKey } = useSortStateContext();
+  const { key: sortKey, asc: sortAsc } = useSortStateContext();
+  const { conditions, mode } = useFilterState();
   const { setRowCount, pageFilter } = usePageContext();
   const { dispatchCheckboxStatus } = useCheckboxStatusContext();
   const { setRows: setRowsForPaste } = usePasteActionContext();
@@ -31,8 +34,15 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
     [props.rows]
   );
 
+  // Text the all-columns keyword search looks in. Not a dependency of
+  // filteredRows, so a new cols array (e.g. defined inline) does not re-filter.
+  const getKeywordText = useMemo(
+    () => buildKeywordTextGetter(props.cols),
+    [props.cols]
+  );
+
   const filteredRows = useMemo(
-    () => filter(props.rows),
+    () => filter(props.rows, getKeywordText),
     [filter, sortTiming, rowIdsKey]
   );
 
@@ -81,6 +91,30 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
   useEffect(() => {
     updatedData();
   }, [props.rows]);
+
+  // Tell the app about the filters, sort and resulting rows. Read the
+  // callback through a ref so a new function does not trigger a call.
+  const onConditionChangeRef = useRef(props.onConditionChange);
+  useEffect(() => {
+    onConditionChangeRef.current = props.onConditionChange;
+  });
+
+  useEffect(() => {
+    const onConditionChange = onConditionChangeRef.current;
+    if (!onConditionChange) return;
+
+    // sortedRows keeps row objects from when it was computed; give the app
+    // the current objects for the same rows.
+    const current = new Map(props.rows.map((row) => [row.id, row]));
+    onConditionChange(
+      {
+        filters: conditions.map(fromCondition),
+        filterMode: mode,
+        sort: { key: String(sortKey), asc: sortAsc },
+      },
+      sortedRows.map((row) => current.get(row.id) ?? row)
+    );
+  }, [conditions, mode, sortKey, sortAsc, sortedRows, props.rows]);
 
   const pageRows = useMemo(
     () => pageFilter(sortedRows),

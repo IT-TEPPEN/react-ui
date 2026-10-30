@@ -8,6 +8,9 @@ export type {
   TTableColumn,
   TColumnType,
   TConditionalFormatting,
+  TFilter,
+  TFilterOperator,
+  TTableCondition,
 } from "./table/table/type";
 export type {
   TErrorValidation,

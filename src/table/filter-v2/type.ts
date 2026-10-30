@@ -2,8 +2,12 @@ import { Reducer } from "react";
 import { Condition } from "../../search-bar";
 import { DataObject, DataRecord } from "../table/type";
 
+/** How conditions are combined: all must match, or any one. */
+export type TFilterMode = "and" | "or";
+
 export type TFilterState = {
   conditions: Condition[];
+  mode: TFilterMode;
 };
 
 export type TFilterAction =
@@ -21,6 +25,10 @@ export type TFilterAction =
     }
   | {
       type: "clear";
+    }
+  | {
+      type: "setMode";
+      payload: { mode: TFilterMode };
     };
 
 export type TFilterReducer = Reducer<TFilterState, TFilterAction>;
@@ -30,12 +38,23 @@ export type TFilterActionContext = {
   addFilter: (condition: Condition) => void;
   removeFilter: (index: number) => void;
   clearFilter: () => void;
+  setMode: (mode: TFilterMode) => void;
 };
 export type TFilterFunctionContext = {
-  filter: <T extends DataRecord>(rows: DataObject<T>[]) => DataObject<T>[];
+  /**
+   * Filters rows by the conditions. `getKeywordText` gives the text of a row
+   * that the all-columns keyword condition searches.
+   */
+  filter: <T extends DataRecord>(
+    rows: DataObject<T>[],
+    getKeywordText?: (row: DataObject<T>) => string
+  ) => DataObject<T>[];
 };
 
-export type TFilterHook = (initialConditions: Condition[]) => {
+export type TFilterHook = (
+  initialConditions: Condition[],
+  initialMode?: TFilterMode
+) => {
   state: TFilterState;
   actions: TFilterActionContext;
   functions: TFilterFunctionContext;

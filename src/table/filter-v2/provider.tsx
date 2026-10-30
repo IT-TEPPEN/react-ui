@@ -5,12 +5,17 @@ import {
   FilterStateContext,
 } from "./context";
 import { useFilterHook } from "./hook";
+import { TFilterMode } from "./type";
 
 export function FilterProvider(props: {
   children: React.ReactNode;
   initialConditions: Condition[];
+  initialMode?: TFilterMode;
 }) {
-  const { state, actions, functions } = useFilterHook(props.initialConditions);
+  const { state, actions, functions } = useFilterHook(
+    props.initialConditions,
+    props.initialMode
+  );
 
   return (
     <FilterStateContext.Provider value={state}>

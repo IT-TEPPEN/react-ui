@@ -1,14 +1,18 @@
 import { useMemo, useReducer } from "react";
-import { TFilterHook } from "./type";
+import { TFilterHook, TFilterMode } from "./type";
 import { filterReducer } from "./reducer";
 import { Condition } from "../../search-bar";
 import { DataObject, DataRecord } from "../table/type";
 import { normalizeForSearch } from "../../share/text/normalize";
+import { KEYWORD_TARGET_KEY } from "../../share/search-operator/constant";
 import { SearchInput } from "../../search-bar/condition-search-bar/condition-input-management/type";
 
-export const useFilterHook: TFilterHook = (initialConditions) => {
+export { KEYWORD_TARGET_KEY };
+
+export const useFilterHook: TFilterHook = (initialConditions, initialMode) => {
   const [state, dispatch] = useReducer(filterReducer, {
     conditions: initialConditions,
+    mode: initialMode ?? "and",
   });
 
   const actions = useMemo(
@@ -22,22 +26,40 @@ export const useFilterHook: TFilterHook = (initialConditions) => {
       clearFilter: () => {
         dispatch({ type: "clear" });
       },
+      setMode: (mode: TFilterMode) => {
+        dispatch({ type: "setMode", payload: { mode } });
+      },
     }),
     [state.conditions]
   );
 
   const functions = useMemo(
     () => ({
-      filter: <T extends DataRecord>(rows: DataObject<T>[]) => {
-        return rows.filter((row) => {
-          return state.conditions.every((condition) => {
-            const value = row[condition.target.key];
-            return isMatchCondition(condition, value, condition.input);
-          });
-        });
+      filter: <T extends DataRecord>(
+        rows: DataObject<T>[],
+        getKeywordText?: (row: DataObject<T>) => string
+      ) => {
+        if (state.conditions.length === 0) {
+          return rows;
+        }
+
+        const matches = (row: DataObject<T>, condition: Condition) =>
+          condition.target.key === KEYWORD_TARGET_KEY
+            ? isMatchKeyword(condition, getKeywordText?.(row) ?? "")
+            : isMatchCondition(
+                condition,
+                row[condition.target.key],
+                condition.input
+              );
+
+        return rows.filter((row) =>
+          state.mode === "or"
+            ? state.conditions.some((condition) => matches(row, condition))
+            : state.conditions.every((condition) => matches(row, condition))
+        );
       },
     }),
-    [state.conditions]
+    [state.conditions, state.mode]
   );
 
   return {
@@ -46,6 +68,18 @@ export const useFilterHook: TFilterHook = (initialConditions) => {
     functions,
   };
 };
+
+/** The all-columns keyword condition: like / not like on the row's text. */
+function isMatchKeyword(condition: Condition, rowText: string): boolean {
+  if (condition.input.type !== "single string") {
+    return false;
+  }
+
+  const found = normalizeForSearch(rowText).includes(
+    normalizeForSearch(condition.input.payload.value)
+  );
+  return condition.operator.key === "string:not_like" ? !found : found;
+}
 
 function toText(value: unknown): string {
   return value === null || value === undefined ? "" : String(value);
@@ -154,6 +188,20 @@ export function isMatchCondition(
             case "select:neq":
               return targetValue !== value;
           }
+        case "multi select": {
+          if (input.type !== condition.operator.inputType) {
+            throw new Error("input type is not match");
+          }
+
+          const values = input.payload.value;
+
+          switch (condition.operator.key) {
+            case "select:in":
+              return values.includes(targetValue);
+            case "select:not_in":
+              return !values.includes(targetValue);
+          }
+        }
         case "none":
           if (input.type !== condition.operator.inputType) {
             throw new Error("input type is not match");

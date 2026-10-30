@@ -36,14 +36,34 @@ import { ComponentProvider } from "./component-provider";
 import { useGenerateSortButton } from "./component-provider/provider";
 import { SelectBoxProvider } from "../../select-box/provider";
 import { LocaleProvider } from "../locale/provider";
+import { MESSAGES } from "../locale/messages";
+import { toCondition } from "../filter-v2/public";
+import { Condition } from "../../search-bar";
+import { useState } from "react";
 
 export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
+  // Filters from initialCondition, converted once on the first render.
+  const [initialFilters] = useState(() =>
+    (props.initialCondition?.filters ?? [])
+      .map((filter) =>
+        toCondition(
+          filter,
+          props.cols,
+          MESSAGES[props.locale ?? "ja"].allColumns
+        )
+      )
+      .filter((condition): condition is Condition => condition !== null)
+  );
+
   return (
     <LocaleProvider locale={props.locale}>
       <ComponentProvider>
         <TableIdGeneratorProvider id={props.id}>
           <ColumnsWidthProvider cols={props.cols as TTableColumn<DataRecord>[]}>
-            <FilterProvider initialConditions={[]}>
+            <FilterProvider
+              initialConditions={initialFilters}
+              initialMode={props.initialCondition?.filterMode}
+            >
               <SortProvider initialCondition={props.initialCondition?.sort}>
                 <PagenationProvider
                   rowCount={props.rows.length}
