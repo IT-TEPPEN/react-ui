@@ -190,3 +190,31 @@ test("a condition being entered survives a re-render with new cols", () => {
   typeValue(container, "jiro");
   expect(renderedIds(container)).toEqual(["2"]);
 });
+
+test("options that arrive later do not reset a condition being entered", () => {
+  let loadOptions = () => {};
+  function Parent() {
+    const [options, setOptions] = useState([{ value: "1", label: "管理者" }]);
+    loadOptions = () =>
+      setOptions([
+        { value: "1", label: "管理者" },
+        { value: "3", label: "ゲスト" },
+      ]);
+    return (
+      <Table
+        cols={[{ key: "role", type: "select", label: "役割", options }]}
+        rows={rows}
+      />
+    );
+  }
+  const { container, getByRole } = render(<Parent />);
+
+  chooseTarget(container, "役割");
+  chooseOperator("in");
+  act(() => loadOptions());
+
+  // Still choosing values, now with the new option.
+  fireEvent.click(getByRole("button", { name: "ゲスト" }));
+  fireEvent.click(getByRole("button", { name: "OK" }));
+  expect(renderedIds(container)).toEqual(["3"]);
+});

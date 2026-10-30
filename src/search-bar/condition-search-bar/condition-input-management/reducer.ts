@@ -121,9 +121,34 @@ export const conditionInputReducer: TConditionInputReducer = (
     }
 
     case "updateTargets": {
+      const targets = action.payload.targets;
+
+      if (state.status === "waiting for input") {
+        return { ...state, targets };
+      }
+
+      // Keep a condition being entered when its target still exists (e.g.
+      // when the options of a select column arrive later).
+      const target = targets.find(
+        (t) => t.key === state.inputtingCondition.target.key
+      );
+      if (!target || target.type !== state.inputtingCondition.target.type) {
+        return { targets, status: "waiting for input" };
+      }
+
+      if (state.status === "inputted target") {
+        return {
+          ...state,
+          targets,
+          inputtingCondition: { ...state.inputtingCondition, target },
+          useableOperators: usableOperatorsFor(target),
+        };
+      }
+
       return {
-        targets: action.payload.targets,
-        status: "waiting for input",
+        ...state,
+        targets,
+        inputtingCondition: { ...state.inputtingCondition, target },
       };
     }
 
