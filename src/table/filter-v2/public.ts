@@ -5,6 +5,7 @@ import {
 } from "../../share/search-operator/constant";
 import { parseNumberText } from "../../share/text/normalize";
 import { DataRecord, TFilter, TFilterOperator, TTableColumn } from "../table/type";
+import { isFilterable } from "../table/column-options";
 
 /**
  * Converts a filter given by the app (`{ key, operator, value }`) into the
@@ -27,6 +28,11 @@ export function toCondition<T extends DataRecord>(
   } else {
     const col = cols.find((c) => c.key === filter.key);
     if (!col) return warn("no such column");
+    if (!isFilterable(col)) {
+      return warn(
+        "column cannot be filtered (set disableFilter: false on a column with render to allow it)"
+      );
+    }
 
     const base = { key: String(col.key), label: col.label ?? String(col.key) };
     target =
