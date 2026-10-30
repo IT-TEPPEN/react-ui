@@ -126,6 +126,40 @@ export type TConditionalFormatting<T extends DataRecord> = {
 
 type TailwindCssStyle = string;
 
+/** Operators for filters given or reported through the Table props. */
+export type TFilterOperator =
+  | "eq"
+  | "neq"
+  | "like"
+  | "not_like"
+  | "gt"
+  | "gte"
+  | "lt"
+  | "lte"
+  | "is_null"
+  | "is_not_null"
+  | "in"
+  | "not_in";
+
+/**
+ * A filter condition. `key` is a column key, or "*" to search every column
+ * (like / not_like only). `value` is text, a number, a Date, an option value
+ * or, for in / not_in, a list of option values; omitted for is_null /
+ * is_not_null.
+ */
+export type TFilter = {
+  key: string;
+  operator: TFilterOperator;
+  value?: string | number | Date | string[];
+};
+
+/** The filters and sort the table is showing (see onConditionChange). */
+export type TTableCondition = {
+  filters: TFilter[];
+  filterMode: "and" | "or";
+  sort: { key: string; asc: boolean };
+};
+
 type TPaginationCondition = {
   /**
    * Rows per page. Defaults to 50.
@@ -145,6 +179,10 @@ export type TPropsTable<T extends DataRecord> = {
   onUpdateRow?: (newRow: DataObject<T>, oldRow: DataObject<T>) => void;
   initialCondition?: {
     sort?: { key: string; asc?: boolean };
+    /** Filters applied when the table first renders. */
+    filters?: TFilter[];
+    /** How the filters are combined. Defaults to "and". */
+    filterMode?: "and" | "or";
     pagination?: TPaginationCondition;
     /** @deprecated Use `pagination`. Kept for compatibility. */
     pagenation?: TPaginationCondition;
@@ -157,6 +195,16 @@ export type TPropsTable<T extends DataRecord> = {
    * table or targets a read-only column. Defaults to window.alert.
    */
   onPasteError?: (error: TPasteError) => void;
+  /**
+   * Called with the filters and sort, and the rows that pass the filters in
+   * the shown order (all pages), when the table first renders and whenever
+   * they change. The condition has the same shape as initialCondition, so it
+   * can be saved and passed back to restore the view.
+   */
+  onConditionChange?: (
+    condition: TTableCondition,
+    rows: DataObject<T>[]
+  ) => void;
   /**
    * Language of the messages the table shows by itself, such as the default
    * validation alert and the "copied" notice. Defaults to "ja".

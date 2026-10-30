@@ -215,6 +215,7 @@ A component that displays a table based on the row and column information passed
 - Filtering function (only when `label` is set in the column information; the same columns as sorting are excluded, and `disableFilter` turns it off)
 
 Sorting compares numbers and dates by value and text in Japanese order (`"2"` before `"10"`, hiragana and katakana together in kana order). Select columns are sorted by their labels. Empty values stay at the end in both orders.
+The search bar can also search every column at once ("すべての列" / "All columns", which looks in what each column shows, e.g. option labels), filter a select column by several values (`in` / `not in`), and combine conditions with OR instead of AND (the AND / OR button shown with two or more conditions).
 The `like` / `not like` filters ignore differences between upper and lower case, full-width and half-width characters, and hiragana and katakana (`"tokyo"` matches `"Tokyo"`, `"とうきょう"` matches `"ﾄｳｷｮｳ"`). `=` and `≠` compare the text exactly.
 - Editing function (only when `editable` is true and `onCellBlur` is set in the column information)
 - Checkbox function
@@ -223,7 +224,7 @@ The `like` / `not like` filters ignore differences between upper and lower case,
 
 #### Arguments
 
-The table component accepts the arguments `id`, `rows`, `cols`, `initialCondition`, `onClickRow`, `onUpdateRow`, `onPasteError`, `errorHandler`, `locale`, `applyRowFormatting`, `checkbox`, `conditionalFormattings`, `maxHeight` and `maxWidth`. Details for each argument are described below.
+The table component accepts the arguments `id`, `rows`, `cols`, `initialCondition`, `onClickRow`, `onUpdateRow`, `onPasteError`, `onConditionChange`, `errorHandler`, `locale`, `applyRowFormatting`, `checkbox`, `conditionalFormattings`, `maxHeight` and `maxWidth`. Details for each argument are described below.
 
 All of these types are exported from the package, e.g. `import type { TTableColumn, TPropsTable } from "@teppen/react-ui";`.
 
@@ -293,15 +294,75 @@ In `initialCondition`, you can set initial values for each function. This is opt
 ```ts
 type TInitialCondition = {
   sort?: { key: string; asc?: boolean };
+  filters?: TFilter[]; // filters applied on the first render
+  filterMode?: "and" | "or"; // how filters are combined (default "and")
   pagination?: {
     rowCountPerPage?: 20 | 50 | 100 | "all";
   };
 };
 ```
 
+A filter is written as follows. `key` is a column key, or `"*"` to search every column (`like` / `not_like` only).
+
+```ts
+type TFilter = {
+  key: string;
+  operator:
+    | "eq" | "neq" | "like" | "not_like"
+    | "gt" | "gte" | "lt" | "lte"
+    | "is_null" | "is_not_null"
+    | "in" | "not_in"; // in / not_in: select columns
+  value?: string | number | Date | string[]; // string[] for in / not_in
+};
+
+// Example
+initialCondition={{
+  filters: [
+    { key: "role", operator: "in", value: ["1", "2"] },
+    { key: "age", operator: "gte", value: 30 },
+    { key: "*", operator: "like", value: "tokyo" },
+  ],
+}}
+```
+
+Filters that do not fit the column (unknown key, operator or value) are ignored with a console warning.
+
 ※ `pagenation` (the earlier spelling) still works but is deprecated. If both are set, `pagination` is used.
 
 `rowCountPerPage` defaults to 50. With pagination, the table stays fast regardless of the number of rows (all operations took under 50 ms with 10,000 rows in our measurements). `"all"` renders every row at once, so it gets slower as rows increase: with 1,000 rows sorting takes about 0.6 s, and with 10,000 rows the first render and sorting take several seconds. For more than about 1,000 rows, use pagination.
+
+##### onConditionChange
+
+`onConditionChange` is called with the current filters and sort, and the rows that pass the filters in the shown order (all pages, not only the current page). It is called when the table first renders and whenever the filters, the sort or the rows change. This is optional.
+
+```ts
+type TOnConditionChange = (
+  condition: {
+    filters: TFilter[];
+    filterMode: "and" | "or";
+    sort: { key: string; asc: boolean };
+  },
+  rows: DataObject[]
+) => void;
+```
+
+`condition` has the same shape as `initialCondition`, so it can be saved (e.g. in localStorage or the URL) and passed back as `initialCondition` to restore the view. `rows` can be used for showing the number of matching rows or exporting them.
+
+```tsx
+const saved = JSON.parse(localStorage.getItem("table") ?? "null");
+
+<Table
+  rows={rows}
+  cols={cols}
+  initialCondition={saved ?? undefined}
+  onConditionChange={(condition, shownRows) => {
+    localStorage.setItem("table", JSON.stringify(condition));
+    setCount(shownRows.length);
+  }}
+/>;
+```
+
+※ Date values in saved filters become strings in JSON; they are read back as dates.
 
 ##### onClickRow
 
