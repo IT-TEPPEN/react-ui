@@ -99,7 +99,16 @@ export type TCellEditingCondition<T extends DataRecord> =
 export type TColumnProperty<T extends DataRecord> = {
   key: keyof T;
   label?: string;
+  /**
+   * true turns sorting off for the column. A read-only column with render is
+   * not sorted unless this is set to false (it is sorted by its value in
+   * rows, which may differ from what render shows).
+   */
   disableSort?: boolean;
+  /**
+   * true turns filtering (and the all-columns search) off for the column. A
+   * read-only column with render is not filtered unless this is set to false.
+   */
   disableFilter?: boolean;
   initialWidth?: number;
   minWidth?: number;

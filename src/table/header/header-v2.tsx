@@ -12,6 +12,7 @@ import {
 } from "../../search-bar/condition-search-bar/condition-input-management/type";
 import { KEYWORD_TARGET_KEY } from "../../share/search-operator";
 import { useMessages } from "../locale/provider";
+import { isFilterable, isSortable } from "../table/column-options";
 
 
 interface IPropsTableHeader<T extends DataRecord> {
@@ -60,7 +61,7 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
   }, []);
 
   const columnTargets = props.cols
-    .filter((col) => !col.disableFilter)
+    .filter((col) => isFilterable(col))
     .filter((col) => !!col.label)
     .map((col): Target => {
       const base = { key: col.key.toString(), label: col.label as string };
@@ -130,7 +131,7 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
                 keyName={col.key.toString()}
                 label={col.label}
                 colWidth={getColumnWidth(col.key as string)}
-                disableSort={col.disableSort}
+                disableSort={!isSortable(col)}
                 generateSortButton={props.generateSortButton}
               />
             );

@@ -4,19 +4,26 @@ import { TTableColumn } from "../table/type";
 
 afterEach(cleanup);
 
-type Row = { name: string; age: number; note: string; fixed: string };
+type Row = { name: string; age: number; note: string; rank: string; fixed: string };
 
 const cols: TTableColumn<Row>[] = [
   { key: "name", type: "string", label: "名前" },
   { key: "age", type: "number", label: "年齢" },
   { key: "note", type: "string", label: "備考", render: (v) => <b>{v}</b> },
+  {
+    key: "rank",
+    type: "string",
+    label: "順位",
+    render: (v) => <i>{v}</i>,
+    disableSort: false,
+  },
   { key: "fixed", type: "string", label: "固定", disableSort: true },
 ];
 
 const rows = [
-  { id: "1", name: "b", age: 30, note: "x", fixed: "" },
-  { id: "2", name: "c", age: 10, note: "y", fixed: "" },
-  { id: "3", name: "a", age: 20, note: "z", fixed: "" },
+  { id: "1", name: "b", age: 30, note: "x", rank: "B", fixed: "" },
+  { id: "2", name: "c", age: 10, note: "y", rank: "C", fixed: "" },
+  { id: "3", name: "a", age: 20, note: "z", rank: "A", fixed: "" },
 ];
 
 // The sort button of each column, by column label.
@@ -35,24 +42,22 @@ const renderedNames = (container: HTMLElement) =>
   );
 
 describe("sortable columns", () => {
-  test("every column can be sorted unless it sets disableSort", () => {
+  test("columns can be sorted unless they set disableSort or use render without opting in", () => {
     const { container } = render(<Table cols={cols} rows={rows} />);
     const buttons = sortButtons(container);
 
     expect(buttons["名前"]).not.toBeNull();
     expect(buttons["年齢"]).not.toBeNull();
-    expect(buttons["備考"]).not.toBeNull();
-    expect(buttons["固定"]).toBeNull();
+    expect(buttons["備考"]).toBeNull(); // render, not opted in
+    expect(buttons["順位"]).not.toBeNull(); // render with disableSort: false
+    expect(buttons["固定"]).toBeNull(); // disableSort
   });
 
-  test("a column with render is sorted by its value", () => {
+  test("a column with render that opts in is sorted by its value", () => {
     const { container } = render(<Table cols={cols} rows={rows} />);
 
-    fireEvent.click(sortButtons(container)["備考"]!);
-    expect(renderedNames(container)).toEqual(["1", "2", "3"]);
-
-    fireEvent.click(sortButtons(container)["備考"]!);
-    expect(renderedNames(container)).toEqual(["3", "2", "1"]);
+    fireEvent.click(sortButtons(container)["順位"]!);
+    expect(renderedNames(container)).toEqual(["3", "1", "2"]);
   });
 
   test("sorting a read-only column orders the rows", () => {

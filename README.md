@@ -211,8 +211,8 @@ export default App;
 A component that displays a table based on the row and column information passed as arguments. The table component has the following features:
 
 - Pagination function
-- Sorting function (`disableSort` turns it off for a column)
-- Filtering function (only when `label` is set in the column information; `disableFilter` turns it off for a column)
+- Sorting function (`disableSort` turns it off for a column; columns with `render` need `disableSort: false`, see below)
+- Filtering function (only when `label` is set in the column information; `disableFilter` turns it off for a column; columns with `render` need `disableFilter: false`)
 
 Sorting compares numbers and dates by value and text in Japanese order (`"2"` before `"10"`, hiragana and katakana together in kana order). Select columns are sorted by their labels. Empty values stay at the end in both orders.
 The search bar can also search every column at once ("すべての列" / "All columns", which looks in what each column shows, e.g. option labels), filter a select column by several values (`in` / `not in`), and combine conditions with OR instead of AND (the AND / OR button shown with two or more conditions).
@@ -285,7 +285,12 @@ export type TTableColumn = {
 ```
 
 ※ TColumnType no longer supports `component` since version 1.0.0. Instead, `render`
-is now supported. Columns that use `render` are sorted and filtered by their value in `rows` (and the all-columns search also looks at the text `render` returns, when it returns text). When what a column shows is unrelated to its value, such as a button, set `disableSort` / `disableFilter` on it.
+is now supported. A read-only column that uses `render` is not sorted or filtered by default, because what it shows may have nothing to do with its value in `rows` (for example, an id that a component uses to load and show a name). To sort or filter such a column by its value, set `disableSort: false` / `disableFilter: false` on it; the all-columns search then also looks at the text `render` returns, when it returns text.
+
+```tsx
+// Sorted and filtered by the value 80, shown as "80点"
+{ key: "score", type: "number", label: "評価", render: (v) => `${v}点`, disableSort: false, disableFilter: false }
+```
 
 ##### initialCondition
 

@@ -1,16 +1,19 @@
 import { DataObject, DataRecord, TTableColumn } from "../table/type";
 import { formatDateForCopy, formatDatetimeForCopy } from "../copy/format";
+import { isFilterable } from "../table/column-options";
 
 /**
  * Builds the text that the all-columns keyword search looks in for a row:
  * each column's value and what it shows (the label of a select option, text
- * returned by render), joined. Columns with disableFilter are left out.
+ * returned by render), joined. Only columns that can be filtered are used
+ * (see isFilterable), so the value of a render column such as an id is not
+ * searched unless the column opts in.
  */
 export function buildKeywordTextGetter<T extends DataRecord>(
   cols: TTableColumn<T>[]
 ): (row: DataObject<T>) => string {
   const getters = cols
-    .filter((col) => !col.disableFilter)
+    .filter((col) => isFilterable(col))
     .map((col): ((row: DataObject<T>) => string) => {
       const key = col.key;
 
