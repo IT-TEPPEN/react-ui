@@ -14,6 +14,7 @@ import { useFilterFunctions, useFilterState } from "../filter-v2/context";
 import { fromCondition } from "../filter-v2/public";
 import { buildKeywordTextGetter } from "../filter-v2/keyword";
 import { filterValueOf } from "./column-options";
+import { useColumnsWidthState } from "../header";
 
 export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { filter } = useFilterFunctions();
@@ -21,7 +22,14 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
   const sortTiming = useSortTimingContext();
   const { key: sortKey, asc: sortAsc } = useSortStateContext();
   const { conditions, mode } = useFilterState();
-  const { setRowCount, pageFilter } = usePageContext();
+  const {
+    setRowCount,
+    pageFilter,
+    enable: paginationEnabled,
+    perPage,
+    current: currentPage,
+  } = usePageContext();
+  const { committedWidths } = useColumnsWidthState();
   const { dispatchCheckboxStatus } = useCheckboxStatusContext();
   const { setRows: setRowsForPaste } = usePasteActionContext();
   const { setRows: setRowsForCopy } = useCopyActionContext();
@@ -128,10 +136,28 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
         filters: conditions.map(fromCondition),
         filterMode: mode,
         sort: { key: String(sortKey), asc: sortAsc },
+        pagination: {
+          rowCountPerPage: paginationEnabled
+            ? (perPage as 20 | 50 | 100)
+            : "all",
+          page: paginationEnabled ? currentPage : 1,
+        },
+        columnWidths: { ...committedWidths },
       },
       sortedRows.map((row) => current.get(row.id) ?? row)
     );
-  }, [conditions, mode, sortKey, sortAsc, sortedRows, props.rows]);
+  }, [
+    conditions,
+    mode,
+    sortKey,
+    sortAsc,
+    sortedRows,
+    props.rows,
+    paginationEnabled,
+    perPage,
+    currentPage,
+    committedWidths,
+  ]);
 
   const pageRows = useMemo(
     () => pageFilter(sortedRows),

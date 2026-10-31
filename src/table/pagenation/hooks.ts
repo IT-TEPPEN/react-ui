@@ -5,18 +5,36 @@ import { DataObject, DataRecord } from "../table/type";
 
 function pagenationReducer(state: TPageState, action: TPageAction): TPageState {
   switch (action.type) {
-    case "setRowCount":
+    case "setRowCount": {
+      const rowCount = action.payload.rowCount;
+
       if (!state.enable) {
+        return { ...state, rowCount, synced: true };
+      }
+
+      // The first time rows are known, keep the starting page (e.g. a
+      // restored one), only keeping it within the pages there are. While
+      // there are no rows yet (still loading), wait.
+      if (!state.synced) {
+        if (rowCount === 0) {
+          return { ...state, rowCount };
+        }
+        const pageCount = Math.max(1, Math.ceil(rowCount / state.perPage));
         return {
           ...state,
-          rowCount: action.payload.rowCount,
+          rowCount,
+          synced: true,
+          currentPage: Math.min(Math.max(1, state.currentPage), pageCount),
         };
       }
+
+      // Later changes (filters, rows added or removed) go back to page 1.
       return {
         ...state,
         currentPage: 1,
-        rowCount: action.payload.rowCount,
+        rowCount,
       };
+    }
     case "setPerPage":
       if (action.payload.perPage === "all") {
         return {

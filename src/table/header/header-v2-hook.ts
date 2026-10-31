@@ -3,7 +3,8 @@ import { useColumnsWidth } from "./columns-width";
 import { useScrollXPosition } from "./x-scroll-position";
 
 export function useResizeColWidthHook(keyName: string) {
-  const { getColumnWidth, getColumnMinWidth, setColWidth } = useColumnsWidth();
+  const { getColumnWidth, getColumnMinWidth, setColWidth, commitWidths } =
+    useColumnsWidth();
   const [isDragging, setIsDragging] = useState(false);
 
   const colWidth = getColumnWidth(keyName);
@@ -29,6 +30,7 @@ export function useResizeColWidthHook(keyName: string) {
         };
 
         const onMouseUp = () => {
+          commitWidths();
           setIsDragging(false);
           document.removeEventListener("mousemove", onMouseMove);
           document.removeEventListener("mouseup", onMouseUp);
@@ -39,7 +41,7 @@ export function useResizeColWidthHook(keyName: string) {
         document.addEventListener("mousemove", onMouseMove);
         document.addEventListener("mouseup", onMouseUp);
       },
-      [isDragging, minWidth, colWidth, keyName, setColWidth]
+      [isDragging, minWidth, colWidth, keyName, setColWidth, commitWidths]
     );
 
   return {
