@@ -81,7 +81,7 @@ export function InputArea(props: IPropsInputArea) {
       className={`px-2 py-1 placeholder:text-gray-400 ${
         props.no_appearance
           ? "appearance-none border-none focus:outline-none focus-visible:outline-none bg-transparent w-full"
-          : "border border-gray-300 w-full"
+          : "border border-[color:var(--teppen-table-control-border,#d1d5db)] w-full"
       }`}
       type="text"
       placeholder={

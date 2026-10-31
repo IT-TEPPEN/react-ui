@@ -132,7 +132,13 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
   const generateSortButton = useGenerateSortButton();
 
   return (
-    <div className="w-full max-w-full max-h-full">
+    <div
+      data-teppen-part="table"
+      className={`w-full max-w-full max-h-full text-[color:var(--teppen-table-text,inherit)] ${
+        props.className ?? ""
+      }`}
+      style={props.style}
+    >
       <div>
         <TableHeader
           cols={cols}
@@ -149,10 +155,10 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
               props.loading && pageRowIds.length > 0 ? (
                 // Rows stay visible (e.g. while reloading) under a light veil.
                 <div
-                  className="absolute inset-0 z-20 grid place-items-center bg-white/60 rounded-b-md"
+                  className="absolute inset-0 z-20 grid place-items-center bg-[color:var(--teppen-table-loading-veil,rgb(255_255_255/0.6))] rounded-b-[var(--teppen-table-radius,0.375rem)]"
                   role="status"
                 >
-                  <p className="px-3 py-1 rounded bg-white font-bold shadow">
+                  <p className="px-3 py-1 rounded bg-[color:var(--teppen-table-bg,#ffffff)] font-bold shadow">
                     {messages.loading}
                   </p>
                 </div>

@@ -215,6 +215,12 @@ export type TPropsTable<T extends DataRecord> = {
     rows: DataObject<T>[]
   ) => void;
   /**
+   * Class name and style for the table's outer element, for example to set
+   * the --teppen-table-* CSS variables for this table only.
+   */
+  className?: string;
+  style?: React.CSSProperties;
+  /**
    * Shows that rows are being loaded: "読み込み中…" / "Loading…" in place of
    * the empty message, or over the rows while they are reloaded.
    */

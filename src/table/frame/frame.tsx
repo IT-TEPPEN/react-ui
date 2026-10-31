@@ -84,7 +84,8 @@ export function Frame(props: IPropsFrame) {
       <div
         ref={ref}
         id={props.id}
-        className={`relative w-full h-full max-w-full border border-gray-200 bg-white rounded-b-md overflow-auto ${
+        data-teppen-part="body"
+        className={`relative w-full h-full max-w-full border border-[color:var(--teppen-table-border,#e5e7eb)] bg-[color:var(--teppen-table-bg,#ffffff)] rounded-b-[var(--teppen-table-radius,0.375rem)] overflow-auto ${
           props.displayScroll ? "" : "teppen-no-scrollbar"
         }`}
         style={{ maxHeight: props.maxHeight }}
@@ -96,10 +97,10 @@ export function Frame(props: IPropsFrame) {
 
       {scrollInfo.barYHeight < 100 && (
         <>
-          <div className="absolute top-0 right-0 h-full w-2 bg-slate-200 opacity-30 pointer-events-none" />
+          <div className="absolute top-0 right-0 h-full w-2 bg-[color:var(--teppen-table-scrollbar-track,#e2e8f0)] opacity-30 pointer-events-none" />
 
           <div
-            className={`absolute right-0 w-2 bg-slate-500 rounded-full cursor-grab active:cursor-grabbing`}
+            className={`absolute right-0 w-2 bg-[color:var(--teppen-table-scrollbar,#64748b)] rounded-full cursor-grab active:cursor-grabbing`}
             style={{
               top: `${scrollInfo.scrollY}%`,
               height: `${scrollInfo.barYHeight}%`,
@@ -131,10 +132,10 @@ export function Frame(props: IPropsFrame) {
 
       {scrollInfo.barXWidth < 100 && (
         <>
-          <div className="absolute bottom-0 left-0 w-full h-2 bg-slate-200 opacity-30 pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-full h-2 bg-[color:var(--teppen-table-scrollbar-track,#e2e8f0)] opacity-30 pointer-events-none" />
 
           <div
-            className={`absolute bottom-0 h-2 bg-slate-500 rounded-full cursor-grab active:cursor-grabbing`}
+            className={`absolute bottom-0 h-2 bg-[color:var(--teppen-table-scrollbar,#64748b)] rounded-full cursor-grab active:cursor-grabbing`}
             style={{
               left: `${scrollInfo.scrollX}%`,
               width: `${scrollInfo.barXWidth}%`,

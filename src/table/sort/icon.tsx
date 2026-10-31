@@ -20,15 +20,15 @@ const SortIcon = memo(function SI(props: TPropsSortIcon) {
           order === "ASC" ? "-translate-y-[250%]" : "translate-y-[150%]"
         } ${
           props.isSortActive
-            ? "bg-gray-700"
-            : "bg-gray-200 border border-gray-500"
+            ? "bg-[color:var(--teppen-table-sort-icon,#374151)]"
+            : "bg-[color:var(--teppen-table-header-bg,#e5e7eb)] border border-[color:var(--teppen-table-sort-icon-border,#6b7280)]"
         }`}
       ></div>
       <div
         className={`absolute top-1/2 right-0 w-[70%] h-[20%] duration-300 -translate-y-1/2  ${
           props.isSortActive
-            ? "bg-gray-700"
-            : "bg-gray-200 border border-gray-500"
+            ? "bg-[color:var(--teppen-table-sort-icon,#374151)]"
+            : "bg-[color:var(--teppen-table-header-bg,#e5e7eb)] border border-[color:var(--teppen-table-sort-icon-border,#6b7280)]"
         }`}
       ></div>
       <div
@@ -36,8 +36,8 @@ const SortIcon = memo(function SI(props: TPropsSortIcon) {
           order === "ASC" ? "translate-y-[150%]" : "-translate-y-[250%]"
         }  ${
           props.isSortActive
-            ? "bg-gray-700"
-            : "bg-gray-200 border border-gray-500"
+            ? "bg-[color:var(--teppen-table-sort-icon,#374151)]"
+            : "bg-[color:var(--teppen-table-header-bg,#e5e7eb)] border border-[color:var(--teppen-table-sort-icon-border,#6b7280)]"
         }`}
       ></div>
     </div>

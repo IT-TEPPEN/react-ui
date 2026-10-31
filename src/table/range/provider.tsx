@@ -99,7 +99,8 @@ export function TestRange(props: { isCopied?: boolean }) {
   return (
     <>
       <div
-        className={`absolute border border-gray-500 bg-gray-500/10 ${
+        data-teppen-part="selection"
+        className={`absolute border border-[color:var(--teppen-table-selection-border,#6b7280)] bg-[color:var(--teppen-table-selection-bg,rgb(107_114_128/0.1))] ${
           props.isCopied ? "border-dashed" : "border-solid"
         }`}
         style={{

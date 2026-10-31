@@ -11,7 +11,7 @@ export function Pagenation() {
   }
 
   return (
-    <div className="flex justify-center gap-2">
+    <div data-teppen-part="pagination" className="flex justify-center gap-2">
       <button
         className="text-sm cursor-pointer disabled:cursor-default"
         onClick={() => jump(1)}
@@ -31,7 +31,7 @@ export function Pagenation() {
         .map((i) => (
           <button
             key={i}
-            className={`text-sm cursor-pointer disabled:cursor-default ${current === i ? "text-blue-600" : ""}`}
+            className={`text-sm cursor-pointer disabled:cursor-default ${current === i ? "text-[color:var(--teppen-table-accent,#2563eb)]" : ""}`}
             onClick={() => jump(i)}
           >
             {i}
@@ -64,7 +64,7 @@ export function DisplayRange() {
   }
 
   return (
-    <p className="text-center text-sm text-gray-600">
+    <p data-teppen-part="range" className="text-center text-sm text-[color:var(--teppen-table-muted,#4b5563)]">
       {messages.range(
         rowCount === 0 ? 0 : from + 1,
         to < rowCount ? to : rowCount,

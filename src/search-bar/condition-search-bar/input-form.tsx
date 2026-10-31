@@ -321,8 +321,8 @@ function InputMultiSelect(props: {
             aria-pressed={isSelected}
             className={`shrink-0 px-2 rounded border whitespace-nowrap cursor-pointer ${
               isSelected
-                ? "bg-sky-600 border-sky-600 text-white"
-                : "bg-white border-gray-300 hover:bg-gray-100"
+                ? "bg-[color:var(--teppen-table-accent,#0284c7)] border-[color:var(--teppen-table-accent,#0284c7)] text-[color:var(--teppen-table-accent-text,#ffffff)]"
+                : "bg-[color:var(--teppen-table-bg,#ffffff)] border-[color:var(--teppen-table-control-border,#d1d5db)] hover:bg-[color:var(--teppen-table-hover,#f3f4f6)]"
             }`}
             onClick={() => toggle(option.value)}
           >
@@ -333,7 +333,7 @@ function InputMultiSelect(props: {
       <button
         type="button"
         disabled={selected.length === 0}
-        className="shrink-0 px-2 rounded bg-slate-700 text-white font-bold cursor-pointer disabled:opacity-40 disabled:cursor-default"
+        className="shrink-0 px-2 rounded bg-[color:var(--teppen-table-button-bg,#334155)] text-[color:var(--teppen-table-button-text,#ffffff)] font-bold cursor-pointer disabled:opacity-40 disabled:cursor-default"
         onClick={() =>
           inputValue({
             type: props.inputType,
@@ -483,12 +483,12 @@ function InputSingleDate(props: {
 
 function FixedValue(props: { label: string; onClickDelete?: () => void }) {
   return (
-    <div className="flex items-center gap-2 w-fit px-2 border border-gray-200 rounded bg-slate-100">
+    <div className="flex items-center gap-2 w-fit px-2 border border-[color:var(--teppen-table-border,#e5e7eb)] rounded bg-[color:var(--teppen-table-active,#f1f5f9)]">
       <p className="whitespace-nowrap">{props.label}</p>
       {props.onClickDelete && (
         <div>
           <TiDeleteOutline
-            className="bg-white hover:bg-slate-300 rounded-full cursor-pointer"
+            className="bg-[color:var(--teppen-table-bg,#ffffff)] hover:bg-[color:var(--teppen-table-hover,#cbd5e1)] rounded-full cursor-pointer"
             onClick={props.onClickDelete}
           />
         </div>

@@ -33,7 +33,7 @@ export function CellInput(props: {
       <input
         id={IdGenerator.getEditorId()}
         ref={ref}
-        className="w-full py-1 px-2 bg-white text-gray-900"
+        className="w-full py-1 px-2 bg-[color:var(--teppen-table-bg,#ffffff)] text-[color:var(--teppen-table-text,#111827)]"
         type={props.type ?? "text"}
         value={props.value}
         onChange={props.onChange}

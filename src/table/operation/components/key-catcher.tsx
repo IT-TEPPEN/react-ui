@@ -51,8 +51,8 @@ export function KeyCatcher() {
       aria-label={col?.label ?? String(col?.key ?? "")}
       autoComplete="off"
       tabIndex={-1}
-      className={`absolute z-10 px-2 text-gray-900 outline-none ${
-        isComposing ? "bg-white border border-gray-500" : "opacity-0"
+      className={`absolute z-10 px-2 text-[color:var(--teppen-table-text,#111827)] outline-none ${
+        isComposing ? "bg-[color:var(--teppen-table-bg,#ffffff)] border border-[color:var(--teppen-table-selection-border,#6b7280)]" : "opacity-0"
       }`}
       style={{
         top: start.yStart,

@@ -25,11 +25,14 @@ function FixedValue(props: { condition: Condition; index: number }) {
   const messages = useMessages();
 
   return (
-    <div className="flex items-center gap-2 w-fit px-2 border-2 border-sky-600 rounded shadow">
+    <div
+      data-teppen-part="condition"
+      className="flex items-center gap-2 w-fit px-2 border-2 border-[color:var(--teppen-table-accent,#0284c7)] rounded shadow"
+    >
       <p className="whitespace-nowrap">{getLabel(props.condition, messages)}</p>
       <div>
         <TiDeleteOutline
-          className="bg-white hover:bg-slate-300 rounded-full cursor-pointer"
+          className="bg-[color:var(--teppen-table-bg,#ffffff)] hover:bg-[color:var(--teppen-table-hover,#cbd5e1)] rounded-full cursor-pointer"
           onClick={() => deleteCondition(props.index)}
         />
       </div>

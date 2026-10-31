@@ -224,7 +224,7 @@ The `like` / `not like` filters ignore differences between upper and lower case,
 
 #### Arguments
 
-The table component accepts the arguments `id`, `rows`, `cols`, `initialCondition`, `onClickRow`, `onUpdateRow`, `onPasteError`, `onConditionChange`, `errorHandler`, `locale`, `loading`, `noDataMessage`, `applyRowFormatting`, `checkbox`, `conditionalFormattings`, `maxHeight` and `maxWidth`. Details for each argument are described below.
+The table component accepts the arguments `id`, `rows`, `cols`, `initialCondition`, `onClickRow`, `onUpdateRow`, `onPasteError`, `onConditionChange`, `errorHandler`, `locale`, `loading`, `noDataMessage`, `className`, `style`, `applyRowFormatting`, `checkbox`, `conditionalFormattings`, `maxHeight` and `maxWidth`. Details for each argument are described below.
 
 All of these types are exported from the package, e.g. `import type { TTableColumn, TPropsTable } from "@teppen/react-ui";`.
 
@@ -426,6 +426,54 @@ Set `loading` while rows are being fetched. With no rows yet, "読み込み中�
 ```tsx
 <Table rows={rows} cols={cols} loading={isFetching} noDataMessage="社員が登録されていません" />
 ```
+
+##### className / style (changing the design)
+
+Colors, borders and corner radius come from CSS variables named `--teppen-table-*`. Set them in your CSS, either for every table (for example on `:root`) or for one table through a class name you choose. Without them, the table looks as before.
+
+```css
+/* every table */
+:root {
+  --teppen-table-header-bg: #123a4f;
+  --teppen-table-header-text: #e6f1f5;
+  --teppen-table-accent: #0b8a6e;
+}
+
+/* one table: <Table className="employee-list" ... /> */
+.employee-list {
+  --teppen-table-radius: 10px;
+}
+```
+
+| Variable | Used for | Default |
+|---|---|---|
+| `--teppen-table-bg` | Background of the rows, inputs and the search bar | `#ffffff` |
+| `--teppen-table-text` | Text color of the table | inherited |
+| `--teppen-table-border` | Borders of the table and rows | `#e5e7eb` |
+| `--teppen-table-header-bg` / `--teppen-table-header-text` | Header background / text | `#e5e7eb` / `#4b5563` |
+| `--teppen-table-row-hover` | Row under the mouse | `rgb(107 114 128 / 0.1)` |
+| `--teppen-table-selection-border` / `--teppen-table-selection-bg` | Selected cells | `#6b7280` / `rgb(107 114 128 / 0.1)` |
+| `--teppen-table-accent` / `--teppen-table-accent-text` | Condition chips, chosen values, current page | `#0284c7` (`#2563eb` for the page) / `#ffffff` |
+| `--teppen-table-search-border` | Border of the search bar | `#334155` |
+| `--teppen-table-control-border` | Borders of buttons and select boxes | `#94a3b8` – `#d1d5db` |
+| `--teppen-table-hover` / `--teppen-table-active` | Buttons and options under the mouse / chosen | light grays |
+| `--teppen-table-muted` | Secondary text (row range, search icon) | `#4b5563` |
+| `--teppen-table-button-bg` / `--teppen-table-button-text` | The "add" button of the search bar | `#334155` / `#ffffff` |
+| `--teppen-table-sort-icon` / `--teppen-table-sort-icon-border` | Sort icon (active / inactive outline) | `#374151` / `#6b7280` |
+| `--teppen-table-scrollbar` / `--teppen-table-scrollbar-track` | Scroll bars | `#64748b` / `#e2e8f0` |
+| `--teppen-table-toast-bg` / `--teppen-table-toast-text` | "Copied" notice | `#1f2937` / `#ffffff` |
+| `--teppen-table-loading-veil` | Layer over the rows while loading | `rgb(255 255 255 / 0.6)` |
+| `--teppen-table-radius` | Corner radius of the table and the search bar | `0.375rem` |
+
+For finer control, the main parts carry a `data-teppen-part` attribute that CSS can target: `table`, `search-bar`, `condition`, `header`, `header-cell`, `body`, `row`, `cell`, `selection`, `pagination` and `range`.
+
+```css
+.employee-list [data-teppen-part="cell"] {
+  font-variant-numeric: tabular-nums;
+}
+```
+
+`className` and `style` are put on the table's outer element.
 
 ##### maxHeight / maxWidth
 
