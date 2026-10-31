@@ -72,4 +72,27 @@ describe("pagination", () => {
     expect(within(nav()).getByRole("button", { name: /Prev/ })).toBeDefined();
     expect(within(nav()).getByRole("button", { name: "Page 12" })).toBeDefined();
   });
+
+  test("with a single page, prev and next cannot be used and there is no gap", () => {
+    const { getByRole } = render(
+      <Table cols={cols} rows={rows.slice(0, 7)} initialCondition={{ pagination: { rowCountPerPage: 10 } }} />
+    );
+    const nav = getByRole("navigation");
+
+    expect(Array.from(nav.children).map((el) => el.textContent)).toEqual(["‹前へ", "1", "次へ›"]);
+    expect((within(nav).getByRole("button", { name: /前へ/ }) as HTMLButtonElement).disabled).toBe(true);
+    expect((within(nav).getByRole("button", { name: /次へ/ }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  test("with 6 pages every page is shown without gaps", () => {
+    const { getByRole } = render(
+      <Table cols={cols} rows={rows.slice(0, 60)} initialCondition={{ pagination: { rowCountPerPage: 10 } }} />
+    );
+    const nav = getByRole("navigation");
+
+    fireEvent.click(within(nav).getByRole("button", { name: "4ページ目" }));
+    expect(Array.from(nav.children).map((el) => el.textContent)).toEqual([
+      "‹前へ", "1", "2", "3", "4", "5", "6", "次へ›",
+    ]);
+  });
 });

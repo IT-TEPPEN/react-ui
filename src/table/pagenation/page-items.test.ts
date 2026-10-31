@@ -32,3 +32,38 @@ describe("pageItems", () => {
     }
   });
 });
+
+describe("pageItems for every page count up to 30", () => {
+  for (let count = 1; count <= 30; count++) {
+    test(`${count} pages`, () => {
+      for (let current = 1; current <= count; current++) {
+        const items = pageItems(current, count);
+        const nums = items.filter((i): i is number => typeof i === "number");
+
+        // first and last page, and the current page with its neighbours
+        expect(nums[0]).toBe(1);
+        expect(nums[nums.length - 1]).toBe(count);
+        for (const p of [current - 2, current - 1, current, current + 1, current + 2]) {
+          if (p >= 1 && p <= count) expect(nums).toContain(p);
+        }
+
+        items.forEach((item, i) => {
+          if (typeof item === "number") {
+            // pages next to each other are consecutive
+            const next = items[i + 1];
+            if (typeof next === "number") expect(next).toBe(item + 1);
+          } else {
+            // a gap always stands for at least 2 hidden pages
+            const before = items[i - 1] as number;
+            const after = items[i + 1] as number;
+            expect(after - before - 1).toBeGreaterThanOrEqual(2);
+          }
+        });
+
+        // no gap at all up to 9 pages; always 9 items above that
+        if (count <= 9) expect(items).toHaveLength(count);
+        else expect(items).toHaveLength(9);
+      }
+    });
+  }
+});
