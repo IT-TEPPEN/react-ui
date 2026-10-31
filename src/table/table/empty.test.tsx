@@ -29,9 +29,7 @@ describe("empty table", () => {
 
     expect(getByText("0件")).toBeDefined();
 
-    const next = Array.from(container.querySelectorAll("button")).find(
-      (b) => b.textContent === ">"
-    )!;
+    const next = Array.from(container.querySelectorAll("button")).find((b) => b.textContent?.includes("次へ"))!;
     expect(next.disabled).toBe(true);
     fireEvent.click(next);
     expect(getByText("0件")).toBeDefined();

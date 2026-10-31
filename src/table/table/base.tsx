@@ -8,7 +8,12 @@ import {
   TPropsTable,
   TTableColumn,
 } from "./type";
-import { PagenationProvider, DisplayRange, Pagenation } from "../pagenation";
+import {
+  PagenationProvider,
+  DisplayRange,
+  Pagenation,
+  RowsPerPageSelect,
+} from "../pagenation";
 import { FilterProvider } from "../filter-v2";
 import { SortProvider } from "../sort";
 import { ColumnsProvider } from "../sheet/providers";
@@ -224,7 +229,14 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
         </SelectBoxProvider>
       </div>
       <div className="mt-1">
-        <DisplayRange />
+        {props.rowCountPerPageOptions && props.rowCountPerPageOptions.length > 0 ? (
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+            <DisplayRange />
+            <RowsPerPageSelect options={props.rowCountPerPageOptions} />
+          </div>
+        ) : (
+          <DisplayRange />
+        )}
         <div className="mt-2">
           <Pagenation />
         </div>

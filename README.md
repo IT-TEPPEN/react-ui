@@ -224,7 +224,7 @@ The `like` / `not like` filters ignore differences between upper and lower case,
 
 #### Arguments
 
-The table component accepts the arguments `id`, `rows`, `cols`, `initialCondition`, `onClickRow`, `onUpdateRow`, `onPasteError`, `onConditionChange`, `errorHandler`, `locale`, `loading`, `noDataMessage`, `className`, `style`, `applyRowFormatting`, `checkbox`, `conditionalFormattings`, `maxHeight` and `maxWidth`. Details for each argument are described below.
+The table component accepts the arguments `id`, `rows`, `cols`, `initialCondition`, `onClickRow`, `onUpdateRow`, `onPasteError`, `onConditionChange`, `errorHandler`, `locale`, `loading`, `noDataMessage`, `rowCountPerPageOptions`, `className`, `style`, `applyRowFormatting`, `checkbox`, `conditionalFormattings`, `maxHeight` and `maxWidth`. Details for each argument are described below.
 
 All of these types are exported from the package, e.g. `import type { TTableColumn, TPropsTable } from "@teppen/react-ui";`.
 
@@ -320,11 +320,13 @@ type TInitialCondition = {
   filterMode?: "and" | "or"; // how filters are combined (default "and")
   columnWidths?: { [key: string]: number }; // column widths to start with (px)
   pagination?: {
-    rowCountPerPage?: 20 | 50 | 100 | "all";
+    rowCountPerPage?: number | "all"; // a positive whole number, default 50
     page?: number; // the page to show first (from 1)
   };
 };
 ```
+
+Under the table, the page navigation always shows the first and the last page number (for example `‹ 前へ 1 … 4 5 [6] 7 8 … 12 次へ ›`), so the number of pages is visible and the last page is one click away.
 
 `page` is kept within the pages there are. When the rows arrive later (for example loaded asynchronously), the table waits for them before choosing the page. Later changes, such as new filters, go back to page 1.
 
@@ -367,7 +369,7 @@ type TOnConditionChange = (
     filters: TFilter[];
     filterMode: "and" | "or";
     sort: { key: string; asc: boolean };
-    pagination: { rowCountPerPage: 20 | 50 | 100 | "all"; page: number };
+    pagination: { rowCountPerPage: number | "all"; page: number };
     columnWidths: { [key: string]: number }; // widths the user set by dragging
   },
   rows: DataObject[]
@@ -441,6 +443,21 @@ The condition names in `initialCondition.filters` and `onConditionChange` (`"lik
 ```ts
 type TLocale = "ja" | "en";
 ```
+
+##### rowCountPerPageOptions
+
+`rowCountPerPageOptions` lets the user choose how many rows a page shows. Give the choices as an array; a "表示件数" / "Rows per page" select appears under the table. `"all"` shows every row. Without it, the count is fixed (`initialCondition.pagination.rowCountPerPage`, 50 by default).
+
+```tsx
+<Table
+  rows={rows}
+  cols={cols}
+  rowCountPerPageOptions={[10, 25, 50, "all"]}
+  initialCondition={{ pagination: { rowCountPerPage: 25 } }}
+/>
+```
+
+Choosing a count goes back to page 1. The chosen count is reported by `onConditionChange` (`pagination.rowCountPerPage`), so it can be saved and restored. Choices that are not positive whole numbers or `"all"` are left out with a console warning; the count in use is added to the choices if it is not one of them.
 
 ##### loading / noDataMessage
 
