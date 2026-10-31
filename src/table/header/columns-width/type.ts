@@ -3,6 +3,10 @@ export type TColumnWidth = {
   colWidth: number;
   minWidth: number;
   index: number;
+  /** For a pinned column: its distance from the left edge (px). */
+  pinnedLeft?: number;
+  /** The rightmost pinned column, which draws the edge line. */
+  lastPinned?: boolean;
 };
 
 /** Widths the user changed by dragging, by column key. */
@@ -32,6 +36,12 @@ export type TColumnsWidthReducer = React.Reducer<
 
 export type TColumnsWidthStateContext = {
   columns: TColumnWidth[];
+  /** Whether the checkbox column (left of all columns) is pinned too. */
+  checkboxPinned: boolean;
+  /** Total width of the pinned columns, including the checkbox column. */
+  pinnedWidth: number;
+  /** The column with this key, with its pinning, if any. */
+  getColumn: (key: string) => TColumnWidth | undefined;
   getColumnWidth: (key: string) => number;
   getColumnMinWidth: (key: string) => number;
   /** Widths the user set by dragging (finished drags only), by column key. */
@@ -44,8 +54,15 @@ export type TColumnsWidthActionContext = {
 };
 
 export type TColumnsWidthHook = (
-  cols: { key: string; initialWidth?: number; minWidth?: number }[],
-  initialWidths?: TColumnsWidthOverrides
+  cols: {
+    key: string;
+    initialWidth?: number;
+    minWidth?: number;
+    pinned?: boolean;
+  }[],
+  initialWidths?: TColumnsWidthOverrides,
+  /** Width of the checkbox column, or 0 without one. */
+  checkboxWidth?: number
 ) => {
   state: TColumnsWidthStateContext;
   action: TColumnsWidthActionContext;

@@ -7,6 +7,7 @@ import { StringCellInput } from "./string-input";
 import { DataObject, DataRecord } from "../../table/type";
 import { useRangeStateContext } from "../../range/provider";
 import { useTableIdGenerator } from "../../id";
+import { useScrollXPosition } from "../../header/x-scroll-position";
 
 type TPropsEditor = {
   pageRowIds: (string | number)[];
@@ -26,6 +27,8 @@ export function Editor(props: TPropsEditor) {
   const edit = useEditStateContext();
   const editActions = useEditActionContext();
   const cols = useColumnsContext();
+  // Re-measure while scrolling sideways: pinned cells stay put.
+  useScrollXPosition();
 
   useEffect(() => {
     if (range.isSelecting && !cols[range.start.colIndex].editable) {

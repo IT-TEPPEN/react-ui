@@ -4,6 +4,8 @@ import { NoImplementeFunction } from "../lib/errors";
 import { useRangeReducer } from "./hooks";
 import { useTablePropertyStateContext } from "../table-property/provider";
 import { useTableIdGenerator } from "../id";
+import { useScrollXPosition } from "../header/x-scroll-position";
+import { measureRange } from "./measure";
 
 const RangeStateContext = createContext<TRangeStateContext>({
   isSelecting: false,
@@ -64,6 +66,8 @@ function EffectSetMax() {
 export function TestRange(props: { isCopied?: boolean }) {
   const IdGenerator = useTableIdGenerator();
   const state = useRangeStateContext();
+  // Re-measure while scrolling sideways: pinned cells stay put.
+  useScrollXPosition();
 
   useEffect(() => {
     if (state.isSelecting) {
@@ -89,7 +93,8 @@ export function TestRange(props: { isCopied?: boolean }) {
     return <></>;
   }
 
-  const { rangeBox, start, end } = state;
+  const { start, end } = state;
+  const rangeBox = measureRange(IdGenerator, start, end) ?? state.rangeBox;
 
   const clickboxPoint = {
     x: start.xEnd < end.xEnd ? end.xEnd : start.xEnd,
@@ -100,7 +105,7 @@ export function TestRange(props: { isCopied?: boolean }) {
     <>
       <div
         data-teppen-part="selection"
-        className={`absolute border border-[color:var(--teppen-table-selection-border,#6b7280)] bg-[color:var(--teppen-table-selection-bg,rgb(107_114_128/0.1))] ${
+        className={`absolute z-[3] border border-[color:var(--teppen-table-selection-border,#6b7280)] bg-[color:var(--teppen-table-selection-bg,rgb(107_114_128/0.1))] ${
           props.isCopied ? "border-dashed" : "border-solid"
         }`}
         style={{
