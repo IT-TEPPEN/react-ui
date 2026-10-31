@@ -118,6 +118,8 @@ describe("onConditionChange", () => {
       filters: [{ key: "age", operator: "lt", value: 30 }],
       filterMode: "and",
       sort: { key: "age", asc: false },
+      pagination: { rowCountPerPage: 50, page: 1 },
+      columnWidths: {},
     });
     expect(shown).toEqual([rows[2], rows[1]]);
     expect(shown[0]).toBe(rows[2]);

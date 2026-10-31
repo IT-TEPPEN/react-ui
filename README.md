@@ -262,6 +262,8 @@ export type TTableColumn = {
   type: TColumnType;
   disableSort?: boolean;
   disableFilter?: boolean;
+  sortValue?: (row: DataObject) => string | number | Date | null | undefined; // value to sort by
+  filterValue?: (row: DataObject) => string | number | Date | null | undefined; // value to filter / search by
   options: { value: string; label: string }[]; // Only When "type" is "select"
   editable?: boolean;
   render?: (value: string | number, row: DataObject) => React.ReactNode; // Only When "editable" is false
@@ -292,6 +294,21 @@ is now supported. A read-only column that uses `render` is not sorted or filtere
 { key: "score", type: "number", label: "評価", render: (v) => `${v}点`, disableSort: false, disableFilter: false }
 ```
 
+When a column should be sorted or filtered by something other than its value in `rows`, give `sortValue` / `filterValue`: functions that return the value to use for a row. Setting them on a column with `render` also makes it sortable / filterable. For example, a column that holds an id and shows a name the app already knows:
+
+```tsx
+{
+  key: "ownerId",
+  type: "string",
+  label: "担当",
+  render: (id) => userNames[id],
+  sortValue: (row) => userNames[row.ownerId], // sorted by name
+  filterValue: (row) => userNames[row.ownerId], // filtered and searched by name
+}
+```
+
+A column whose display is loaded asynchronously inside the cell (so the app does not have the values) cannot use these; leave it out of sorting and filtering.
+
 ##### initialCondition
 
 In `initialCondition`, you can set initial values for each function. This is optional.
@@ -301,11 +318,15 @@ type TInitialCondition = {
   sort?: { key: string; asc?: boolean };
   filters?: TFilter[]; // filters applied on the first render
   filterMode?: "and" | "or"; // how filters are combined (default "and")
+  columnWidths?: { [key: string]: number }; // column widths to start with (px)
   pagination?: {
     rowCountPerPage?: 20 | 50 | 100 | "all";
+    page?: number; // the page to show first (from 1)
   };
 };
 ```
+
+`page` is kept within the pages there are. When the rows arrive later (for example loaded asynchronously), the table waits for them before choosing the page. Later changes, such as new filters, go back to page 1.
 
 A filter is written as follows. `key` is a column key, or `"*"` to search every column (`like` / `not_like` only).
 
@@ -346,10 +367,14 @@ type TOnConditionChange = (
     filters: TFilter[];
     filterMode: "and" | "or";
     sort: { key: string; asc: boolean };
+    pagination: { rowCountPerPage: 20 | 50 | 100 | "all"; page: number };
+    columnWidths: { [key: string]: number }; // widths the user set by dragging
   },
   rows: DataObject[]
 ) => void;
 ```
+
+It is also called when the user moves to another page, and when they finish dragging a column border (not while dragging).
 
 `condition` has the same shape as `initialCondition`, so it can be saved (e.g. in localStorage or the URL) and passed back as `initialCondition` to restore the view. `rows` can be used for showing the number of matching rows or exporting them.
 

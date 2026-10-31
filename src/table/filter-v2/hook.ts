@@ -37,7 +37,9 @@ export const useFilterHook: TFilterHook = (initialConditions, initialMode) => {
     () => ({
       filter: <T extends DataRecord>(
         rows: DataObject<T>[],
-        getKeywordText?: (row: DataObject<T>) => string
+        getKeywordText?: (row: DataObject<T>) => string,
+        getValue: (row: DataObject<T>, key: string) => unknown = (row, key) =>
+          row[key]
       ) => {
         if (state.conditions.length === 0) {
           return rows;
@@ -48,7 +50,7 @@ export const useFilterHook: TFilterHook = (initialConditions, initialMode) => {
             ? isMatchKeyword(condition, getKeywordText?.(row) ?? "")
             : isMatchCondition(
                 condition,
-                row[condition.target.key],
+                getValue(row, condition.target.key),
                 condition.input
               );
 

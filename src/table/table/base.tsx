@@ -43,6 +43,9 @@ import { Condition } from "../../search-bar";
 import { useState } from "react";
 
 export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
+  const pagination =
+    props.initialCondition?.pagination ?? props.initialCondition?.pagenation;
+
   // Filters from initialCondition, converted once on the first render.
   const [initialFilters] = useState(() =>
     (props.initialCondition?.filters ?? [])
@@ -60,7 +63,10 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
     <LocaleProvider locale={props.locale}>
       <ComponentProvider>
         <TableIdGeneratorProvider id={props.id}>
-          <ColumnsWidthProvider cols={props.cols as TTableColumn<DataRecord>[]}>
+          <ColumnsWidthProvider
+            cols={props.cols as TTableColumn<DataRecord>[]}
+            initialWidths={props.initialCondition?.columnWidths}
+          >
             <FilterProvider
               initialConditions={initialFilters}
               initialMode={props.initialCondition?.filterMode}
@@ -68,12 +74,8 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
               <SortProvider initialCondition={props.initialCondition?.sort}>
                 <PagenationProvider
                   rowCount={props.rows.length}
-                  perPage={
-                    (
-                      props.initialCondition?.pagination ??
-                      props.initialCondition?.pagenation
-                    )?.rowCountPerPage
-                  }
+                  perPage={pagination?.rowCountPerPage}
+                  currentPage={pagination?.page}
                 >
                   <CheckboxProvider checkbox={props.checkbox}>
                     <CheckboxStatusProvider checkboxCount={props.rows.length}>

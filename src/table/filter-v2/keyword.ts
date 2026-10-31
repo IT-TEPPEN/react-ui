@@ -1,6 +1,6 @@
 import { DataObject, DataRecord, TTableColumn } from "../table/type";
 import { formatDateForCopy, formatDatetimeForCopy } from "../copy/format";
-import { isFilterable } from "../table/column-options";
+import { filterValueOf, isFilterable } from "../table/column-options";
 
 /**
  * Builds the text that the all-columns keyword search looks in for a row:
@@ -15,13 +15,11 @@ export function buildKeywordTextGetter<T extends DataRecord>(
   const getters = cols
     .filter((col) => isFilterable(col))
     .map((col): ((row: DataObject<T>) => string) => {
-      const key = col.key;
-
       switch (col.type) {
         case "select": {
           const labels = new Map(col.options.map((o) => [o.value, o.label]));
           return (row) => {
-            const value = row[key];
+            const value = filterValueOf(col, row);
             const text = labels.get(value as string) ?? toText(value);
             return withRenderedText(col, text, row);
           };
@@ -31,7 +29,7 @@ export function buildKeywordTextGetter<T extends DataRecord>(
           const format =
             col.type === "date" ? formatDateForCopy : formatDatetimeForCopy;
           return (row) => {
-            const value = row[key];
+            const value = filterValueOf(col, row);
             if (!(value instanceof Date)) return toText(value);
 
             const shown = col.render(value);
@@ -42,7 +40,8 @@ export function buildKeywordTextGetter<T extends DataRecord>(
           };
         }
         default:
-          return (row) => withRenderedText(col, toText(row[key]), row);
+          return (row) =>
+            withRenderedText(col, toText(filterValueOf(col, row)), row);
       }
     });
 

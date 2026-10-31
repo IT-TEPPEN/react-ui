@@ -1,4 +1,4 @@
-import { DataRecord, TTableColumn } from "./type";
+import { DataObject, DataRecord, TTableColumn } from "./type";
 
 /**
  * A read-only column that shows something of its own with render. What it
@@ -15,14 +15,32 @@ function rendersOwnContent<T extends DataRecord>(col: TTableColumn<T>) {
   );
 }
 
-/** Whether the column can be sorted. */
+/**
+ * Whether the column can be sorted. A sortValue counts as opting in, as
+ * `disableSort: false` does.
+ */
 export function isSortable<T extends DataRecord>(col: TTableColumn<T>) {
-  return rendersOwnContent(col) ? col.disableSort === false : !col.disableSort;
+  if (col.disableSort === true) return false;
+  return rendersOwnContent(col)
+    ? col.disableSort === false || !!col.sortValue
+    : true;
 }
 
-/** Whether the column can be filtered (and is searched by "all columns"). */
+/**
+ * Whether the column can be filtered (and is searched by "all columns"). A
+ * filterValue counts as opting in, as `disableFilter: false` does.
+ */
 export function isFilterable<T extends DataRecord>(col: TTableColumn<T>) {
+  if (col.disableFilter === true) return false;
   return rendersOwnContent(col)
-    ? col.disableFilter === false
-    : !col.disableFilter;
+    ? col.disableFilter === false || !!col.filterValue
+    : true;
+}
+
+/** The value a column is filtered by: its filterValue, or its value in rows. */
+export function filterValueOf<T extends DataRecord>(
+  col: TTableColumn<T>,
+  row: DataObject<T>
+): unknown {
+  return col.filterValue ? col.filterValue(row) : row[col.key];
 }

@@ -5,17 +5,33 @@ import { DEFAULT_COL_WIDTH, DEFAULT_MIN_COL_WIDTH } from "../../constant";
 export const columnsWidthReducer: TColumnsWidthReducer = (state, action) => {
   switch (action.type) {
     case "set":
-      if (state[action.payload.key] === action.payload.colWidth) {
+      if (state.overrides[action.payload.key] === action.payload.colWidth) {
         return state;
       }
-      return { ...state, [action.payload.key]: action.payload.colWidth };
+      return {
+        ...state,
+        overrides: {
+          ...state.overrides,
+          [action.payload.key]: action.payload.colWidth,
+        },
+      };
+    case "commit":
+      if (state.committed === state.overrides) return state;
+      return { ...state, committed: state.overrides };
     default:
       return state;
   }
 };
 
-export const useColumnsWidthReducer: TColumnsWidthHook = (cols) => {
-  const [overrides, dispatch] = useReducer(columnsWidthReducer, {});
+export const useColumnsWidthReducer: TColumnsWidthHook = (
+  cols,
+  initialWidths = {}
+) => {
+  const [{ overrides, committed }, dispatch] = useReducer(
+    columnsWidthReducer,
+    initialWidths,
+    (widths) => ({ overrides: widths, committed: widths })
+  );
 
   // Widths are derived from the current columns on every change, so added,
   // removed or reordered columns always have a width. Widths the user set by
@@ -42,6 +58,7 @@ export const useColumnsWidthReducer: TColumnsWidthHook = (cols) => {
 
     return {
       columns,
+      committedWidths: committed,
       getColumnWidth: (key: string) => {
         const column = byKey.get(key);
 
@@ -63,12 +80,15 @@ export const useColumnsWidthReducer: TColumnsWidthHook = (cols) => {
         return column.minWidth;
       },
     };
-  }, [columns]);
+  }, [columns, committed]);
 
   const action = useMemo(
     () => ({
       setColWidth: (key: string, colWidth: number) => {
         dispatch({ type: "set", payload: { key, colWidth } });
+      },
+      commitWidths: () => {
+        dispatch({ type: "commit" });
       },
     }),
     []

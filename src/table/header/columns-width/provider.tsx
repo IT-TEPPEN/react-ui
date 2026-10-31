@@ -12,6 +12,8 @@ import { useColumnsWidthReducer } from "./reducer";
 export function ColumnsWidthProvider(props: {
   children: React.ReactNode;
   cols: TTableColumn<DataRecord>[];
+  /** Widths to start with, e.g. restored from a saved condition. */
+  initialWidths?: { [key: string]: number };
 }) {
   const cols = useMemo(
     () =>
@@ -22,7 +24,7 @@ export function ColumnsWidthProvider(props: {
       })),
     [props.cols]
   );
-  const { state, action } = useColumnsWidthReducer(cols);
+  const { state, action } = useColumnsWidthReducer(cols, props.initialWidths);
 
   return (
     <ColumnsWidthStateContext.Provider value={state}>

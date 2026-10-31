@@ -96,6 +96,9 @@ export type TCellEditingCondition<T extends DataRecord> =
   | TDateCellEditingCondition<T>
   | TDatetimeCellEditingCondition<T>;
 
+/** A value that sortValue / filterValue can return. */
+export type TCellSortValue = string | number | Date | null | undefined;
+
 export type TColumnProperty<T extends DataRecord> = {
   key: keyof T;
   label?: string;
@@ -110,6 +113,19 @@ export type TColumnProperty<T extends DataRecord> = {
    * read-only column with render is not filtered unless this is set to false.
    */
   disableFilter?: boolean;
+  /**
+   * The value to sort this column by, instead of its value in rows. For
+   * example, the name shown for an id: `(row) => userNames[row.ownerId]`.
+   * Setting it on a column with render also makes it sortable.
+   */
+  sortValue?: (row: DataObject<T>) => TCellSortValue;
+  /**
+   * The value to filter this column by (and to look in with the all-columns
+   * search), instead of its value in rows. It is compared with the
+   * operators of the column's type. Setting it on a column with render also
+   * makes it filterable.
+   */
+  filterValue?: (row: DataObject<T>) => TCellSortValue;
   initialWidth?: number;
   minWidth?: number;
 };
@@ -162,11 +178,18 @@ export type TFilter = {
   value?: string | number | Date | string[];
 };
 
-/** The filters and sort the table is showing (see onConditionChange). */
+/**
+ * What the table is showing (see onConditionChange). It has the shape of
+ * initialCondition, so a saved one can be passed back to restore the view.
+ */
 export type TTableCondition = {
   filters: TFilter[];
   filterMode: "and" | "or";
   sort: { key: string; asc: boolean };
+  /** Rows per page and the page shown (1 when all rows are shown). */
+  pagination: { rowCountPerPage: 20 | 50 | 100 | "all"; page: number };
+  /** Widths the user set by dragging, by column key (px). */
+  columnWidths: { [key: string]: number };
 };
 
 type TPaginationCondition = {
@@ -176,6 +199,11 @@ type TPaginationCondition = {
    * pagination for more than about 1,000 rows.
    */
   rowCountPerPage?: 20 | 50 | 100 | "all";
+  /**
+   * The page to show first (from 1). Kept within the pages there are; when
+   * the rows arrive later (e.g. loaded asynchronously), it waits for them.
+   */
+  page?: number;
 };
 
 export type TPropsTable<T extends DataRecord> = {
@@ -195,6 +223,8 @@ export type TPropsTable<T extends DataRecord> = {
     pagination?: TPaginationCondition;
     /** @deprecated Use `pagination`. Kept for compatibility. */
     pagenation?: TPaginationCondition;
+    /** Column widths to start with, by column key (px). */
+    columnWidths?: { [key: string]: number };
   };
   applyRowFormatting?: (row: DataObject<T>) => TailwindCssStyle;
   conditionalFormattings?: TConditionalFormatting<T>[];

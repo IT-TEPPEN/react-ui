@@ -1,6 +1,14 @@
 import { usePageReducer } from "./hooks";
 
-export type TPageState = { rowCount: number } & (
+export type TPageState = {
+  rowCount: number;
+  /**
+   * False until the row count is first known (more than 0 rows). Until then
+   * a page given at the start (e.g. restored) is kept instead of resetting
+   * to page 1.
+   */
+  synced?: boolean;
+} & (
   | {
       enable: false;
     }
