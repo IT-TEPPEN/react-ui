@@ -222,6 +222,22 @@ The `like` / `not like` filters ignore differences between upper and lower case,
 - Paste function
 - Conditional formatting function
 
+#### Keyboard
+
+Click a cell to select it (drag to select a range). Then:
+
+| Key | While a cell is selected | While editing a cell |
+|---|---|---|
+| Arrow keys | Move (Shift: extend the range; Ctrl: to the end) | Move the cursor in the text |
+| Enter / Shift+Enter | Move down / up | Commit, then move down / up |
+| Tab / Shift+Tab | Move right / left | Commit, then move right / left |
+| F2, or start typing | Start editing (typing Japanese with an IME works too) | |
+| Delete / Backspace | Start editing with an empty value | |
+| Escape | Clear the selection | Cancel the edit |
+| Ctrl+C (Cmd+C) / Ctrl+V (Cmd+V) | Copy / paste the selected range | |
+
+After Enter / Tab, the selection moves only when the value was committed: if it fails the column's `constraints`, the editor stays open.
+
 #### Arguments
 
 The table component accepts the arguments `id`, `rows`, `cols`, `initialCondition`, `onClickRow`, `onUpdateRow`, `onPasteError`, `onConditionChange`, `errorHandler`, `locale`, `loading`, `noDataMessage`, `rowCountPerPageOptions`, `className`, `style`, `applyRowFormatting`, `checkbox`, `conditionalFormattings`, `maxHeight` and `maxWidth`. Details for each argument are described below.

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useEditContext } from "../../edit/provider";
 import { useColumnsContext } from "../../sheet/providers";
 import { useRangeContext } from "../../range/provider";
@@ -30,7 +30,18 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
       } else if (range.isSelecting && !isTextEntryTarget(e.target)) {
         if (e.key === "Enter") {
           e.preventDefault();
-          range.moveDown();
+          if (e.shiftKey) {
+            range.moveUp();
+          } else {
+            range.moveDown();
+          }
+        } else if (e.key === "Tab") {
+          e.preventDefault();
+          if (e.shiftKey) {
+            range.moveLeft();
+          } else {
+            range.moveRight();
+          }
         } else if (e.key === "Escape") {
           e.preventDefault();
           range.reset();
@@ -121,6 +132,20 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
       document.removeEventListener("keydown", listener);
     };
   }, [range, edit.isEditing]);
+
+  // After a cell is committed with Enter / Tab, move the selection once
+  // editing has actually ended.
+  const wasEditing = useRef(edit.isEditing);
+  useEffect(() => {
+    if (wasEditing.current && !edit.isEditing) {
+      const move = edit.takeMoveAfterEditing();
+      if (move === "up") range.moveUp();
+      if (move === "down") range.moveDown();
+      if (move === "left") range.moveLeft();
+      if (move === "right") range.moveRight();
+    }
+    wasEditing.current = edit.isEditing;
+  }, [edit.isEditing]);
 
   useEffect(() => {
     if (edit.isEditing && !col.editable) {
