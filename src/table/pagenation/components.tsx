@@ -1,6 +1,7 @@
 "use client";
 
 import { usePageContext } from "./providers";
+import { useMessages } from "../locale/provider";
 
 export function Pagenation() {
   const { enable, current, pageCount, jump, prev, next } = usePageContext();
@@ -10,7 +11,7 @@ export function Pagenation() {
   }
 
   return (
-    <div className="flex justify-center gap-2">
+    <div data-teppen-part="pagination" className="flex justify-center gap-2">
       <button
         className="text-sm cursor-pointer disabled:cursor-default"
         onClick={() => jump(1)}
@@ -30,7 +31,7 @@ export function Pagenation() {
         .map((i) => (
           <button
             key={i}
-            className={`text-sm cursor-pointer disabled:cursor-default ${current === i ? "text-blue-600" : ""}`}
+            className={`text-sm cursor-pointer disabled:cursor-default ${current === i ? "text-[color:var(--teppen-table-accent,#2563eb)]" : ""}`}
             onClick={() => jump(i)}
           >
             {i}
@@ -56,15 +57,19 @@ export function Pagenation() {
 
 export function DisplayRange() {
   const { enable, from, to, rowCount } = usePageContext();
+  const messages = useMessages();
 
   if (!enable) {
     return <></>;
   }
 
   return (
-    <p className="text-center text-sm text-gray-600">
-      {rowCount === 0 ? 0 : from + 1} - {to < rowCount ? to : rowCount} of{" "}
-      {rowCount}
+    <p data-teppen-part="range" className="text-center text-sm text-[color:var(--teppen-table-muted,#4b5563)]">
+      {messages.range(
+        rowCount === 0 ? 0 : from + 1,
+        to < rowCount ? to : rowCount,
+        rowCount
+      )}
     </p>
   );
 }

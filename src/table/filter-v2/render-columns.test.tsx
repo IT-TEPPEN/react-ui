@@ -43,12 +43,12 @@ const optionsList = () =>
   document.querySelector('[id="ReactUI:SelectBox:OptionsArea"]') as HTMLElement;
 
 function addCondition(container: HTMLElement, target: string, operator: string, value: string) {
-  fireEvent.click(container.querySelector('input[placeholder="Select target"]')!);
+  fireEvent.click(container.querySelector('input[placeholder="絞り込む列を選択"]')!);
   fireEvent.click(within(optionsList()).getByText(target));
   act(() => { jest.runAllTimers(); });
   fireEvent.click(within(optionsList()).getByText(operator));
   act(() => { jest.runAllTimers(); });
-  const input = container.querySelector('input[placeholder="Search text"]') as HTMLInputElement;
+  const input = container.querySelector('input[placeholder="値を入力して Enter"]') as HTMLInputElement;
   fireEvent.change(input, { target: { value } });
   fireEvent.keyDown(input, { key: "Enter" });
 }
@@ -57,7 +57,7 @@ describe("columns with render", () => {
   test("only columns that opt in are offered as filter targets", () => {
     const { container } = render(<Table cols={cols} rows={rows} />);
 
-    fireEvent.click(container.querySelector('input[placeholder="Select target"]')!);
+    fireEvent.click(container.querySelector('input[placeholder="絞り込む列を選択"]')!);
     const targets = Array.from(optionsList().children).map((el) => el.textContent);
     expect(targets).toEqual(["すべての列", "点数"]);
   });
@@ -65,7 +65,7 @@ describe("columns with render", () => {
   test("a column that opts in is filtered by its value", () => {
     const { container } = render(<Table cols={cols} rows={rows} />);
 
-    addCondition(container, "点数", "≧", "80");
+    addCondition(container, "点数", "以上", "80");
     expect(renderedIds(container)).toEqual(["1", "3"]);
   });
 
@@ -80,7 +80,7 @@ describe("columns with render", () => {
   test('searching "12" does not match an id or a link that is not shown', () => {
     const { container } = render(<Table cols={cols} rows={rows} />);
 
-    addCondition(container, "すべての列", "like", "12");
+    addCondition(container, "すべての列", "を含む", "12");
     expect(renderedIds(container)).toEqual([]);
   });
 

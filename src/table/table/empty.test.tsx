@@ -27,13 +27,13 @@ describe("empty table", () => {
   test("pagination shows 0 rows and cannot move to another page", () => {
     const { container, getByText } = render(<Table cols={cols} rows={[]} />);
 
-    expect(getByText("0 - 0 of 0")).toBeDefined();
+    expect(getByText("0件")).toBeDefined();
 
     const next = Array.from(container.querySelectorAll("button")).find(
       (b) => b.textContent === ">"
     )!;
     expect(next.disabled).toBe(true);
     fireEvent.click(next);
-    expect(getByText("0 - 0 of 0")).toBeDefined();
+    expect(getByText("0件")).toBeDefined();
   });
 });

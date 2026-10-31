@@ -10,6 +10,7 @@ import { useIdGenerator } from "../id-generator";
 import { TiDeleteOutline } from "react-icons/ti";
 import { parseNumberText } from "../../share/text/normalize";
 import { isComposingKey } from "../../table/operation/event-target";
+import { useMessages } from "../../table/locale/provider";
 
 export function SearchBarInputForm(props: {
   size?: "small" | "medium" | "large";
@@ -27,6 +28,7 @@ export function SearchBarInputForm(props: {
 }
 
 function TargetInputForm() {
+  const messages = useMessages();
   const { generateId } = useIdGenerator();
   const { targets } = useConditionInputState();
   const { inputTarget } = useConditionInputAction();
@@ -41,7 +43,7 @@ function TargetInputForm() {
         value: t.key,
         label: t.label,
       }))}
-      placeholder="Select target"
+      placeholder={messages.search.selectColumn}
       no_appearance
       no_icon
     />
@@ -49,6 +51,7 @@ function TargetInputForm() {
 }
 
 function OperatorInputForm() {
+  const messages = useMessages();
   const { generateId } = useIdGenerator();
   const state = useConditionInputState();
   const { inputOperator, removeInputedTarget } = useConditionInputAction();
@@ -84,10 +87,10 @@ function OperatorInputForm() {
           }}
           options={operators.map((t) => ({
             value: t.key,
-            label: t.label,
+            label: messages.search.operator(t.key),
           }))}
           defaultIsOpen
-          placeholder="Select operator"
+          placeholder={messages.search.selectCondition}
           no_appearance
           no_icon
         />
@@ -97,6 +100,7 @@ function OperatorInputForm() {
 }
 
 function SearchValueInputForm(props: { size?: "small" | "medium" | "large" }) {
+  const messages = useMessages();
   const state = useConditionInputState();
   const { removeInputedOperator, removeInputedTarget } =
     useConditionInputAction();
@@ -117,7 +121,7 @@ function SearchValueInputForm(props: { size?: "small" | "medium" | "large" }) {
         }}
       />
       <FixedValue
-        label={operator.label}
+        label={messages.search.operator(operator.key)}
         onClickDelete={() => {
           removeInputedOperator();
         }}
@@ -171,6 +175,7 @@ function InputSingleString(props: {
   inputType: "single string";
   size?: "small" | "medium" | "large";
 }) {
+  const messages = useMessages();
   const { generateId } = useIdGenerator();
   const [value, setValue] = useState("");
   const { inputValue } = useConditionInputAction();
@@ -186,7 +191,7 @@ function InputSingleString(props: {
           : ""
       }`}
       type="text"
-      placeholder="Search text"
+      placeholder={messages.search.enterValue}
       value={value}
       onChange={(e) => {
         setValue(e.target.value);
@@ -212,6 +217,7 @@ function InputSingleNumber(props: {
   inputType: "single number";
   size?: "small" | "medium" | "large";
 }) {
+  const messages = useMessages();
   const { generateId } = useIdGenerator();
   const [value, setValue] = useState("");
   const [isInvalid, setIsInvalid] = useState(false);
@@ -231,7 +237,7 @@ function InputSingleNumber(props: {
           : ""
       }`}
       type="text"
-      placeholder="Search text"
+      placeholder={messages.search.enterValue}
       value={value}
       onChange={(e) => {
         setValue(e.target.value);
@@ -262,6 +268,7 @@ function InputSingleNumber(props: {
 }
 
 function InputSingleSelect(props: { inputType: "select"; options: Options[] }) {
+  const messages = useMessages();
   const { inputValue } = useConditionInputAction();
   const { generateId } = useIdGenerator();
 
@@ -279,7 +286,7 @@ function InputSingleSelect(props: { inputType: "select"; options: Options[] }) {
         }}
         options={props.options}
         defaultIsOpen
-        placeholder="Select value"
+        placeholder={messages.search.selectValue}
         no_appearance
         no_icon
       />
@@ -291,6 +298,7 @@ function InputMultiSelect(props: {
   inputType: "multi select";
   options: Options[];
 }) {
+  const messages = useMessages();
   const { inputValue } = useConditionInputAction();
   const [selected, setSelected] = useState<string[]>([]);
 
@@ -313,8 +321,8 @@ function InputMultiSelect(props: {
             aria-pressed={isSelected}
             className={`shrink-0 px-2 rounded border whitespace-nowrap cursor-pointer ${
               isSelected
-                ? "bg-sky-600 border-sky-600 text-white"
-                : "bg-white border-gray-300 hover:bg-gray-100"
+                ? "bg-[color:var(--teppen-table-accent,#0284c7)] border-[color:var(--teppen-table-accent,#0284c7)] text-[color:var(--teppen-table-accent-text,#ffffff)]"
+                : "bg-[color:var(--teppen-table-bg,#ffffff)] border-[color:var(--teppen-table-control-border,#d1d5db)] hover:bg-[color:var(--teppen-table-hover,#f3f4f6)]"
             }`}
             onClick={() => toggle(option.value)}
           >
@@ -325,7 +333,7 @@ function InputMultiSelect(props: {
       <button
         type="button"
         disabled={selected.length === 0}
-        className="shrink-0 px-2 rounded bg-slate-700 text-white font-bold cursor-pointer disabled:opacity-40 disabled:cursor-default"
+        className="shrink-0 px-2 rounded bg-[color:var(--teppen-table-button-bg,#334155)] text-[color:var(--teppen-table-button-text,#ffffff)] font-bold cursor-pointer disabled:opacity-40 disabled:cursor-default"
         onClick={() =>
           inputValue({
             type: props.inputType,
@@ -338,7 +346,7 @@ function InputMultiSelect(props: {
           })
         }
       >
-        OK
+        {messages.search.add}
       </button>
     </div>
   );
@@ -475,12 +483,12 @@ function InputSingleDate(props: {
 
 function FixedValue(props: { label: string; onClickDelete?: () => void }) {
   return (
-    <div className="flex items-center gap-2 w-fit px-2 border border-gray-200 rounded bg-slate-100">
+    <div className="flex items-center gap-2 w-fit px-2 border border-[color:var(--teppen-table-border,#e5e7eb)] rounded bg-[color:var(--teppen-table-active,#f1f5f9)]">
       <p className="whitespace-nowrap">{props.label}</p>
       {props.onClickDelete && (
         <div>
           <TiDeleteOutline
-            className="bg-white hover:bg-slate-300 rounded-full cursor-pointer"
+            className="bg-[color:var(--teppen-table-bg,#ffffff)] hover:bg-[color:var(--teppen-table-hover,#cbd5e1)] rounded-full cursor-pointer"
             onClick={props.onClickDelete}
           />
         </div>

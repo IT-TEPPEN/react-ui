@@ -90,7 +90,8 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
 
   return (
     <div
-      className="border-gray-200 bg-gray-200 text-gray-600 rounded-t-md"
+      data-teppen-part="header"
+      className="border-[color:var(--teppen-table-border,#e5e7eb)] bg-[color:var(--teppen-table-header-bg,#e5e7eb)] text-[color:var(--teppen-table-header-text,#4b5563)] rounded-t-[var(--teppen-table-radius,0.375rem)]"
       style={{ maxWidth: props.maxWidth }}
     >
       <div className="py-2 px-2">
@@ -160,6 +161,7 @@ const HeaderElement = memo(function HE(props: IPropsHeaderElement) {
 
   return (
     <div
+      data-teppen-part="header-cell"
       className="relative"
       style={{
         width: props.colWidth,
@@ -168,7 +170,7 @@ const HeaderElement = memo(function HE(props: IPropsHeaderElement) {
       }}
     >
       <div
-        className={`flex justify-between items-center bg-gray-200 text-gray-600 h-[32px]`}
+        className={`flex justify-between items-center bg-[color:var(--teppen-table-header-bg,#e5e7eb)] text-[color:var(--teppen-table-header-text,#4b5563)] h-[32px]`}
       >
         <div className="px-2" style={{ maxWidth: maxWidthLabel }}>
           {props.label && (
@@ -190,7 +192,7 @@ const HeaderElement = memo(function HE(props: IPropsHeaderElement) {
         className="absolute top-0 right-0 grid place-items-end py-1 w-[4px] h-full cursor-col-resize"
         onMouseDown={onMouseDownResizeWidth}
       >
-        <div className={`w-[1px] h-full bg-white`} />
+        <div className={`w-[1px] h-full bg-[color:var(--teppen-table-bg,#ffffff)]`} />
       </div>
     </div>
   );

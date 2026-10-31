@@ -12,6 +12,7 @@ import {
 import { ConditionList } from "./condition-list";
 import { SearchBarInputForm } from "./input-form";
 import { BiSearchAlt } from "react-icons/bi";
+import { useMessages } from "../../table/locale/provider";
 
 interface SearcchBarProps {
   size: "small" | "medium" | "large";
@@ -50,6 +51,7 @@ export const ConditionSearchBar = memo(function CS(
 });
 
 export function SearchBar(props: SearcchBarProps) {
+  const messages = useMessages();
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -73,7 +75,8 @@ export function SearchBar(props: SearcchBarProps) {
 
   return (
     <div
-      className={`flex items-center gap-1 w-full px-2 py-1 bg-white border border-slate-700 rounded-md text-gray-800 ${
+      data-teppen-part="search-bar"
+      className={`flex items-center gap-1 w-full px-2 py-1 bg-[color:var(--teppen-table-bg,#ffffff)] border border-[color:var(--teppen-table-search-border,#334155)] rounded-[var(--teppen-table-radius,0.375rem)] text-[color:var(--teppen-table-text,#1f2937)] ${
         props.size === "small"
           ? "text-sm"
           : props.size === "large"
@@ -82,7 +85,7 @@ export function SearchBar(props: SearcchBarProps) {
       }`}
     >
       <div className="px-2">
-        <BiSearchAlt className="text-slate-600" />
+        <BiSearchAlt className="text-[color:var(--teppen-table-muted,#475569)]" />
       </div>
       <div
         ref={ref}
@@ -101,20 +104,16 @@ export function SearchBar(props: SearcchBarProps) {
         {props.onChangeMode && props.conditions.length >= 2 && (
           <button
             type="button"
-            className="shrink-0 px-2 rounded border border-slate-400 text-xs font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
-            title={
-              props.mode === "or"
-                ? "Match any condition (click for all)"
-                : "Match all conditions (click for any)"
-            }
-            aria-label={`Combine conditions with ${
-              props.mode === "or" ? "OR" : "AND"
-            }`}
+            className="shrink-0 px-2 rounded border border-[color:var(--teppen-table-control-border,#94a3b8)] text-xs font-bold text-[color:var(--teppen-table-muted,#475569)] hover:bg-[color:var(--teppen-table-hover,#f1f5f9)] cursor-pointer"
+            title={messages.search.modeHint(props.mode ?? "and")}
+            aria-pressed={props.mode === "or"}
             onClick={() =>
               props.onChangeMode?.(props.mode === "or" ? "and" : "or")
             }
           >
-            {props.mode === "or" ? "OR" : "AND"}
+            {props.mode === "or"
+              ? messages.search.matchAny
+              : messages.search.matchAll}
           </button>
         )}
         <div className="flex items-center min-w-64 w-full">

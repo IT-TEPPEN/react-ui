@@ -23,7 +23,8 @@ export const Row = memo(function R<T extends DataRecord>(props: TPropsRow<T>) {
 
   return (
     <tr
-      className={`relative border border-gray-200 after:absolute after:w-full after:h-full after:top-0 after:left-0 after:pointer-events-none hover:after:bg-gray-500/10 ${
+      data-teppen-part="row"
+      className={`relative border border-[color:var(--teppen-table-border,#e5e7eb)] after:absolute after:w-full after:h-full after:top-0 after:left-0 after:pointer-events-none hover:after:bg-[color:var(--teppen-table-row-hover,rgb(107_114_128/0.1))] ${
         !!props.onClickRow ? "hover:cursor-pointer" : ""
       } ${props.applyRowFormatting ? props.applyRowFormatting(row) : ""}`}
       onClick={(e) => {

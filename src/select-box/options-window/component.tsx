@@ -174,20 +174,20 @@ export function OptionsArea() {
   return (
     <div
       id={"ReactUI:SelectBox:OptionsArea"}
-      className="absolute min-w-fit max-h-[40vh] overflow-auto border border-gray-300 z-10"
+      className="absolute min-w-fit max-h-[40vh] overflow-auto border border-[color:var(--teppen-table-control-border,#d1d5db)] z-10"
       style={position}
     >
       {state.options.map((option) => (
         <div
           id={IdGenerator.generateIdSelectBoxOption(id, option.value ?? "")}
-          className={`hover:bg-gray-200 px-2 py-1 ${
+          className={`hover:bg-[color:var(--teppen-table-hover,#e5e7eb)] px-2 py-1 ${
             typeof selectingValue === "string"
               ? selectingValue === option.value
-                ? "bg-gray-100"
-                : "bg-white"
+                ? "bg-[color:var(--teppen-table-active,#f3f4f6)]"
+                : "bg-[color:var(--teppen-table-bg,#ffffff)]"
               : value === option.value
-              ? "bg-gray-100"
-              : "bg-white"
+              ? "bg-[color:var(--teppen-table-active,#f3f4f6)]"
+              : "bg-[color:var(--teppen-table-bg,#ffffff)]"
           }`}
           key={option.value}
           onClick={() => {

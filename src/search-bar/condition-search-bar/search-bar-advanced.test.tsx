@@ -51,7 +51,7 @@ const shownOptions = () =>
 
 function chooseTarget(container: HTMLElement, target: string) {
   fireEvent.click(
-    container.querySelector('input[placeholder="Select target"]')!
+    container.querySelector('input[placeholder="絞り込む列を選択"]')!
   );
   fireEvent.click(within(optionsList()).getByText(target));
   act(() => {
@@ -68,18 +68,18 @@ function chooseOperator(operator: string) {
 
 function typeValue(container: HTMLElement, value: string) {
   const input = container.querySelector(
-    'input[placeholder="Search text"]'
+    'input[placeholder="値を入力して Enter"]'
   ) as HTMLInputElement;
   fireEvent.change(input, { target: { value } });
   fireEvent.keyDown(input, { key: "Enter" });
 }
 
 describe("keyword search over all columns", () => {
-  test('"すべての列" is the first target and offers like / not like', () => {
+  test('"すべての列" is the first target and offers contains / does not contain', () => {
     const { container } = render(<Table cols={cols} rows={rows} />);
 
     fireEvent.click(
-      container.querySelector('input[placeholder="Select target"]')!
+      container.querySelector('input[placeholder="絞り込む列を選択"]')!
     );
     expect(shownOptions()[0]).toBe("すべての列");
 
@@ -87,17 +87,17 @@ describe("keyword search over all columns", () => {
     act(() => {
       jest.runAllTimers();
     });
-    expect(shownOptions()).toEqual(["like", "not like"]);
+    expect(shownOptions()).toEqual(["を含む", "を含まない"]);
   });
 
   test("finds rows by any column, using option labels", () => {
     const { container, getByText } = render(<Table cols={cols} rows={rows} />);
 
     chooseTarget(container, "すべての列");
-    chooseOperator("like");
+    chooseOperator("を含む");
     typeValue(container, "げすと");
 
-    expect(getByText("すべての列 like げすと")).toBeDefined();
+    expect(getByText("すべての列：げすと を含む")).toBeDefined();
     expect(renderedIds(container)).toEqual(["3"]);
   });
 
@@ -105,7 +105,7 @@ describe("keyword search over all columns", () => {
     const { container } = render(<Table cols={cols} rows={rows} locale="en" />);
 
     fireEvent.click(
-      container.querySelector('input[placeholder="Select target"]')!
+      container.querySelector('input[placeholder="Filter by column"]')!
     );
     expect(shownOptions()[0]).toBe("All columns");
   });
@@ -118,9 +118,9 @@ describe("in / not in", () => {
     );
 
     chooseTarget(container, "役割");
-    chooseOperator("in");
+    chooseOperator("のいずれか");
 
-    const ok = getByRole("button", { name: "OK" }) as HTMLButtonElement;
+    const ok = getByRole("button", { name: "追加" }) as HTMLButtonElement;
     expect(ok.disabled).toBe(true);
 
     fireEvent.click(getByRole("button", { name: "ゲスト" }));
@@ -130,7 +130,7 @@ describe("in / not in", () => {
     fireEvent.click(ok);
 
     // Labels in the order of the options.
-    expect(getByText("役割 in 管理者, ゲスト")).toBeDefined();
+    expect(getByText("役割：管理者、ゲスト のいずれか")).toBeDefined();
     expect(renderedIds(container)).toEqual(["1", "3"]);
   });
 
@@ -138,9 +138,9 @@ describe("in / not in", () => {
     const { container, getByRole } = render(<Table cols={cols} rows={rows} />);
 
     chooseTarget(container, "役割");
-    chooseOperator("not in");
+    chooseOperator("のいずれでもない");
     fireEvent.click(getByRole("button", { name: "管理者" }));
-    fireEvent.click(getByRole("button", { name: "OK" }));
+    fireEvent.click(getByRole("button", { name: "追加" }));
 
     expect(renderedIds(container)).toEqual(["2", "3"]);
   });
@@ -153,19 +153,19 @@ describe("AND / OR", () => {
     );
 
     chooseTarget(container, "名前");
-    chooseOperator("like");
+    chooseOperator("を含む");
     typeValue(container, "taro");
-    expect(queryByRole("button", { name: /Combine conditions/ })).toBeNull();
+    expect(queryByRole("button", { name: "すべてに一致" })).toBeNull();
 
     chooseTarget(container, "年齢");
-    chooseOperator("<");
+    chooseOperator("より小さい");
     typeValue(container, "25");
     expect(renderedIds(container)).toEqual([]);
 
-    const toggle = getByRole("button", { name: /Combine conditions with AND/ });
+    const toggle = getByRole("button", { name: "すべてに一致" });
     fireEvent.click(toggle);
 
-    expect(toggle.textContent).toBe("OR");
+    expect(toggle.textContent).toBe("どれかに一致");
     expect(renderedIds(container)).toEqual(["1", "2"]);
   });
 });
@@ -184,9 +184,9 @@ test("a condition being entered survives a re-render with new cols", () => {
   act(() => rerenderParent());
 
   // Still waiting for the operator of 名前.
-  expect(shownOptions()).toContain("like");
+  expect(shownOptions()).toContain("を含む");
   expect(container.textContent).toContain("名前");
-  chooseOperator("like");
+  chooseOperator("を含む");
   typeValue(container, "jiro");
   expect(renderedIds(container)).toEqual(["2"]);
 });
@@ -210,11 +210,11 @@ test("options that arrive later do not reset a condition being entered", () => {
   const { container, getByRole } = render(<Parent />);
 
   chooseTarget(container, "役割");
-  chooseOperator("in");
+  chooseOperator("のいずれか");
   act(() => loadOptions());
 
   // Still choosing values, now with the new option.
   fireEvent.click(getByRole("button", { name: "ゲスト" }));
-  fireEvent.click(getByRole("button", { name: "OK" }));
+  fireEvent.click(getByRole("button", { name: "追加" }));
   expect(renderedIds(container)).toEqual(["3"]);
 });

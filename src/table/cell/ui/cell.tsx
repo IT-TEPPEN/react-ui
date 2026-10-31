@@ -20,6 +20,7 @@ export function TableCell(props: {
 
   return (
     <td
+      data-teppen-part="cell"
       id={props.id}
       className={`table-col-${colIndex} p-px ${props.cellFormatClassName}`}
       onDoubleClick={!props.isExistOnClickRow ? onDoubleClick : undefined}

@@ -41,12 +41,12 @@ export function CopiedMessage() {
 
   return (
     <div
-      className={`fixed z-[100] p-1 bg-gray-800 duration-300 pointer-events-none ${
+      className={`fixed z-[100] p-1 bg-[color:var(--teppen-table-toast-bg,#1f2937)] duration-300 pointer-events-none ${
         isDisplay ? "opacity-100" : "opacity-0"
       }`}
       style={{ top: y, left: x }}
     >
-      <p className="text-white text-xs">{messages.copied}</p>
+      <p className="text-[color:var(--teppen-table-toast-text,#ffffff)] text-xs">{messages.copied}</p>
     </div>
   );
 }

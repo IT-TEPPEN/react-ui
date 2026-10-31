@@ -62,8 +62,8 @@ describe("initialCondition.filters", () => {
     });
 
     expect(renderedIds(container)).toEqual(["1"]);
-    expect(getByText("役割 in 管理者, ゲスト")).toBeDefined();
-    expect(getByText("年齢 ≧ 25")).toBeDefined();
+    expect(getByText("役割：管理者、ゲスト のいずれか")).toBeDefined();
+    expect(getByText("年齢：25 以上")).toBeDefined();
   });
 
   test("supports the keyword filter and OR", () => {
@@ -78,8 +78,8 @@ describe("initialCondition.filters", () => {
     });
 
     expect(renderedIds(container)).toEqual(["1", "3"]);
-    expect(getByText("すべての列 like げすと")).toBeDefined();
-    expect(getByText("OR")).toBeDefined();
+    expect(getByText("すべての列：げすと を含む")).toBeDefined();
+    expect(getByText("どれかに一致")).toBeDefined();
   });
 
   test("ignores filters that do not fit, with a warning", () => {
@@ -128,14 +128,14 @@ describe("onConditionChange", () => {
     const { container } = renderTable({ onConditionChange });
     const last = () => onConditionChange.mock.calls.at(-1)!;
 
-    // Add 名前 like "ro" with the search bar.
-    fireEvent.click(container.querySelector('input[placeholder="Select target"]')!);
+    // Add 名前 を含む "ro" with the search bar.
+    fireEvent.click(container.querySelector('input[placeholder="絞り込む列を選択"]')!);
     const options = () => document.querySelector('[id="ReactUI:SelectBox:OptionsArea"]') as HTMLElement;
     fireEvent.click(within(options()).getByText("名前"));
     act(() => { jest.runAllTimers(); });
-    fireEvent.click(within(options()).getByText("like"));
+    fireEvent.click(within(options()).getByText("を含む"));
     act(() => { jest.runAllTimers(); });
-    const input = container.querySelector('input[placeholder="Search text"]') as HTMLInputElement;
+    const input = container.querySelector('input[placeholder="値を入力して Enter"]') as HTMLInputElement;
     fireEvent.change(input, { target: { value: "ro" } });
     fireEvent.keyDown(input, { key: "Enter" });
 
