@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { CancelIcon } from "../../../icon/cancel-icon";
 import { useTableIdGenerator } from "../../id";
 import { isComposingKey } from "../../operation/event-target";
+import { useEditActionContext } from "../provider";
 
 export function CellInput(props: {
   type?: "text";
@@ -14,6 +15,7 @@ export function CellInput(props: {
   endEditing: () => void;
 }) {
   const IdGenerator = useTableIdGenerator();
+  const { setMoveAfterEditing } = useEditActionContext();
   const ref = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -38,6 +40,9 @@ export function CellInput(props: {
         value={props.value}
         onChange={props.onChange}
         onBlur={props.onBlur}
+        // Back in the editor (e.g. after a validation error): forget the
+        // move, so committing later by other means does not move.
+        onFocus={() => setMoveAfterEditing(null)}
         // Handled on keydown so that keys used by an IME (e.g. Enter to
         // confirm or Escape to cancel Japanese conversion) can be told apart
         // and ignored; on keyup they look like plain Enter / Escape.
@@ -46,8 +51,19 @@ export function CellInput(props: {
             return;
           }
 
-          if (e.key === "Enter") {
+          // Enter / Tab commit the value and then move, as in a spreadsheet:
+          // Enter down (Shift: up), Tab right (Shift: left).
+          if (e.key === "Enter" || e.key === "Tab") {
             e.preventDefault();
+            setMoveAfterEditing(
+              e.key === "Enter"
+                ? e.shiftKey
+                  ? "up"
+                  : "down"
+                : e.shiftKey
+                ? "left"
+                : "right"
+            );
             (e.target as HTMLInputElement).blur();
           } else if (e.key === "Escape") {
             e.preventDefault();
