@@ -24,6 +24,9 @@ const PageContext = createContext<TPageContext>({
   setRowCount: function (): void {
     throw new Error("Function not implemented.");
   },
+  setPerPage: function (): void {
+    throw new Error("Function not implemented.");
+  },
   pageFilter: () => [],
 });
 
@@ -33,13 +36,24 @@ export function PagenationProvider(props: {
   perPage?: number | "all";
   currentPage?: number;
 }) {
+  // A rows-per-page count must be a positive whole number.
+  const perPage =
+    props.perPage === undefined ||
+    props.perPage === "all" ||
+    (Number.isInteger(props.perPage) && props.perPage > 0)
+      ? props.perPage
+      : (console.warn(
+          `Ignored rowCountPerPage ${JSON.stringify(props.perPage)}; using 50`
+        ),
+        undefined);
+
   const pagenationParams: TPageState =
-    props.perPage === "all"
+    perPage === "all"
       ? { enable: false, rowCount: props.rowCount }
       : {
           enable: true,
           rowCount: props.rowCount,
-          perPage: props.perPage ?? 50,
+          perPage: perPage ?? 50,
           currentPage: props.currentPage ?? 1,
         };
 

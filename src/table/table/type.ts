@@ -187,18 +187,18 @@ export type TTableCondition = {
   filterMode: "and" | "or";
   sort: { key: string; asc: boolean };
   /** Rows per page and the page shown (1 when all rows are shown). */
-  pagination: { rowCountPerPage: 20 | 50 | 100 | "all"; page: number };
+  pagination: { rowCountPerPage: number | "all"; page: number };
   /** Widths the user set by dragging, by column key (px). */
   columnWidths: { [key: string]: number };
 };
 
 type TPaginationCondition = {
   /**
-   * Rows per page. Defaults to 50.
+   * Rows per page (a positive whole number). Defaults to 50.
    * "all" renders every row at once and gets slow with many rows; use
    * pagination for more than about 1,000 rows.
    */
-  rowCountPerPage?: 20 | 50 | 100 | "all";
+  rowCountPerPage?: number | "all";
   /**
    * The page to show first (from 1). Kept within the pages there are; when
    * the rows arrive later (e.g. loaded asynchronously), it waits for them.
@@ -250,6 +250,12 @@ export type TPropsTable<T extends DataRecord> = {
    */
   className?: string;
   style?: React.CSSProperties;
+  /**
+   * The rows-per-page choices the user can pick from, e.g. [10, 25, 50, "all"].
+   * When given, a "rows per page" select is shown under the table; without
+   * it, the count is fixed (initialCondition.pagination.rowCountPerPage).
+   */
+  rowCountPerPageOptions?: (number | "all")[];
   /**
    * Shows that rows are being loaded: "読み込み中…" / "Loading…" in place of
    * the empty message, or over the rows while they are reloaded.

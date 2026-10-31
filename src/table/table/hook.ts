@@ -138,7 +138,7 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
         sort: { key: String(sortKey), asc: sortAsc },
         pagination: {
           rowCountPerPage: paginationEnabled
-            ? (perPage as 20 | 50 | 100)
+            ? perPage
             : "all",
           page: paginationEnabled ? currentPage : 1,
         },

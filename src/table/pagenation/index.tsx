@@ -1,2 +1,2 @@
 export { PagenationProvider, usePageContext } from "./providers";
-export { Pagenation, DisplayRange } from "./components";
+export { Pagenation, DisplayRange, RowsPerPageSelect } from "./components";

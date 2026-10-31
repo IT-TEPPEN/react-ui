@@ -35,28 +35,27 @@ function pagenationReducer(state: TPageState, action: TPageAction): TPageState {
         rowCount,
       };
     }
-    case "setPerPage":
+    case "setPerPage": {
+      // Changed by the user, so the row count is known from here on.
+      const synced = state.synced;
+
       if (action.payload.perPage === "all") {
-        return {
-          rowCount: state.rowCount,
-          enable: false,
-        };
+        if (!state.enable) return state;
+        return { rowCount: state.rowCount, synced, enable: false };
       }
 
-      if (!state.enable) {
-        return {
-          rowCount: state.rowCount,
-          enable: true,
-          currentPage: 1,
-          perPage: action.payload.perPage,
-        };
+      if (state.enable && state.perPage === action.payload.perPage) {
+        return state;
       }
 
       return {
-        ...state,
+        rowCount: state.rowCount,
+        synced,
+        enable: true,
         currentPage: 1,
         perPage: action.payload.perPage,
       };
+    }
     case "next":
       if (!state.enable) {
         return state;
@@ -118,6 +117,12 @@ export function usePageReducer(initialState?: TPageState) {
     [dispatch]
   );
 
+  const setPerPage = useCallback(
+    (perPage: number | "all") =>
+      dispatch({ type: "setPerPage", payload: { perPage } }),
+    [dispatch]
+  );
+
   const setRowCount = useCallback(
     (rowCount: number) =>
       dispatch({ type: "setRowCount", payload: { rowCount } }),
@@ -157,6 +162,7 @@ export function usePageReducer(initialState?: TPageState) {
     prev,
     jump,
     setRowCount,
+    setPerPage,
     pageFilter,
   };
 }

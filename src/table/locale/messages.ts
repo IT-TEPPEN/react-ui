@@ -46,6 +46,10 @@ export type TMessages = {
   /** Shown when rows exist but none pass the filters. */
   noMatch: string;
   loading: string;
+  /** Label of the rows-per-page select. */
+  rowsPerPage: string;
+  /** A rows-per-page choice: 50 -> "50件" / "50", "all" -> "すべて" / "All". */
+  rowsPerPageOption: (count: number | "all") => string;
   /** Row range under the table, e.g. "1–20 of 36". */
   range: (from: number, to: number, total: number) => string;
 };
@@ -169,6 +173,8 @@ const ja: TMessages = {
   noData: "データがありません",
   noMatch: "条件に一致するデータがありません",
   loading: "読み込み中…",
+  rowsPerPage: "表示件数",
+  rowsPerPageOption: (count) => (count === "all" ? "すべて" : `${count}件`),
   range: (from, to, total) =>
     total === 0 ? "0件" : `${total}件中 ${from}〜${to}件`,
 };
@@ -243,6 +249,8 @@ const en: TMessages = {
   noData: "No data",
   noMatch: "No rows match the filters",
   loading: "Loading…",
+  rowsPerPage: "Rows per page",
+  rowsPerPageOption: (count) => (count === "all" ? "All" : String(count)),
   range: (from, to, total) =>
     total === 0 ? "0 rows" : `${from}–${to} of ${total}`,
 };
