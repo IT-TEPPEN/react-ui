@@ -13,6 +13,7 @@ import { useCopyActionContext } from "../copy/provider";
 import { useFilterFunctions, useFilterState } from "../filter-v2/context";
 import { fromCondition } from "../filter-v2/public";
 import { buildKeywordTextGetter } from "../filter-v2/keyword";
+import { filterValueOf } from "./column-options";
 
 export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { filter } = useFilterFunctions();
@@ -26,6 +27,12 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { setRows: setRowsForCopy } = useCopyActionContext();
   const { setMaxDisplayColCount, setMaxDisplayRowCount } =
     useTablePropertyActionContext();
+
+  // The latest cols, read when sorting or filtering runs. Kept in a ref so
+  // that cols defined inline (a new array and new functions on every
+  // render) do not re-sort or re-filter on every render.
+  const colsRef = useRef(props.cols);
+  colsRef.current = props.cols;
 
   // Re-run filter/sort only when the set of rows changes (rows added, removed
   // or replaced). Edits that keep the same ids keep the current order.
@@ -41,8 +48,14 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
     [props.cols]
   );
 
+  // The value a condition compares: the column's filterValue, if any.
+  const getFilterValue = (row: DataObject<T>, key: string) => {
+    const col = colsRef.current.find((c) => c.key === key);
+    return col ? filterValueOf(col, row) : row[key];
+  };
+
   const filteredRows = useMemo(
-    () => filter(props.rows, getKeywordText),
+    () => filter(props.rows, getKeywordText, getFilterValue),
     [filter, sortTiming, rowIdsKey]
   );
 
@@ -65,15 +78,19 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
     });
   }, [checkBoxes]);
 
-  // Select columns are sorted by the labels shown, not the stored values.
-  // Keyed on the options' content so that a new cols array with the same
-  // options (e.g. defined inline) does not re-sort on every render.
+  // Sort by the column's sortValue if it has one; select columns otherwise
+  // by the labels shown, not the stored values.
   const sortCol = props.cols.find((c) => c.key === sortKey);
+  const hasSortValue = !!sortCol?.sortValue;
   const sortLabelsKey =
-    sortCol?.type === "select"
+    !hasSortValue && sortCol?.type === "select"
       ? JSON.stringify(sortCol.options.map((o) => [o.value, o.label]))
       : "";
   const getSortValue = useMemo(() => {
+    if (hasSortValue) {
+      return (row: DataObject<T>) =>
+        colsRef.current.find((c) => c.key === sortKey)?.sortValue?.(row);
+    }
     if (sortLabelsKey === "") return undefined;
 
     const labels = new Map<unknown, string>(JSON.parse(sortLabelsKey));
@@ -81,7 +98,7 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
       const value = row[sortKey as keyof T];
       return labels.get(value) ?? value;
     };
-  }, [sortKey, sortLabelsKey]);
+  }, [sortKey, sortLabelsKey, hasSortValue]);
 
   const sortedRows = useMemo(
     () => sort(filteredRows, getSortValue),

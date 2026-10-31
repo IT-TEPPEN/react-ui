@@ -262,6 +262,8 @@ export type TTableColumn = {
   type: TColumnType;
   disableSort?: boolean;
   disableFilter?: boolean;
+  sortValue?: (row: DataObject) => string | number | Date | null | undefined; // value to sort by
+  filterValue?: (row: DataObject) => string | number | Date | null | undefined; // value to filter / search by
   options: { value: string; label: string }[]; // Only When "type" is "select"
   editable?: boolean;
   render?: (value: string | number, row: DataObject) => React.ReactNode; // Only When "editable" is false
@@ -291,6 +293,21 @@ is now supported. A read-only column that uses `render` is not sorted or filtere
 // Sorted and filtered by the value 80, shown as "80点"
 { key: "score", type: "number", label: "評価", render: (v) => `${v}点`, disableSort: false, disableFilter: false }
 ```
+
+When a column should be sorted or filtered by something other than its value in `rows`, give `sortValue` / `filterValue`: functions that return the value to use for a row. Setting them on a column with `render` also makes it sortable / filterable. For example, a column that holds an id and shows a name the app already knows:
+
+```tsx
+{
+  key: "ownerId",
+  type: "string",
+  label: "担当",
+  render: (id) => userNames[id],
+  sortValue: (row) => userNames[row.ownerId], // sorted by name
+  filterValue: (row) => userNames[row.ownerId], // filtered and searched by name
+}
+```
+
+A column whose display is loaded asynchronously inside the cell (so the app does not have the values) cannot use these; leave it out of sorting and filtering.
 
 ##### initialCondition
 

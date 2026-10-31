@@ -47,7 +47,9 @@ export type TFilterFunctionContext = {
    */
   filter: <T extends DataRecord>(
     rows: DataObject<T>[],
-    getKeywordText?: (row: DataObject<T>) => string
+    getKeywordText?: (row: DataObject<T>) => string,
+    /** The value a condition on column `key` compares. Defaults to row[key]. */
+    getValue?: (row: DataObject<T>, key: string) => unknown
   ) => DataObject<T>[];
 };
 

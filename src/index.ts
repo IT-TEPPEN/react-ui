@@ -11,6 +11,7 @@ export type {
   TFilter,
   TFilterOperator,
   TTableCondition,
+  TCellSortValue,
 } from "./table/table/type";
 export type {
   TErrorValidation,

@@ -96,6 +96,9 @@ export type TCellEditingCondition<T extends DataRecord> =
   | TDateCellEditingCondition<T>
   | TDatetimeCellEditingCondition<T>;
 
+/** A value that sortValue / filterValue can return. */
+export type TCellSortValue = string | number | Date | null | undefined;
+
 export type TColumnProperty<T extends DataRecord> = {
   key: keyof T;
   label?: string;
@@ -110,6 +113,19 @@ export type TColumnProperty<T extends DataRecord> = {
    * read-only column with render is not filtered unless this is set to false.
    */
   disableFilter?: boolean;
+  /**
+   * The value to sort this column by, instead of its value in rows. For
+   * example, the name shown for an id: `(row) => userNames[row.ownerId]`.
+   * Setting it on a column with render also makes it sortable.
+   */
+  sortValue?: (row: DataObject<T>) => TCellSortValue;
+  /**
+   * The value to filter this column by (and to look in with the all-columns
+   * search), instead of its value in rows. It is compared with the
+   * operators of the column's type. Setting it on a column with render also
+   * makes it filterable.
+   */
+  filterValue?: (row: DataObject<T>) => TCellSortValue;
   initialWidth?: number;
   minWidth?: number;
 };
