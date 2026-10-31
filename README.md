@@ -326,6 +326,8 @@ type TInitialCondition = {
 };
 ```
 
+Under the table, the page navigation always shows the first and the last page number (for example `‹ 前へ 1 … 4 5 [6] 7 8 … 12 次へ ›`), so the number of pages is visible and the last page is one click away.
+
 `page` is kept within the pages there are. When the rows arrive later (for example loaded asynchronously), the table waits for them before choosing the page. Later changes, such as new filters, go back to page 1.
 
 A filter is written as follows. `key` is a column key, or `"*"` to search every column (`like` / `not_like` only).

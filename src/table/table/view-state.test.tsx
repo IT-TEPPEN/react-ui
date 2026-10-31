@@ -67,7 +67,7 @@ describe("page", () => {
       initialCondition: { pagination: { rowCountPerPage: 20 } },
     });
 
-    const next = Array.from(container.querySelectorAll("button")).find((b) => b.textContent === ">")!;
+    const next = Array.from(container.querySelectorAll("button")).find((b) => b.textContent?.includes("次へ"))!;
     fireEvent.click(next);
     expect(last().pagination.page).toBe(2);
   });

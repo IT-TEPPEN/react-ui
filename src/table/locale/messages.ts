@@ -46,6 +46,14 @@ export type TMessages = {
   /** Shown when rows exist but none pass the filters. */
   noMatch: string;
   loading: string;
+  /** Page navigation under the table. */
+  pagination: {
+    label: string;
+    prev: string;
+    next: string;
+    /** Accessible name of a page number button. */
+    goToPage: (page: number) => string;
+  };
   /** Label of the rows-per-page select. */
   rowsPerPage: string;
   /** A rows-per-page choice: 50 -> "50件" / "50", "all" -> "すべて" / "All". */
@@ -173,6 +181,12 @@ const ja: TMessages = {
   noData: "データがありません",
   noMatch: "条件に一致するデータがありません",
   loading: "読み込み中…",
+  pagination: {
+    label: "ページ送り",
+    prev: "前へ",
+    next: "次へ",
+    goToPage: (page) => `${page}ページ目`,
+  },
   rowsPerPage: "表示件数",
   rowsPerPageOption: (count) => (count === "all" ? "すべて" : `${count}件`),
   range: (from, to, total) =>
@@ -249,6 +263,12 @@ const en: TMessages = {
   noData: "No data",
   noMatch: "No rows match the filters",
   loading: "Loading…",
+  pagination: {
+    label: "Pagination",
+    prev: "Prev",
+    next: "Next",
+    goToPage: (page) => `Page ${page}`,
+  },
   rowsPerPage: "Rows per page",
   rowsPerPageOption: (count) => (count === "all" ? "All" : String(count)),
   range: (from, to, total) =>
