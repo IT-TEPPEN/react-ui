@@ -123,7 +123,7 @@ describe("locale", () => {
       fireEvent.keyDown(document.body, { key: "c", ctrlKey: true });
     });
 
-    expect(getByText("Copied!")).toBeDefined();
+    expect(getByText("Copied")).toBeDefined();
   });
 
   test("the empty option of a select cell follows the locale", () => {

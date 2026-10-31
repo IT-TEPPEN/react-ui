@@ -12,6 +12,8 @@ interface IPropsFrameDesign {
 interface IPropsFrame extends IPropsFrameDesign {
   id?: string;
   children: React.ReactNode;
+  /** Drawn over the scroll area without scrolling with it. */
+  overlay?: React.ReactNode;
 }
 
 export function Frame(props: IPropsFrame) {
@@ -89,6 +91,8 @@ export function Frame(props: IPropsFrame) {
       >
         {props.children}
       </div>
+
+      {props.overlay}
 
       {scrollInfo.barYHeight < 100 && (
         <>

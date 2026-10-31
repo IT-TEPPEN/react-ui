@@ -1,6 +1,7 @@
 "use client";
 
 import { usePageContext } from "./providers";
+import { useMessages } from "../locale/provider";
 
 export function Pagenation() {
   const { enable, current, pageCount, jump, prev, next } = usePageContext();
@@ -56,6 +57,7 @@ export function Pagenation() {
 
 export function DisplayRange() {
   const { enable, from, to, rowCount } = usePageContext();
+  const messages = useMessages();
 
   if (!enable) {
     return <></>;
@@ -63,8 +65,11 @@ export function DisplayRange() {
 
   return (
     <p className="text-center text-sm text-gray-600">
-      {rowCount === 0 ? 0 : from + 1} - {to < rowCount ? to : rowCount} of{" "}
-      {rowCount}
+      {messages.range(
+        rowCount === 0 ? 0 : from + 1,
+        to < rowCount ? to : rowCount,
+        rowCount
+      )}
     </p>
   );
 }

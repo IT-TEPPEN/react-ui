@@ -10,6 +10,7 @@ import { useIdGenerator } from "../id-generator";
 import { TiDeleteOutline } from "react-icons/ti";
 import { parseNumberText } from "../../share/text/normalize";
 import { isComposingKey } from "../../table/operation/event-target";
+import { useMessages } from "../../table/locale/provider";
 
 export function SearchBarInputForm(props: {
   size?: "small" | "medium" | "large";
@@ -27,6 +28,7 @@ export function SearchBarInputForm(props: {
 }
 
 function TargetInputForm() {
+  const messages = useMessages();
   const { generateId } = useIdGenerator();
   const { targets } = useConditionInputState();
   const { inputTarget } = useConditionInputAction();
@@ -41,7 +43,7 @@ function TargetInputForm() {
         value: t.key,
         label: t.label,
       }))}
-      placeholder="Select target"
+      placeholder={messages.search.selectColumn}
       no_appearance
       no_icon
     />
@@ -49,6 +51,7 @@ function TargetInputForm() {
 }
 
 function OperatorInputForm() {
+  const messages = useMessages();
   const { generateId } = useIdGenerator();
   const state = useConditionInputState();
   const { inputOperator, removeInputedTarget } = useConditionInputAction();
@@ -84,10 +87,10 @@ function OperatorInputForm() {
           }}
           options={operators.map((t) => ({
             value: t.key,
-            label: t.label,
+            label: messages.search.operator(t.key),
           }))}
           defaultIsOpen
-          placeholder="Select operator"
+          placeholder={messages.search.selectCondition}
           no_appearance
           no_icon
         />
@@ -97,6 +100,7 @@ function OperatorInputForm() {
 }
 
 function SearchValueInputForm(props: { size?: "small" | "medium" | "large" }) {
+  const messages = useMessages();
   const state = useConditionInputState();
   const { removeInputedOperator, removeInputedTarget } =
     useConditionInputAction();
@@ -117,7 +121,7 @@ function SearchValueInputForm(props: { size?: "small" | "medium" | "large" }) {
         }}
       />
       <FixedValue
-        label={operator.label}
+        label={messages.search.operator(operator.key)}
         onClickDelete={() => {
           removeInputedOperator();
         }}
@@ -171,6 +175,7 @@ function InputSingleString(props: {
   inputType: "single string";
   size?: "small" | "medium" | "large";
 }) {
+  const messages = useMessages();
   const { generateId } = useIdGenerator();
   const [value, setValue] = useState("");
   const { inputValue } = useConditionInputAction();
@@ -186,7 +191,7 @@ function InputSingleString(props: {
           : ""
       }`}
       type="text"
-      placeholder="Search text"
+      placeholder={messages.search.enterValue}
       value={value}
       onChange={(e) => {
         setValue(e.target.value);
@@ -212,6 +217,7 @@ function InputSingleNumber(props: {
   inputType: "single number";
   size?: "small" | "medium" | "large";
 }) {
+  const messages = useMessages();
   const { generateId } = useIdGenerator();
   const [value, setValue] = useState("");
   const [isInvalid, setIsInvalid] = useState(false);
@@ -231,7 +237,7 @@ function InputSingleNumber(props: {
           : ""
       }`}
       type="text"
-      placeholder="Search text"
+      placeholder={messages.search.enterValue}
       value={value}
       onChange={(e) => {
         setValue(e.target.value);
@@ -262,6 +268,7 @@ function InputSingleNumber(props: {
 }
 
 function InputSingleSelect(props: { inputType: "select"; options: Options[] }) {
+  const messages = useMessages();
   const { inputValue } = useConditionInputAction();
   const { generateId } = useIdGenerator();
 
@@ -279,7 +286,7 @@ function InputSingleSelect(props: { inputType: "select"; options: Options[] }) {
         }}
         options={props.options}
         defaultIsOpen
-        placeholder="Select value"
+        placeholder={messages.search.selectValue}
         no_appearance
         no_icon
       />
@@ -291,6 +298,7 @@ function InputMultiSelect(props: {
   inputType: "multi select";
   options: Options[];
 }) {
+  const messages = useMessages();
   const { inputValue } = useConditionInputAction();
   const [selected, setSelected] = useState<string[]>([]);
 
@@ -338,7 +346,7 @@ function InputMultiSelect(props: {
           })
         }
       >
-        OK
+        {messages.search.add}
       </button>
     </div>
   );

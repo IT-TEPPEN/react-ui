@@ -12,6 +12,7 @@ import {
 import { ConditionList } from "./condition-list";
 import { SearchBarInputForm } from "./input-form";
 import { BiSearchAlt } from "react-icons/bi";
+import { useMessages } from "../../table/locale/provider";
 
 interface SearcchBarProps {
   size: "small" | "medium" | "large";
@@ -50,6 +51,7 @@ export const ConditionSearchBar = memo(function CS(
 });
 
 export function SearchBar(props: SearcchBarProps) {
+  const messages = useMessages();
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -102,19 +104,15 @@ export function SearchBar(props: SearcchBarProps) {
           <button
             type="button"
             className="shrink-0 px-2 rounded border border-slate-400 text-xs font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
-            title={
-              props.mode === "or"
-                ? "Match any condition (click for all)"
-                : "Match all conditions (click for any)"
-            }
-            aria-label={`Combine conditions with ${
-              props.mode === "or" ? "OR" : "AND"
-            }`}
+            title={messages.search.modeHint(props.mode ?? "and")}
+            aria-pressed={props.mode === "or"}
             onClick={() =>
               props.onChangeMode?.(props.mode === "or" ? "and" : "or")
             }
           >
-            {props.mode === "or" ? "OR" : "AND"}
+            {props.mode === "or"
+              ? messages.search.matchAny
+              : messages.search.matchAll}
           </button>
         )}
         <div className="flex items-center min-w-64 w-full">

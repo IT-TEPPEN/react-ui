@@ -35,7 +35,8 @@ import { Frame } from "../frame";
 import { ComponentProvider } from "./component-provider";
 import { useGenerateSortButton } from "./component-provider/provider";
 import { SelectBoxProvider } from "../../select-box/provider";
-import { LocaleProvider } from "../locale/provider";
+import { LocaleProvider, useMessages } from "../locale/provider";
+import { useFilterState } from "../filter-v2/context";
 import { MESSAGES } from "../locale/messages";
 import { toCondition } from "../filter-v2/public";
 import { Condition } from "../../search-bar";
@@ -120,6 +121,13 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
 
 function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
   const { cols, rowMaps, pageRowIds } = useTable<T>(props);
+  const messages = useMessages();
+  const { conditions } = useFilterState();
+  const emptyMessage = props.loading
+    ? messages.loading
+    : props.rows.length > 0 && conditions.length > 0
+    ? messages.noMatch
+    : props.noDataMessage ?? messages.noData;
   const IdGenerator = useTableIdGenerator();
   const generateSortButton = useGenerateSortButton();
 
@@ -137,6 +145,19 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
         <ColumnsWidthStyle scopeId={IdGenerator.getTableId()} />
         <SelectBoxProvider>
           <Frame
+            overlay={
+              props.loading && pageRowIds.length > 0 ? (
+                // Rows stay visible (e.g. while reloading) under a light veil.
+                <div
+                  className="absolute inset-0 z-20 grid place-items-center bg-white/60 rounded-b-md"
+                  role="status"
+                >
+                  <p className="px-3 py-1 rounded bg-white font-bold shadow">
+                    {messages.loading}
+                  </p>
+                </div>
+              ) : undefined
+            }
             id={IdGenerator.getTableId()}
             maxHeight={props.maxHeight}
             maxWidth={props.maxWidth}
@@ -161,7 +182,12 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
                       colSpan={cols.length + (props.checkbox ? 1 : 0)}
                       className="px-px py-5"
                     >
-                      <p className="text-center font-bold text-lg">NO DATA</p>
+                      <div
+                        className="text-center font-bold text-lg"
+                        role={props.loading ? "status" : undefined}
+                      >
+                        {emptyMessage}
+                      </div>
                     </td>
                   </tr>
                 )}

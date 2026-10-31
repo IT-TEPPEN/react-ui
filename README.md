@@ -224,7 +224,7 @@ The `like` / `not like` filters ignore differences between upper and lower case,
 
 #### Arguments
 
-The table component accepts the arguments `id`, `rows`, `cols`, `initialCondition`, `onClickRow`, `onUpdateRow`, `onPasteError`, `onConditionChange`, `errorHandler`, `locale`, `applyRowFormatting`, `checkbox`, `conditionalFormattings`, `maxHeight` and `maxWidth`. Details for each argument are described below.
+The table component accepts the arguments `id`, `rows`, `cols`, `initialCondition`, `onClickRow`, `onUpdateRow`, `onPasteError`, `onConditionChange`, `errorHandler`, `locale`, `loading`, `noDataMessage`, `applyRowFormatting`, `checkbox`, `conditionalFormattings`, `maxHeight` and `maxWidth`. Details for each argument are described below.
 
 All of these types are exported from the package, e.g. `import type { TTableColumn, TPropsTable } from "@teppen/react-ui";`.
 
@@ -409,10 +409,22 @@ type TErrorHandler = (errors: TErrorValidation[]) => void;
 
 ##### locale
 
-`locale` sets the language of the messages the table shows by itself: the default `errorHandler` alert, paste error messages, the "copied" notice and the empty option of select cells. `"ja"` (default) or `"en"`.
+`locale` sets the language of everything the table shows by itself: the search bar (placeholders, condition names such as "を含む" / "contains", the "match all / any" button), the row range under the table, the empty and loading messages, the default `errorHandler` alert, paste error messages, the "copied" notice and the empty option of select cells. `"ja"` (default) or `"en"`.
+
+The condition names in `initialCondition.filters` and `onConditionChange` (`"like"`, `"in"` and so on) do not depend on the locale.
 
 ```ts
 type TLocale = "ja" | "en";
+```
+
+##### loading / noDataMessage
+
+Set `loading` while rows are being fetched. With no rows yet, "読み込み中…" / "Loading…" is shown instead of the empty message; with rows (for example while reloading), the rows stay visible under a light veil.
+
+`noDataMessage` replaces the message shown when there are no rows. When rows exist but none match the filters, a message about the filters is shown instead.
+
+```tsx
+<Table rows={rows} cols={cols} loading={isFetching} noDataMessage="社員が登録されていません" />
 ```
 
 ##### maxHeight / maxWidth

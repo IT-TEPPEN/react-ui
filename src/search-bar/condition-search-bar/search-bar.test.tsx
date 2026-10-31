@@ -44,7 +44,7 @@ function addCondition(
   value?: string
 ) {
   const targetInput = container.querySelector(
-    'input[placeholder="Select target"]'
+    'input[placeholder="絞り込む列を選択"]'
   ) as HTMLInputElement;
   fireEvent.click(targetInput);
   fireEvent.click(within(optionsList()).getByText(target));
@@ -60,7 +60,7 @@ function addCondition(
 
   if (value !== undefined) {
     const valueInput = container.querySelector(
-      'input[placeholder="Search text"]'
+      'input[placeholder="値を入力して Enter"]'
     ) as HTMLInputElement;
     fireEvent.change(valueInput, { target: { value } });
     fireEvent.keyDown(valueInput, { key: "Enter" });
@@ -71,10 +71,10 @@ describe("filtering with the search bar", () => {
   test("a string condition filters the rows and can be removed", () => {
     const { container, getByText } = render(<Table cols={cols} rows={rows} />);
 
-    addCondition(container, "名前", "like", "ro");
+    addCondition(container, "名前", "を含む", "ro");
 
     expect(renderedIds(container)).toEqual(["1", "2"]);
-    const chip = getByText("名前 like ro");
+    const chip = getByText("名前：ro を含む");
 
     // Remove the condition with the icon next to its label.
     fireEvent.click(chip.parentElement!.querySelector("svg")!);
@@ -84,13 +84,13 @@ describe("filtering with the search bar", () => {
   test("conditions are combined", () => {
     const { container } = render(<Table cols={cols} rows={rows} />);
 
-    addCondition(container, "年齢", "≧", "25");
+    addCondition(container, "年齢", "以上", "25");
     expect(renderedIds(container)).toEqual(["1", "3"]);
 
-    addCondition(container, "名前", "like", "a");
+    addCondition(container, "名前", "を含む", "a");
     expect(renderedIds(container)).toEqual(["1", "3"]);
 
-    addCondition(container, "名前", "not like", "k");
+    addCondition(container, "名前", "を含まない", "k");
     expect(renderedIds(container)).toEqual(["1"]);
   });
 
@@ -99,9 +99,9 @@ describe("filtering with the search bar", () => {
       <Table cols={cols} rows={[...rows, { id: "4", name: "", age: 40 }]} />
     );
 
-    addCondition(container, "名前", "is empty");
+    addCondition(container, "名前", "が空欄");
 
-    expect(getByText("名前 is empty")).toBeDefined();
+    expect(getByText("名前 が空欄")).toBeDefined();
     expect(renderedIds(container)).toEqual(["4"]);
   });
 
@@ -110,35 +110,35 @@ describe("filtering with the search bar", () => {
       <Table cols={cols} rows={rows} />
     );
 
-    addCondition(container, "年齢", "≧", "abc");
-    expect(queryByText(/年齢 ≧/)).toBeNull();
+    addCondition(container, "年齢", "以上", "abc");
+    expect(queryByText(/年齢：/)).toBeNull();
     const valueInput = container.querySelector(
-      'input[placeholder="Search text"]'
+      'input[placeholder="値を入力して Enter"]'
     ) as HTMLInputElement;
     expect(valueInput.getAttribute("aria-invalid")).toBe("true");
 
     // Empty input does not become 0 either.
     fireEvent.change(valueInput, { target: { value: "" } });
     fireEvent.keyDown(valueInput, { key: "Enter" });
-    expect(queryByText(/年齢 ≧/)).toBeNull();
+    expect(queryByText(/年齢：/)).toBeNull();
 
     // Full-width digits are accepted.
     fireEvent.change(valueInput, { target: { value: "２５" } });
     fireEvent.keyDown(valueInput, { key: "Enter" });
-    expect(getByText("年齢 ≧ 25")).toBeDefined();
+    expect(getByText("年齢：25 以上")).toBeDefined();
     expect(renderedIds(container)).toEqual(["1", "3"]);
   });
 
   test("the Enter that confirms IME conversion does not add the condition", () => {
     const { container, queryByText } = render(<Table cols={cols} rows={rows} />);
 
-    addCondition(container, "名前", "like");
+    addCondition(container, "名前", "を含む");
     const valueInput = container.querySelector(
-      'input[placeholder="Search text"]'
+      'input[placeholder="値を入力して Enter"]'
     ) as HTMLInputElement;
     fireEvent.change(valueInput, { target: { value: "たろう" } });
     fireEvent.keyDown(valueInput, { key: "Enter", isComposing: true, keyCode: 229 });
 
-    expect(queryByText(/名前 like/)).toBeNull();
+    expect(queryByText(/名前：/)).toBeNull();
   });
 });
