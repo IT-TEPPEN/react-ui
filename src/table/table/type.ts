@@ -114,6 +114,12 @@ export type TColumnProperty<T extends DataRecord> = {
    */
   disableFilter?: boolean;
   /**
+   * Keeps the column at the left edge while scrolling sideways. Only columns
+   * from the left edge can be pinned (e.g. the first two); a pinned column
+   * after an unpinned one is ignored with a warning.
+   */
+  pinned?: boolean;
+  /**
    * The value to sort this column by, instead of its value in rows. For
    * example, the name shown for an id: `(row) => userNames[row.ownerId]`.
    * Setting it on a column with render also makes it sortable.

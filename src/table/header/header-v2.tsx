@@ -15,6 +15,13 @@ import { useMessages } from "../locale/provider";
 import { isFilterable, isSortable } from "../table/column-options";
 
 
+// The checkbox header stays at the left edge with pinned columns.
+const PINNED_HEADER_CHECKBOX: React.CSSProperties = {
+  position: "sticky",
+  left: 0,
+  zIndex: 1,
+};
+
 interface IPropsTableHeader<T extends DataRecord> {
   cols: TTableColumn<T>[];
   checkbox?: boolean;
@@ -25,7 +32,7 @@ interface IPropsTableHeader<T extends DataRecord> {
 
 export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
   const idGenerator = useTableIdGenerator();
-  const { getColumnWidth } = useColumnsWidthState();
+  const { getColumnWidth, getColumn, checkboxPinned } = useColumnsWidthState();
   const { conditions, mode, addFilter, removeFilter, setMode } = useFilter();
   const messages = useMessages();
   const ref = useScrollXRef();
@@ -121,7 +128,10 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
       >
         <div className="flex h-[32px]">
           {props.checkbox && (
-            <div className="w-8 h-full">
+            <div
+              className="w-8 min-w-8 shrink-0 h-full bg-[color:var(--teppen-table-header-bg,#e5e7eb)]"
+              style={checkboxPinned ? PINNED_HEADER_CHECKBOX : undefined}
+            >
               <AllCheckbox rows={props.rows} />
             </div>
           )}
@@ -132,6 +142,8 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
                 keyName={col.key.toString()}
                 label={col.label}
                 colWidth={getColumnWidth(col.key as string)}
+                pinnedLeft={getColumn(col.key as string)?.pinnedLeft}
+                lastPinned={getColumn(col.key as string)?.lastPinned}
                 disableSort={!isSortable(col)}
                 generateSortButton={props.generateSortButton}
               />
@@ -147,6 +159,9 @@ interface IPropsHeaderElement {
   keyName: string;
   label?: string;
   colWidth: number;
+  /** For a pinned column: its distance from the left edge (px). */
+  pinnedLeft?: number;
+  lastPinned?: boolean;
   disableSort?: boolean;
   generateSortButton?: (columnKey: string) => React.ReactNode;
 }
@@ -167,6 +182,14 @@ const HeaderElement = memo(function HE(props: IPropsHeaderElement) {
         width: props.colWidth,
         maxWidth: props.colWidth,
         minWidth: props.colWidth,
+        ...(props.pinnedLeft !== undefined && {
+          position: "sticky",
+          left: props.pinnedLeft,
+          zIndex: 1,
+          boxShadow: props.lastPinned
+            ? "inset -1px 0 0 var(--teppen-table-pinned-border, #cbd5e1)"
+            : undefined,
+        }),
       }}
     >
       <div

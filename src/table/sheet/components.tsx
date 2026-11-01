@@ -24,7 +24,7 @@ export const Row = memo(function R<T extends DataRecord>(props: TPropsRow<T>) {
   return (
     <tr
       data-teppen-part="row"
-      className={`relative border border-[color:var(--teppen-table-border,#e5e7eb)] after:absolute after:w-full after:h-full after:top-0 after:left-0 after:pointer-events-none hover:after:bg-[color:var(--teppen-table-row-hover,rgb(107_114_128/0.1))] ${
+      className={`relative border border-[color:var(--teppen-table-border,#e5e7eb)] after:absolute after:w-full after:h-full after:top-0 after:left-0 after:pointer-events-none after:z-[2] hover:after:bg-[color:var(--teppen-table-row-hover,rgb(107_114_128/0.1))] ${
         !!props.onClickRow ? "hover:cursor-pointer" : ""
       } ${props.applyRowFormatting ? props.applyRowFormatting(row) : ""}`}
       onClick={(e) => {
@@ -39,7 +39,7 @@ export const Row = memo(function R<T extends DataRecord>(props: TPropsRow<T>) {
     >
       {props.existCheckbox && (
         <td
-          className="w-8 h-full p-px"
+          className="table-col-checkbox w-8 h-full p-px"
           onClick={(e) => {
             e.stopPropagation();
           }}

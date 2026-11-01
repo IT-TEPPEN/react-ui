@@ -282,6 +282,7 @@ export type TTableColumn = {
   filterValue?: (row: DataObject) => string | number | Date | null | undefined; // value to filter / search by
   options: { value: string; label: string }[]; // Only When "type" is "select"
   editable?: boolean;
+  pinned?: boolean; // keep the column at the left edge while scrolling sideways
   render?: (value: string | number, row: DataObject) => React.ReactNode; // Only When "editable" is false
   // When "type" is "date" or "datetime", "render" is required and "editable" must be false:
   // render: (value: Date) => React.ReactNode;
@@ -324,6 +325,17 @@ When a column should be sorted or filtered by something other than its value in 
 ```
 
 A column whose display is loaded asynchronously inside the cell (so the app does not have the values) cannot use these; leave it out of sorting and filtering.
+
+Set `pinned: true` to keep columns visible at the left edge while the table scrolls sideways. Only a leading run of columns can be pinned (the first column, the first two, ...); `pinned` on a column after an unpinned one is ignored with a warning. With `checkbox`, the checkbox column stays visible too.
+
+```tsx
+const cols = [
+  { key: "name", type: "string", label: "氏名", pinned: true },
+  { key: "dept", type: "string", label: "部署", pinned: true },
+  { key: "jan", type: "number", label: "1月", editable: true },
+  // ...
+];
+```
 
 ##### initialCondition
 
@@ -521,6 +533,7 @@ Colors, borders and corner radius come from CSS variables named `--teppen-table-
 | `--teppen-table-scrollbar` / `--teppen-table-scrollbar-track` | Scroll bars | `#64748b` / `#e2e8f0` |
 | `--teppen-table-toast-bg` / `--teppen-table-toast-text` | "Copied" notice | `#1f2937` / `#ffffff` |
 | `--teppen-table-loading-veil` | Layer over the rows while loading | `rgb(255 255 255 / 0.6)` |
+| `--teppen-table-pinned-border` | Line on the right edge of the pinned columns | `#cbd5e1` |
 | `--teppen-table-radius` | Corner radius of the table and the search bar | `0.375rem` |
 
 For finer control, the main parts carry a `data-teppen-part` attribute that CSS can target: `table`, `search-bar`, `condition`, `header`, `header-cell`, `body`, `row`, `cell`, `selection`, `pagination` and `range`.

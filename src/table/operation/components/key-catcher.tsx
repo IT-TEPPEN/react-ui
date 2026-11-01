@@ -7,6 +7,8 @@ import { useColumnsContext } from "../../sheet/providers";
 import { useTableIdGenerator } from "../../id";
 import { KEY_CATCHER_ATTRIBUTE } from "../event-target";
 import { setEditorInitialValue } from "../editor-input";
+import { useScrollXPosition } from "../../header/x-scroll-position";
+import { measureCell } from "../../range/measure";
 
 /**
  * A hidden input placed over the selected cell that holds the focus while a
@@ -28,6 +30,8 @@ export function KeyCatcher() {
   const cols = useColumnsContext();
   const ref = useRef<HTMLInputElement>(null);
   const [isComposing, setIsComposing] = useState(false);
+  // Re-measure while scrolling sideways: pinned cells stay put.
+  useScrollXPosition();
 
   const active = range.isSelecting && !isEditing;
 
@@ -42,7 +46,12 @@ export function KeyCatcher() {
   }
 
   const col = cols[range.start.colIndex];
-  const { start } = range;
+  const box = measureCell(IdGenerator, range.start) ?? {
+    top: range.start.yStart,
+    left: range.start.xStart,
+    width: range.start.xEnd - range.start.xStart,
+    height: range.start.yEnd - range.start.yStart,
+  };
 
   return (
     <input
@@ -55,10 +64,10 @@ export function KeyCatcher() {
         isComposing ? "bg-[color:var(--teppen-table-bg,#ffffff)] border border-[color:var(--teppen-table-selection-border,#6b7280)]" : "opacity-0"
       }`}
       style={{
-        top: start.yStart,
-        left: start.xStart,
-        width: start.xEnd - start.xStart,
-        height: start.yEnd - start.yStart,
+        top: box.top,
+        left: box.left,
+        width: box.width,
+        height: box.height,
         pointerEvents: "none",
       }}
       onCompositionStart={() => {

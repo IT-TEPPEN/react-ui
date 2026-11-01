@@ -3,4 +3,8 @@ export {
   useColumnsWidthAction,
   useColumnsWidthState,
 } from "./context";
-export { ColumnsWidthProvider, ColumnsWidthStyle } from "./provider";
+export {
+  ColumnsWidthProvider,
+  ColumnsWidthStyle,
+  CHECKBOX_COLUMN_WIDTH,
+} from "./provider";

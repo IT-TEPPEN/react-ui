@@ -71,6 +71,7 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
           <ColumnsWidthProvider
             cols={props.cols as TTableColumn<DataRecord>[]}
             initialWidths={props.initialCondition?.columnWidths}
+            checkbox={!!props.checkbox}
           >
             <FilterProvider
               initialConditions={initialFilters}
