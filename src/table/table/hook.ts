@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
-import { DataObject, DataRecord, TPropsTable } from "./type";
+import { DataObject, DataRecord, TPropsTable, TTableColumn } from "./type";
+import { useColumnVisibility } from "../column-visibility";
 import { usePageContext } from "../pagenation/providers";
 import { useCheckboxStatusContext } from "../checkbox/provider";
 import {
@@ -16,7 +17,11 @@ import { buildKeywordTextGetter } from "../filter-v2/keyword";
 import { filterValueOf } from "./column-options";
 import { useColumnsWidthState } from "../header";
 
-export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
+export function useTable<T extends DataRecord>(
+  props: TPropsTable<T>,
+  visibleCols: TTableColumn<T>[] = props.cols
+) {
+  const { hiddenKeys } = useColumnVisibility();
   const { filter } = useFilterFunctions();
   const { sort, updatedData } = useSortActionContext();
   const sortTiming = useSortTimingContext();
@@ -137,12 +142,11 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
         filterMode: mode,
         sort: { key: String(sortKey), asc: sortAsc },
         pagination: {
-          rowCountPerPage: paginationEnabled
-            ? perPage
-            : "all",
+          rowCountPerPage: paginationEnabled ? perPage : "all",
           page: paginationEnabled ? currentPage : 1,
         },
         columnWidths: { ...committedWidths },
+        hiddenColumns: [...hiddenKeys],
       },
       sortedRows.map((row) => current.get(row.id) ?? row)
     );
@@ -157,6 +161,7 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
     perPage,
     currentPage,
     committedWidths,
+    hiddenKeys,
   ]);
 
   const pageRows = useMemo(
@@ -173,16 +178,19 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
     () =>
       props.rows
         .filter((row) => pageRowIdSets.has(row.id))
-        .reduce((acc, row) => {
-          acc[row.id] = { data: row };
-          return acc;
-        }, {} as { [id: string | number]: { data: DataObject<any> } }),
+        .reduce(
+          (acc, row) => {
+            acc[row.id] = { data: row };
+            return acc;
+          },
+          {} as { [id: string | number]: { data: DataObject<any> } }
+        ),
     [props.rows, pageRowIdSets]
   );
 
   useEffect(() => {
-    setMaxDisplayColCount(props.cols.length);
-  }, [props.cols.length]);
+    setMaxDisplayColCount(visibleCols.length);
+  }, [visibleCols.length]);
 
   useEffect(() => {
     setMaxDisplayRowCount(pageRowIds.length);
@@ -195,7 +203,7 @@ export function useTable<T extends DataRecord>(props: TPropsTable<T>) {
   }, [rowMaps]);
 
   return {
-    cols: props.cols,
+    cols: visibleCols,
     rowMaps,
     pageRowIds,
   };

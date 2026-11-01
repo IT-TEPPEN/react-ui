@@ -58,6 +58,12 @@ export type TMessages = {
   rowsPerPage: string;
   /** A rows-per-page choice: 50 -> "50件" / "50", "all" -> "すべて" / "All". */
   rowsPerPageOption: (count: number | "all") => string;
+  /** The column selector (see the columnSelector prop). */
+  columnSelector: {
+    button: string;
+    title: string;
+    showAll: string;
+  };
   /** Row range under the table, e.g. "1–20 of 36". */
   range: (from: number, to: number, total: number) => string;
 };
@@ -189,6 +195,11 @@ const ja: TMessages = {
   },
   rowsPerPage: "表示件数",
   rowsPerPageOption: (count) => (count === "all" ? "すべて" : `${count}件`),
+  columnSelector: {
+    button: "表示列",
+    title: "表示する列",
+    showAll: "すべて表示",
+  },
   range: (from, to, total) =>
     total === 0 ? "0件" : `${total}件中 ${from}〜${to}件`,
 };
@@ -271,6 +282,11 @@ const en: TMessages = {
   },
   rowsPerPage: "Rows per page",
   rowsPerPageOption: (count) => (count === "all" ? "All" : String(count)),
+  columnSelector: {
+    button: "Columns",
+    title: "Shown columns",
+    showAll: "Show all",
+  },
   range: (from, to, total) =>
     total === 0 ? "0 rows" : `${from}–${to} of ${total}`,
 };
