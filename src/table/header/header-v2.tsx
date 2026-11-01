@@ -14,7 +14,6 @@ import { KEYWORD_TARGET_KEY } from "../../share/search-operator";
 import { useMessages } from "../locale/provider";
 import { isFilterable, isSortable } from "../table/column-options";
 
-
 // The checkbox header stays at the left edge with pinned columns.
 const PINNED_HEADER_CHECKBOX: React.CSSProperties = {
   position: "sticky",
@@ -23,7 +22,12 @@ const PINNED_HEADER_CHECKBOX: React.CSSProperties = {
 };
 
 interface IPropsTableHeader<T extends DataRecord> {
+  /** The columns shown. */
   cols: TTableColumn<T>[];
+  /** Every column, including hidden ones, for the search bar. */
+  filterCols?: TTableColumn<T>[];
+  /** Shown next to the search bar. */
+  columnSelector?: React.ReactNode;
   checkbox?: boolean;
   rows: DataObject<T>[];
   maxWidth?: string;
@@ -67,7 +71,7 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
     }
   }, []);
 
-  const columnTargets = props.cols
+  const columnTargets = (props.filterCols ?? props.cols)
     .filter((col) => isFilterable(col))
     .filter((col) => !!col.label)
     .map((col): Target => {
@@ -101,16 +105,19 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
       className="border-[color:var(--teppen-table-border,#e5e7eb)] bg-[color:var(--teppen-table-header-bg,#e5e7eb)] text-[color:var(--teppen-table-header-text,#4b5563)] rounded-t-[var(--teppen-table-radius,0.375rem)]"
       style={{ maxWidth: props.maxWidth }}
     >
-      <div className="py-2 px-2">
-        <ConditionSearchBar
-          id={idGenerator.getTableHeaderId()}
-          targets={targets}
-          conditions={conditions}
-          onChangeCondition={onChangeCondition}
-          mode={mode}
-          onChangeMode={setMode}
-          size="small"
-        />
+      <div className="py-2 px-2 flex items-stretch gap-2">
+        <div className="flex-1 min-w-0">
+          <ConditionSearchBar
+            id={idGenerator.getTableHeaderId()}
+            targets={targets}
+            conditions={conditions}
+            onChangeCondition={onChangeCondition}
+            mode={mode}
+            onChangeMode={setMode}
+            size="small"
+          />
+        </div>
+        {props.columnSelector}
       </div>
 
       <style>{`
@@ -215,7 +222,9 @@ const HeaderElement = memo(function HE(props: IPropsHeaderElement) {
         className="absolute top-0 right-0 grid place-items-end py-1 w-[4px] h-full cursor-col-resize"
         onMouseDown={onMouseDownResizeWidth}
       >
-        <div className={`w-[1px] h-full bg-[color:var(--teppen-table-bg,#ffffff)]`} />
+        <div
+          className={`w-[1px] h-full bg-[color:var(--teppen-table-bg,#ffffff)]`}
+        />
       </div>
     </div>
   );

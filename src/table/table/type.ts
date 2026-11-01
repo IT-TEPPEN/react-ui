@@ -120,6 +120,11 @@ export type TColumnProperty<T extends DataRecord> = {
    */
   pinned?: boolean;
   /**
+   * true keeps the column out of the column selector (see `columnSelector`),
+   * so the user cannot hide it.
+   */
+  disableHide?: boolean;
+  /**
    * The value to sort this column by, instead of its value in rows. For
    * example, the name shown for an id: `(row) => userNames[row.ownerId]`.
    * Setting it on a column with render also makes it sortable.
@@ -196,6 +201,8 @@ export type TTableCondition = {
   pagination: { rowCountPerPage: number | "all"; page: number };
   /** Widths the user set by dragging, by column key (px). */
   columnWidths: { [key: string]: number };
+  /** Keys of the columns the user has hidden. */
+  hiddenColumns: string[];
 };
 
 type TPaginationCondition = {
@@ -231,6 +238,11 @@ export type TPropsTable<T extends DataRecord> = {
     pagenation?: TPaginationCondition;
     /** Column widths to start with, by column key (px). */
     columnWidths?: { [key: string]: number };
+    /**
+     * Keys of the columns to hide at first. Hidden columns are still sorted,
+     * filtered and searched by the conditions in place.
+     */
+    hiddenColumns?: string[];
   };
   applyRowFormatting?: (row: DataObject<T>) => TailwindCssStyle;
   conditionalFormattings?: TConditionalFormatting<T>[];
@@ -262,6 +274,11 @@ export type TPropsTable<T extends DataRecord> = {
    * it, the count is fixed (initialCondition.pagination.rowCountPerPage).
    */
   rowCountPerPageOptions?: (number | "all")[];
+  /**
+   * Shows a button next to the search bar that lets the user choose which
+   * columns are shown. Columns with `disableHide` are always shown.
+   */
+  columnSelector?: boolean;
   /**
    * Shows that rows are being loaded: "読み込み中…" / "Loading…" in place of
    * the empty message, or over the rows while they are reloaded.

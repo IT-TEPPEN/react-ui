@@ -45,7 +45,15 @@ import { useFilterState } from "../filter-v2/context";
 import { MESSAGES } from "../locale/messages";
 import { toCondition } from "../filter-v2/public";
 import { Condition } from "../../search-bar";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  ColumnSelector,
+  ColumnVisibilityProvider,
+  useColumnVisibility,
+  useColumnVisibilityState,
+  visibleColumns,
+} from "../column-visibility";
+import { useRangeActionContext } from "../range/provider";
 
 export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   const pagination =
@@ -64,78 +72,108 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
       .filter((condition): condition is Condition => condition !== null)
   );
 
+  // Columns the user hid are left out of everything that is shown, copied
+  // or pasted; sorting and filtering still use every column.
+  const visibility = useColumnVisibilityState(
+    props.initialCondition?.hiddenColumns
+  );
+  const cols = useMemo(
+    () => visibleColumns(props.cols, visibility.hiddenKeys),
+    [props.cols, visibility.hiddenKeys]
+  );
+
   return (
     <LocaleProvider locale={props.locale}>
-      <ComponentProvider>
-        <TableIdGeneratorProvider id={props.id}>
-          <ColumnsWidthProvider
-            cols={props.cols as TTableColumn<DataRecord>[]}
-            initialWidths={props.initialCondition?.columnWidths}
-            checkbox={!!props.checkbox}
-          >
-            <FilterProvider
-              initialConditions={initialFilters}
-              initialMode={props.initialCondition?.filterMode}
+      <ColumnVisibilityProvider value={visibility}>
+        <ComponentProvider>
+          <TableIdGeneratorProvider id={props.id}>
+            <ColumnsWidthProvider
+              cols={cols as TTableColumn<DataRecord>[]}
+              initialWidths={props.initialCondition?.columnWidths}
+              checkbox={!!props.checkbox}
             >
-              <SortProvider initialCondition={props.initialCondition?.sort}>
-                <PagenationProvider
-                  rowCount={props.rows.length}
-                  perPage={pagination?.rowCountPerPage}
-                  currentPage={pagination?.page}
-                >
-                  <CheckboxProvider checkbox={props.checkbox}>
-                    <CheckboxStatusProvider checkboxCount={props.rows.length}>
-                      <ColumnsProvider
-                        cols={props.cols}
-                        errorHandler={props.errorHandler}
-                      >
-                        <EditProvider>
-                          <TablePropertyProvider>
-                            <RangeProvider>
-                              <CopyProvider rows={props.rows} cols={props.cols}>
-                                <CopiedMessage />
-                                <PasteProvider
-                                  rows={props.rows}
-                                  cols={props.cols}
-                                  onUpdateRowFunction={props.onUpdateRow}
-                                  onPasteError={props.onPasteError}
-                                >
-                                  <KeyboardSetting
-                                    enableDeprecatedCopy={
-                                      props.deprecatedOptions
-                                        ?.enableDeprecatedCopy
-                                    }
-                                  />
-                                  <ScrollXPositionProvider>
-                                    <BaseTable {...props} />
-                                  </ScrollXPositionProvider>
-                                </PasteProvider>
-                              </CopyProvider>
-                            </RangeProvider>
-                          </TablePropertyProvider>
-                        </EditProvider>
-                      </ColumnsProvider>
-                    </CheckboxStatusProvider>
-                  </CheckboxProvider>
-                </PagenationProvider>
-              </SortProvider>
-            </FilterProvider>
-          </ColumnsWidthProvider>
-        </TableIdGeneratorProvider>
-      </ComponentProvider>
+              <FilterProvider
+                initialConditions={initialFilters}
+                initialMode={props.initialCondition?.filterMode}
+              >
+                <SortProvider initialCondition={props.initialCondition?.sort}>
+                  <PagenationProvider
+                    rowCount={props.rows.length}
+                    perPage={pagination?.rowCountPerPage}
+                    currentPage={pagination?.page}
+                  >
+                    <CheckboxProvider checkbox={props.checkbox}>
+                      <CheckboxStatusProvider checkboxCount={props.rows.length}>
+                        <ColumnsProvider
+                          cols={cols}
+                          errorHandler={props.errorHandler}
+                        >
+                          <EditProvider>
+                            <TablePropertyProvider>
+                              <RangeProvider>
+                                <CopyProvider rows={props.rows} cols={cols}>
+                                  <CopiedMessage />
+                                  <PasteProvider
+                                    rows={props.rows}
+                                    cols={cols}
+                                    onUpdateRowFunction={props.onUpdateRow}
+                                    onPasteError={props.onPasteError}
+                                  >
+                                    <KeyboardSetting
+                                      enableDeprecatedCopy={
+                                        props.deprecatedOptions
+                                          ?.enableDeprecatedCopy
+                                      }
+                                    />
+                                    <ScrollXPositionProvider>
+                                      <BaseTable
+                                        {...props}
+                                        visibleCols={cols}
+                                      />
+                                    </ScrollXPositionProvider>
+                                  </PasteProvider>
+                                </CopyProvider>
+                              </RangeProvider>
+                            </TablePropertyProvider>
+                          </EditProvider>
+                        </ColumnsProvider>
+                      </CheckboxStatusProvider>
+                    </CheckboxProvider>
+                  </PagenationProvider>
+                </SortProvider>
+              </FilterProvider>
+            </ColumnsWidthProvider>
+          </TableIdGeneratorProvider>
+        </ComponentProvider>
+      </ColumnVisibilityProvider>
     </LocaleProvider>
   );
 }
 
-function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
-  const { cols, rowMaps, pageRowIds } = useTable<T>(props);
+function BaseTable<T extends DataRecord>(
+  props: TPropsTable<T> & { visibleCols: TTableColumn<T>[] }
+) {
+  const { cols, rowMaps, pageRowIds } = useTable<T>(props, props.visibleCols);
+  const { hiddenKeys } = useColumnVisibility();
+  const { reset: resetRange } = useRangeActionContext();
+
+  // The selected cells move to other columns when columns are shown or
+  // hidden, so the selection is cleared.
+  const firstRender = useRef(true);
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    resetRange();
+  }, [hiddenKeys]);
   const messages = useMessages();
   const { conditions } = useFilterState();
   const emptyMessage = props.loading
     ? messages.loading
     : props.rows.length > 0 && conditions.length > 0
-    ? messages.noMatch
-    : props.noDataMessage ?? messages.noData;
+      ? messages.noMatch
+      : (props.noDataMessage ?? messages.noData);
   const IdGenerator = useTableIdGenerator();
   const generateSortButton = useGenerateSortButton();
 
@@ -150,6 +188,12 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
       <div>
         <TableHeader
           cols={cols}
+          filterCols={props.cols}
+          columnSelector={
+            props.columnSelector ? (
+              <ColumnSelector cols={props.cols} />
+            ) : undefined
+          }
           checkbox={!!props.checkbox}
           rows={props.rows}
           maxWidth={props.maxWidth}
@@ -211,7 +255,7 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
                     existCheckbox={!!props.checkbox}
                     rowIndex={i}
                     row={rowMaps[rowId].data}
-                    cols={props.cols as TTableColumn<DataRecord>[]}
+                    cols={cols as TTableColumn<DataRecord>[]}
                     onClickRow={props.onClickRow}
                     applyRowFormatting={props.applyRowFormatting}
                     conditionalFormattingString={generateFormattingString(
@@ -230,7 +274,8 @@ function BaseTable<T extends DataRecord>(props: TPropsTable<T>) {
         </SelectBoxProvider>
       </div>
       <div className="mt-1">
-        {props.rowCountPerPageOptions && props.rowCountPerPageOptions.length > 0 ? (
+        {props.rowCountPerPageOptions &&
+        props.rowCountPerPageOptions.length > 0 ? (
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
             <DisplayRange />
             <RowsPerPageSelect options={props.rowCountPerPageOptions} />

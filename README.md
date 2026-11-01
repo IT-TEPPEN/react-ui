@@ -283,6 +283,7 @@ export type TTableColumn = {
   options: { value: string; label: string }[]; // Only When "type" is "select"
   editable?: boolean;
   pinned?: boolean; // keep the column at the left edge while scrolling sideways
+  disableHide?: boolean; // always shown; not listed in the column selector
   render?: (value: string | number, row: DataObject) => React.ReactNode; // Only When "editable" is false
   // When "type" is "date" or "datetime", "render" is required and "editable" must be false:
   // render: (value: Date) => React.ReactNode;
@@ -347,6 +348,7 @@ type TInitialCondition = {
   filters?: TFilter[]; // filters applied on the first render
   filterMode?: "and" | "or"; // how filters are combined (default "and")
   columnWidths?: { [key: string]: number }; // column widths to start with (px)
+  hiddenColumns?: string[]; // keys of the columns to hide at first
   pagination?: {
     rowCountPerPage?: number | "all"; // a positive whole number, default 50
     page?: number; // the page to show first (from 1)
@@ -399,12 +401,13 @@ type TOnConditionChange = (
     sort: { key: string; asc: boolean };
     pagination: { rowCountPerPage: number | "all"; page: number };
     columnWidths: { [key: string]: number }; // widths the user set by dragging
+    hiddenColumns: string[]; // keys of the columns the user hid
   },
   rows: DataObject[]
 ) => void;
 ```
 
-It is also called when the user moves to another page, and when they finish dragging a column border (not while dragging).
+It is also called when the user moves to another page, when they finish dragging a column border (not while dragging), and when they show or hide a column.
 
 `condition` has the same shape as `initialCondition`, so it can be saved (e.g. in localStorage or the URL) and passed back as `initialCondition` to restore the view. `rows` can be used for showing the number of matching rows or exporting them.
 
@@ -486,6 +489,27 @@ type TLocale = "ja" | "en";
 ```
 
 Choosing a count goes back to page 1. The chosen count is reported by `onConditionChange` (`pagination.rowCountPerPage`), so it can be saved and restored. Choices that are not positive whole numbers or `"all"` are left out with a console warning; the count in use is added to the choices if it is not one of them.
+
+##### columnSelector
+
+`columnSelector` shows a "表示列" / "Columns" button next to the search bar. It opens a list of the columns with a checkbox each, so the user can choose which columns are shown.
+
+```tsx
+<Table
+  rows={rows}
+  cols={[
+    { key: "name", type: "string", label: "氏名", disableHide: true }, // always shown
+    { key: "dept", type: "string", label: "部署" },
+    { key: "phone", type: "string", label: "電話" },
+  ]}
+  columnSelector
+  initialCondition={{ hiddenColumns: ["phone"] }}
+/>
+```
+
+- Columns with `disableHide: true` are always shown and cannot be unchecked. The last shown column cannot be hidden either.
+- Hiding a column only changes what is shown: filters and the sort on it stay in place, and the all-columns search still looks in it. Copying and pasting use the shown columns.
+- The hidden columns are reported by `onConditionChange` (`hiddenColumns`) and can be restored with `initialCondition.hiddenColumns`, as other conditions.
 
 ##### loading / noDataMessage
 
