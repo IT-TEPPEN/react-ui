@@ -1,29 +1,33 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { TPasteHookArguments, TPasteReducerReturn } from "./types";
-import { useColumnValidatesContext } from "../sheet/providers";
+import {
+  useColumnsContext,
+  useColumnValidatesContext,
+} from "../sheet/providers";
+import { useShownRows } from "../shown-rows/provider";
+import { selectionBounds } from "../range/bounds";
 import { useRangeActionContext, useRangeStateContext } from "../range/provider";
 import { paste } from "./logic";
 import { parseClipboardText } from "./parse";
 import { isTextEntryTarget } from "../operation/event-target";
 import { useMessages } from "../locale/provider";
 
-export function usePasteReducer(args: TPasteHookArguments): TPasteReducerReturn {
+export function usePasteReducer(
+  args: TPasteHookArguments
+): TPasteReducerReturn {
   const { setRange } = useRangeActionContext();
   const validators = useColumnValidatesContext();
   const range = useRangeStateContext();
   const messages = useMessages();
-  const rowsRef = useRef(args.rows);
+  const shownRows = useShownRows();
+  const cols = useColumnsContext();
 
   // Read the latest props when a paste happens, so callbacks passed in later
   // renders are the ones that get called.
-  const latest = useRef({ ...args, validators, range, messages });
+  const latest = useRef({ ...args, cols, validators, range, messages });
   useEffect(() => {
-    latest.current = { ...args, validators, range, messages };
+    latest.current = { ...args, cols, validators, range, messages };
   });
-
-  const setRows = useCallback((rows: any[]) => {
-    rowsRef.current = rows;
-  }, []);
 
   const onPaste = useCallback(
     (pasteData: string[][]) => {
@@ -42,19 +46,9 @@ export function usePasteReducer(args: TPasteHookArguments): TPasteReducerReturn 
 
       const res = paste({
         pasteData,
-        // The selection may have been made bottom-up or right-to-left, so
-        // paste from its top-left cell.
-        pasteArea: {
-          start: {
-            rowIndex: Math.min(range.start.rowIndex, range.end.rowIndex),
-            colIndex: Math.min(range.start.colIndex, range.end.colIndex),
-          },
-          end: {
-            rowIndex: Math.max(range.start.rowIndex, range.end.rowIndex),
-            colIndex: Math.max(range.start.colIndex, range.end.colIndex),
-          },
-        },
-        currentRows: rowsRef.current,
+        // Paste from the top-left cell of the selection.
+        pasteArea: selectionBounds(range.start, range.end),
+        currentRows: shownRows.current,
         currentCols: cols,
         validators,
         messages: messages.paste,
@@ -80,7 +74,7 @@ export function usePasteReducer(args: TPasteHookArguments): TPasteReducerReturn 
       });
       setRange(res.pasteRange);
     },
-    [setRange]
+    [setRange, shownRows]
   );
 
   useEffect(() => {
@@ -109,5 +103,5 @@ export function usePasteReducer(args: TPasteHookArguments): TPasteReducerReturn 
     };
   }, [onPaste]);
 
-  return useMemo(() => ({ setRows, onPaste }), [setRows, onPaste]);
+  return useMemo(() => ({ onPaste }), [onPaste]);
 }

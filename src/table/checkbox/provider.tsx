@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { TCheckboxProperty } from "../table/type";
+import { DataRecord, TCheckboxProperty } from "../table/type";
 import { useCheckboxStatusReducer } from "./hooks";
 
 const CheckboxStatusContext = createContext<
@@ -35,14 +35,14 @@ export function useCheckboxStatusContext() {
 }
 
 const CheckboxContext =
-  createContext<TCheckboxProperty<any>["checkbox"]>(undefined);
+  createContext<TCheckboxProperty<DataRecord>["checkbox"]>(undefined);
 
 export function CheckboxProvider({
   children,
   checkbox,
 }: {
   children: React.ReactNode;
-  checkbox: TCheckboxProperty<any>["checkbox"];
+  checkbox: TCheckboxProperty<DataRecord>["checkbox"];
 }) {
   return (
     <CheckboxContext.Provider value={checkbox}>

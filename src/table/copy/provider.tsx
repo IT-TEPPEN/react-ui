@@ -8,22 +8,14 @@ const CopyStateContext = createContext<TCopyStateContext>({
 
 const CopyActionContext = createContext<TCopyActionContext>({
   copy: () => {},
-  setRows: () => {},
 });
 
 export function CopyProvider({
   children,
-  rows,
-  cols,
 }: {
   children: React.JSX.Element | React.JSX.Element[];
-  rows: any[];
-  cols: any[];
 }) {
-  const { states, actions } = useCopyReducer({
-    rows,
-    cols,
-  });
+  const { states, actions } = useCopyReducer();
   return (
     <CopyStateContext.Provider value={states}>
       <CopyActionContext.Provider value={actions}>

@@ -1,34 +1,16 @@
-import { useCallback, useEffect, useMemo, useReducer } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRangeStateContext } from "../range/provider";
-import { TCopyReducer, TReturnCopyReducer } from "./types";
+import { selectionBounds } from "../range/bounds";
+import { TReturnCopyReducer } from "./types";
+import { useColumnsContext } from "../sheet/providers";
+import { useShownRows } from "../shown-rows/provider";
 import { formatDateForCopy, formatDatetimeForCopy } from "./format";
 
-const reducer: TCopyReducer = (state, action) => {
-  switch (action.type) {
-    case "setRows":
-      return { ...state, rows: action.payload.rows };
-    case "setCols":
-      return { ...state, cols: action.payload.cols };
-    case "copied":
-      return { ...state, copiedAt: new Date() };
-    default:
-      return state;
-  }
-};
-
-export function useCopyReducer(initial: {
-  rows: any[];
-  cols: any[];
-  onUpdateRowFunction?: (newRow: any, oldRow: any) => void;
-}): TReturnCopyReducer {
-  const [state, dispatch] = useReducer(reducer, {
-    ...initial,
-  });
+export function useCopyReducer(): TReturnCopyReducer {
+  const [copiedAt, setCopiedAt] = useState<Date>();
   const range = useRangeStateContext();
-
-  useEffect(() => {
-    dispatch({ type: "setCols", payload: { cols: initial.cols } });
-  }, [initial.cols]);
+  const cols = useColumnsContext();
+  const shownRows = useShownRows();
 
   const copy = useCallback(
     (options?: { enableDeprecatedCopy?: boolean }) => {
@@ -36,29 +18,14 @@ export function useCopyReducer(initial: {
         return;
       }
 
-      const startRowIndex =
-        range.start.rowIndex <= range.end.rowIndex
-          ? range.start.rowIndex
-          : range.end.rowIndex;
-      const endRowIndex =
-        range.start.rowIndex >= range.end.rowIndex
-          ? range.start.rowIndex
-          : range.end.rowIndex;
-      const startColIndex =
-        range.start.colIndex <= range.end.colIndex
-          ? range.start.colIndex
-          : range.end.colIndex;
-      const endColIndex =
-        range.start.colIndex >= range.end.colIndex
-          ? range.start.colIndex
-          : range.end.colIndex;
+      const bounds = selectionBounds(range.start, range.end);
 
-      const copiedData = state.rows
-        .slice(startRowIndex, endRowIndex + 1)
+      const copiedData = shownRows.current
+        .slice(bounds.start.rowIndex, bounds.end.rowIndex + 1)
         .map((row) => {
-          const copiedRow = [];
-          for (let i = startColIndex; i <= endColIndex; i++) {
-            const col = state.cols[i];
+          const copiedRow: (string | number | Date)[] = [];
+          for (let i = bounds.start.colIndex; i <= bounds.end.colIndex; i++) {
+            const col = cols[i];
 
             if (col.type == "number" || col.type == "string") {
               copiedRow.push(row[col.key]);
@@ -114,29 +81,13 @@ export function useCopyReducer(initial: {
         navigator.clipboard.writeText(copiedDataString);
       }
 
-      dispatch({ type: "copied" });
+      setCopiedAt(new Date());
     },
-    [range, state.rows, state.cols]
+    [range, cols, shownRows]
   );
 
-  const setRows = useCallback((rows: any[]) => {
-    dispatch({ type: "setRows", payload: { rows } });
-  }, []);
-
-  const states = useMemo(
-    () => ({
-      copiedAt: state.copiedAt,
-    }),
-    [state.copiedAt]
-  );
-
-  const actions = useMemo(
-    () => ({
-      copy,
-      setRows,
-    }),
-    [copy, setRows]
-  );
+  const states = useMemo(() => ({ copiedAt }), [copiedAt]);
+  const actions = useMemo(() => ({ copy }), [copy]);
 
   return {
     states,

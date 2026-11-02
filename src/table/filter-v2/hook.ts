@@ -102,7 +102,7 @@ function toDayNumber(value: unknown): number | null {
 /** Exported for tests. */
 export function isMatchCondition(
   condition: Condition,
-  targetValue: any,
+  targetValue: unknown,
   input: SearchInput
 ): boolean {
   switch (condition.operator.type) {
@@ -114,18 +114,20 @@ export function isMatchCondition(
           }
 
           const numValue = input.payload.value;
+          // A number column's value (or its filterValue), compared as is.
+          const targetNumber = targetValue as number;
 
           switch (condition.operator.key) {
             case "number:eq":
               return targetValue === numValue;
             case "number:gt":
-              return targetValue > numValue;
+              return targetNumber > numValue;
             case "number:gte":
-              return targetValue >= numValue;
+              return targetNumber >= numValue;
             case "number:lt":
-              return targetValue < numValue;
+              return targetNumber < numValue;
             case "number:lte":
-              return targetValue <= numValue;
+              return targetNumber <= numValue;
             case "number:neq":
               return targetValue !== numValue;
           }
@@ -199,9 +201,9 @@ export function isMatchCondition(
 
           switch (condition.operator.key) {
             case "select:in":
-              return values.includes(targetValue);
+              return values.includes(targetValue as string);
             case "select:not_in":
-              return !values.includes(targetValue);
+              return !values.includes(targetValue as string);
           }
         }
         case "none":
@@ -282,16 +284,18 @@ export function isMatchCondition(
           }
 
           const dateValue = input.payload.value;
+          // A datetime column's value (or its filterValue), compared as is.
+          const targetDate = targetValue as Date;
 
           switch (condition.operator.key) {
             case "datetime:gt":
-              return targetValue > dateValue;
+              return targetDate > dateValue;
             case "datetime:gte":
-              return targetValue >= dateValue;
+              return targetDate >= dateValue;
             case "datetime:lt":
-              return targetValue < dateValue;
+              return targetDate < dateValue;
             case "datetime:lte":
-              return targetValue <= dateValue;
+              return targetDate <= dateValue;
           }
         case "none":
           if (input.type !== condition.operator.inputType) {

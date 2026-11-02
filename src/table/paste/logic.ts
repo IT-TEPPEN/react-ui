@@ -1,10 +1,13 @@
 import { MESSAGES, TMessages } from "../locale/messages";
-import { TTableColumn } from "../table/type";
+import { DataObject, DataRecord, TTableColumn } from "../table/type";
+import { TValidateFunction } from "../libs/generate-validate-function";
+
+type TRow = DataObject<DataRecord>;
 
 type TPasteArgument = {
   pasteData: string[][];
-  currentRows: any[];
-  currentCols: TTableColumn<any>[];
+  currentRows: TRow[];
+  currentCols: TTableColumn<DataRecord>[];
   tableArea?: {
     start: {
       rowIndex: number;
@@ -26,7 +29,7 @@ type TPasteArgument = {
     };
   };
   validators: {
-    [key: string]: (value: any) => boolean;
+    [key: string]: TValidateFunction;
   };
   /** Messages for the errors. Japanese when omitted. */
   messages?: TMessages["paste"];
@@ -46,8 +49,8 @@ type TPasteResult =
   | {
       isError: false;
       updateArgument: {
-        newRow: any;
-        oldRow: any;
+        newRow: TRow;
+        oldRow: TRow;
       }[];
       pasteRange: {
         start: {
@@ -68,7 +71,10 @@ const GROUPED_NUMBER = /^-?\d{1,3}(,\d{3})+(\.\d+)?$/;
  * Turns pasted text into the form the column's validator expects. For number
  * columns, surrounding spaces and thousands separators ("1,000") are removed.
  */
-function normalizePastedValue(col: TTableColumn<any>, value: string): string {
+function normalizePastedValue(
+  col: TTableColumn<DataRecord>,
+  value: string
+): string {
   if (col.type !== "number") {
     return value;
   }
@@ -137,9 +143,7 @@ export function paste(args: TPasteArgument): TPasteResult {
       return {
         isError: true,
         type: "NOT_EDITABLE_COLUMN",
-        message: messages.notEditableColumn(
-          col.label ?? (col.key as string)
-        ),
+        message: messages.notEditableColumn(col.label ?? (col.key as string)),
       };
     }
   }
@@ -164,7 +168,7 @@ export function paste(args: TPasteArgument): TPasteResult {
     }
   }
 
-  const updateArguments: { newRow: any; oldRow: any }[] = [];
+  const updateArguments: { newRow: TRow; oldRow: TRow }[] = [];
 
   // ペーストデータを反映
   for (let i = 0; i < pasteRowLength; i++) {
@@ -174,15 +178,18 @@ export function paste(args: TPasteArgument): TPasteResult {
 
     for (let j = 0; j < pasteColLength; j++) {
       const col = args.currentCols[args.pasteArea.start.colIndex + j];
-      const pasteValue = normalizePastedValue(col, pasteRow[j % pasteRow.length]);
+      const pasteValue = normalizePastedValue(
+        col,
+        pasteRow[j % pasteRow.length]
+      );
       const value =
         col.type === "number"
           ? Number(pasteValue)
           : col.type === "select"
-          ? pasteValue === ""
-            ? ""
-            : col.options.find((option) => option.label === pasteValue)!.value
-          : pasteValue;
+            ? pasteValue === ""
+              ? ""
+              : col.options.find((option) => option.label === pasteValue)!.value
+            : pasteValue;
       if (newRow[col.key] !== value) {
         checkUpdatedRow = true;
         newRow[col.key] = value;

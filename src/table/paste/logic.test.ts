@@ -3,7 +3,7 @@ import { paste } from "./logic";
 const numberCol = { key: "price", type: "number", editable: true, onCellBlur: () => {} };
 const validators = {
   // Same rule as the number column validator.
-  price: (v: string) => /^-?[0-9]+(\.[0-9]+)?$/.test(v),
+  price: (v: string | number) => /^-?[0-9]+(\.[0-9]+)?$/.test(String(v)),
 };
 
 function pasteNumber(text: string) {

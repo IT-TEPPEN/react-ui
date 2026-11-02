@@ -11,8 +11,8 @@ interface TPropsRow<T extends DataRecord> {
   existCheckbox?: boolean;
   rowIndex: number;
   conditionalFormattingString: string;
-  onClickRow?: (row: any) => void;
-  applyRowFormatting?: (row: any) => string;
+  onClickRow?: (row: DataObject<DataRecord>) => void;
+  applyRowFormatting?: (row: DataObject<DataRecord>) => string;
 }
 
 export const Row = memo(function R<T extends DataRecord>(props: TPropsRow<T>) {

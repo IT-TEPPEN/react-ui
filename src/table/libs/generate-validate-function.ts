@@ -36,7 +36,11 @@ type TPropsGenerateValidateFunction = {
     }
 );
 
-type TStringValidateFunction = (value: string) => boolean;
+/**
+ * Checks a value entered or pasted into a column. Number columns get a
+ * number or text; other columns get text.
+ */
+export type TValidateFunction = (value: string | number) => boolean;
 
 export type TErrorValidation = {
   label: string;
@@ -90,8 +94,9 @@ function generateStringValidateFunction(
   label: string,
   constraints?: TStringValidateOption,
   errorHandler?: (errors: TErrorValidation[]) => void
-): TStringValidateFunction {
-  return (value: string) => {
+): TValidateFunction {
+  return (input: string | number) => {
+    const value = String(input);
     const errors: TErrorValidation[] = [];
 
     if (constraints?.maxLength) {
@@ -142,14 +147,12 @@ function generateStringValidateFunction(
   };
 }
 
-type TNumberValidateFunction = (value: number) => boolean;
-
 function generateNumberValidateFunction(
   key: string,
   label: string,
   constraints?: TNumberValidateOption,
   errorHandler?: (errors: TErrorValidation[]) => void
-): TNumberValidateFunction {
+): TValidateFunction {
   return (value: number | string) => {
     const errors: TErrorValidation[] = [];
 
@@ -208,17 +211,16 @@ function generateNumberValidateFunction(
   };
 }
 
-type TSelectValidateFunction = (label: string) => boolean;
-
 function generatSelectValidateFunction(
   key: string,
   columnLabel: string,
   options: { value: string; label: string }[],
   allowEmpty?: boolean,
   errorHandler?: (errors: TErrorValidation[]) => void
-): TSelectValidateFunction {
+): TValidateFunction {
   const labelSets = new Set(options.map((option) => option.label));
-  return (label: string) => {
+  return (input: string | number) => {
+    const label = String(input);
     if (allowEmpty && label === "") {
       return true;
     }
@@ -247,14 +249,13 @@ function generatSelectValidateFunction(
   };
 }
 
-type TDateValidateFunction = (label: string) => boolean;
-
 function generatDateValidateFunction(
   key: string,
   columnLabel: string,
   errorHandler?: (errors: TErrorValidation[]) => void
-): TDateValidateFunction {
-  return (value: string) => {
+): TValidateFunction {
+  return (input: string | number) => {
+    const value = String(input);
     const errors: TErrorValidation[] = [];
 
     if (isNaN(new Date(value).getTime())) {
@@ -278,14 +279,13 @@ function generatDateValidateFunction(
   };
 }
 
-type TDatetimeValidateFunction = (label: string) => boolean;
-
 function generatDatetimeValidateFunction(
   key: string,
   columnLabel: string,
   errorHandler?: (errors: TErrorValidation[]) => void
-): TDatetimeValidateFunction {
-  return (value: string) => {
+): TValidateFunction {
+  return (input: string | number) => {
+    const value = String(input);
     const errors: TErrorValidation[] = [];
 
     if (isNaN(new Date(value).getTime())) {
@@ -312,7 +312,7 @@ function generatDatetimeValidateFunction(
 export function generateValidateFunction(
   props: TPropsGenerateValidateFunction,
   errorHandler?: (errors: TErrorValidation[]) => void
-) {
+): TValidateFunction {
   if (props.type === "string") {
     return generateStringValidateFunction(
       props.key,
