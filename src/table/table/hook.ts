@@ -82,12 +82,16 @@ export function useTable<T extends DataRecord>(
     return props.rows.filter((row) => props.checkbox?.checked(row));
   }, [props.checkbox, props.rows]);
 
+  // Checked again on every render (checked may read app state), but only
+  // passed on when other rows are checked, so the checkboxes are not all
+  // drawn again for nothing.
+  const checkedIdsKey = JSON.stringify(checkBoxes.map((row) => row.id));
   useEffect(() => {
     dispatchCheckboxStatus({
       type: "SET",
       payload: { checkedRecords: checkBoxes },
     });
-  }, [checkBoxes]);
+  }, [checkedIdsKey]);
 
   // Sort by the column's sortValue if it has one; select columns otherwise
   // by the labels shown, not the stored values.

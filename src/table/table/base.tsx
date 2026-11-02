@@ -47,6 +47,7 @@ import { MESSAGES } from "../locale/messages";
 import { toCondition } from "../filter-v2/public";
 import { Condition } from "../../search-bar";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useStableCallback, useStableColumns } from "./stable-columns";
 import {
   ColumnSelector,
   ColumnVisibilityProvider,
@@ -78,14 +79,31 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   const visibility = useColumnVisibilityState(
     props.initialCondition?.hiddenColumns
   );
+  // The same columns while they look the same, so cols defined inline do
+  // not redraw every cell on each render of the app.
+  const stableCols = useStableColumns(props.cols);
   const cols = useMemo(
-    () => visibleColumns(props.cols, visibility.hiddenKeys),
-    [props.cols, visibility.hiddenKeys]
+    () => visibleColumns(stableCols, visibility.hiddenKeys),
+    [stableCols, visibility.hiddenKeys]
   );
 
   // Inside, the table handles rows without knowing their own type, so the
   // app's row callbacks are passed on as callbacks for any row.
   const untyped = props as unknown as TPropsTable<DataRecord>;
+
+  // The checkboxes get a checkbox object that stays the same; whether a row
+  // is checked is worked out from the latest one (see useTable).
+  const onChecked = useStableCallback(untyped.checkbox?.onChecked);
+  const onUnchecked = useStableCallback(untyped.checkbox?.onUnchecked);
+  const isChecked = useStableCallback(untyped.checkbox?.checked);
+  const selectAll = untyped.checkbox?.selectAll;
+  const checkbox = useMemo(
+    () =>
+      onChecked && onUnchecked && isChecked
+        ? { checked: isChecked, onChecked, onUnchecked, selectAll }
+        : undefined,
+    [onChecked, onUnchecked, isChecked, selectAll]
+  );
 
   return (
     <LocaleProvider locale={props.locale}>
@@ -107,7 +125,7 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
                     perPage={pagination?.rowCountPerPage}
                     currentPage={pagination?.page}
                   >
-                    <CheckboxProvider checkbox={untyped.checkbox}>
+                    <CheckboxProvider checkbox={checkbox}>
                       <CheckboxStatusProvider>
                         <ColumnsProvider
                           cols={cols}
@@ -132,6 +150,7 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
                                       <ScrollXPositionProvider>
                                         <BaseTable
                                           {...props}
+                                          cols={stableCols}
                                           visibleCols={cols}
                                         />
                                       </ScrollXPositionProvider>
@@ -163,6 +182,8 @@ function BaseTable<T extends DataRecord>(
     props.visibleCols
   );
   const untyped = props as unknown as TPropsTable<DataRecord>;
+  // Only called on a click, so a new function need not redraw the rows.
+  const onClickRow = useStableCallback(untyped.onClickRow);
   const { hiddenKeys } = useColumnVisibility();
   const { reset: resetRange } = useRangeActionContext();
 
@@ -265,7 +286,7 @@ function BaseTable<T extends DataRecord>(
                     rowIndex={i}
                     row={rowMaps[rowId].data}
                     cols={cols as TTableColumn<DataRecord>[]}
-                    onClickRow={untyped.onClickRow}
+                    onClickRow={onClickRow}
                     applyRowFormatting={untyped.applyRowFormatting}
                     conditionalFormattingString={generateFormattingString(
                       rowMaps[rowId].data,
