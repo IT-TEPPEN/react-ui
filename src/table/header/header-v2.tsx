@@ -29,6 +29,7 @@ interface IPropsTableHeader<T extends DataRecord> {
   /** Shown next to the search bar. */
   columnSelector?: React.ReactNode;
   checkbox?: boolean;
+  /** Rows the checkbox in the header checks (see checkbox.selectAll). */
   rows: DataObject<T>[];
   maxWidth?: string;
   generateSortButton?: (columnKey: string) => React.ReactNode;

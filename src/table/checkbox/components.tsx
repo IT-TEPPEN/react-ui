@@ -41,28 +41,38 @@ export const Checkbox = memo(function CB(props: TPropsCheckbox) {
   );
 });
 
-export const AllCheckbox = memo(function ACB<T extends DataRecord>(props: {
-  rows: DataObject<T>[];
+/**
+ * The checkbox in the header. It is checked when some of its rows (see
+ * checkbox.selectAll) are checked, and shows a dash when only some are.
+ * Clicking it checks all of its rows, or unchecks them when some are
+ * checked. Rows outside of it are left as they are.
+ */
+export const AllCheckbox = memo(function ACB(props: {
+  rows: DataObject<DataRecord>[];
 }) {
   const ref = useRef<HTMLInputElement>(null);
   const checkbox = useCheckboxContext();
-  const { checkboxStatusState, existChecked, indeterminate } =
-    useCheckboxStatusContext();
+  const { checkboxStatusState } = useCheckboxStatusContext();
 
-  const checkboxIds = useMemo(() => {
-    return checkboxStatusState.checkedRecords.map((record) => record.id);
-  }, [checkboxStatusState.checkedRecords]);
+  const { checkedRows, uncheckedRows } = useMemo(() => {
+    const checkedIds = new Set(
+      checkboxStatusState.checkedRecords.map((record) => record.id)
+    );
+    return {
+      checkedRows: props.rows.filter((row) => checkedIds.has(row.id)),
+      uncheckedRows: props.rows.filter((row) => !checkedIds.has(row.id)),
+    };
+  }, [props.rows, checkboxStatusState.checkedRecords]);
 
-  const uncheckLists = useMemo(() => {
-    return props.rows.filter((row) => !checkboxIds.includes(row.id));
-  }, [props.rows, checkboxIds]);
+  const someChecked = checkedRows.length > 0;
+  const indeterminate = someChecked && uncheckedRows.length > 0;
 
   useEffect(() => {
     if (ref.current == null) {
       return;
     }
 
-    ref.current.indeterminate = indeterminate === true;
+    ref.current.indeterminate = indeterminate;
   }, [indeterminate]);
 
   if (!checkbox) return <></>;
@@ -72,15 +82,15 @@ export const AllCheckbox = memo(function ACB<T extends DataRecord>(props: {
       <input
         ref={ref}
         type="checkbox"
-        checked={existChecked}
+        checked={someChecked}
         onChange={(e) => {
           e.preventDefault();
           if (e.target.checked) {
-            uncheckLists.forEach((row) => {
+            uncheckedRows.forEach((row) => {
               checkbox.onChecked(row);
             });
           } else {
-            checkboxStatusState.checkedRecords.forEach((row) => {
+            checkedRows.forEach((row) => {
               checkbox.onUnchecked(row);
             });
           }
