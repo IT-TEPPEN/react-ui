@@ -9,13 +9,12 @@ import {
   useSortTimingContext,
 } from "../sort/provider";
 import { useTablePropertyActionContext } from "../table-property/provider";
-import { usePasteActionContext } from "../paste/provider";
-import { useCopyActionContext } from "../copy/provider";
 import { useFilterFunctions, useFilterState } from "../filter-v2/context";
 import { fromCondition } from "../filter-v2/public";
 import { buildKeywordTextGetter } from "../filter-v2/keyword";
 import { filterValueOf } from "./column-options";
 import { useColumnsWidthState } from "../header";
+import { useShownRows } from "../shown-rows/provider";
 
 export function useTable<T extends DataRecord>(
   props: TPropsTable<T>,
@@ -36,8 +35,7 @@ export function useTable<T extends DataRecord>(
   } = usePageContext();
   const { committedWidths } = useColumnsWidthState();
   const { dispatchCheckboxStatus } = useCheckboxStatusContext();
-  const { setRows: setRowsForPaste } = usePasteActionContext();
-  const { setRows: setRowsForCopy } = useCopyActionContext();
+  const shownRows = useShownRows();
   const { setMaxDisplayColCount, setMaxDisplayRowCount } =
     useTablePropertyActionContext();
 
@@ -183,7 +181,7 @@ export function useTable<T extends DataRecord>(
             acc[row.id] = { data: row };
             return acc;
           },
-          {} as { [id: string | number]: { data: DataObject<any> } }
+          {} as { [id: string | number]: { data: DataObject<T> } }
         ),
     [props.rows, pageRowIdSets]
   );
@@ -196,10 +194,9 @@ export function useTable<T extends DataRecord>(
     setMaxDisplayRowCount(pageRowIds.length);
   }, [pageRowIds.length]);
 
+  // The rows copy and paste work on, in the order shown.
   useEffect(() => {
-    const rows = pageRowIds.map((id) => rowMaps[id].data);
-    setRowsForCopy(rows);
-    setRowsForPaste(rows);
+    shownRows.current = pageRowIds.map((id) => rowMaps[id].data);
   }, [rowMaps]);
 
   return {

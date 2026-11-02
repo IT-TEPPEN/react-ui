@@ -28,6 +28,7 @@ import { generateFormattingString } from "../libs/conditional-formatting";
 import { Editor } from "../edit/ui/editor";
 import { RangeProvider, TestRange } from "../range/provider";
 import { CopyProvider } from "../copy/provider";
+import { ShownRowsProvider } from "../shown-rows/provider";
 import { CopiedMessage } from "../copy/components";
 import { TableIdGeneratorProvider, useTableIdGenerator } from "../id";
 import { TableHeader } from "../header/header-v2";
@@ -82,6 +83,10 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
     [props.cols, visibility.hiddenKeys]
   );
 
+  // Inside, the table handles rows without knowing their own type, so the
+  // app's row callbacks are passed on as callbacks for any row.
+  const untyped = props as unknown as TPropsTable<DataRecord>;
+
   return (
     <LocaleProvider locale={props.locale}>
       <ColumnVisibilityProvider value={visibility}>
@@ -102,7 +107,7 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
                     perPage={pagination?.rowCountPerPage}
                     currentPage={pagination?.page}
                   >
-                    <CheckboxProvider checkbox={props.checkbox}>
+                    <CheckboxProvider checkbox={untyped.checkbox}>
                       <CheckboxStatusProvider checkboxCount={props.rows.length}>
                         <ColumnsProvider
                           cols={cols}
@@ -111,28 +116,28 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
                           <EditProvider>
                             <TablePropertyProvider>
                               <RangeProvider>
-                                <CopyProvider rows={props.rows} cols={cols}>
-                                  <CopiedMessage />
-                                  <PasteProvider
-                                    rows={props.rows}
-                                    cols={cols}
-                                    onUpdateRowFunction={props.onUpdateRow}
-                                    onPasteError={props.onPasteError}
-                                  >
-                                    <KeyboardSetting
-                                      enableDeprecatedCopy={
-                                        props.deprecatedOptions
-                                          ?.enableDeprecatedCopy
-                                      }
-                                    />
-                                    <ScrollXPositionProvider>
-                                      <BaseTable
-                                        {...props}
-                                        visibleCols={cols}
+                                <ShownRowsProvider>
+                                  <CopyProvider>
+                                    <CopiedMessage />
+                                    <PasteProvider
+                                      onUpdateRowFunction={untyped.onUpdateRow}
+                                      onPasteError={props.onPasteError}
+                                    >
+                                      <KeyboardSetting
+                                        enableDeprecatedCopy={
+                                          props.deprecatedOptions
+                                            ?.enableDeprecatedCopy
+                                        }
                                       />
-                                    </ScrollXPositionProvider>
-                                  </PasteProvider>
-                                </CopyProvider>
+                                      <ScrollXPositionProvider>
+                                        <BaseTable
+                                          {...props}
+                                          visibleCols={cols}
+                                        />
+                                      </ScrollXPositionProvider>
+                                    </PasteProvider>
+                                  </CopyProvider>
+                                </ShownRowsProvider>
                               </RangeProvider>
                             </TablePropertyProvider>
                           </EditProvider>
@@ -154,6 +159,7 @@ function BaseTable<T extends DataRecord>(
   props: TPropsTable<T> & { visibleCols: TTableColumn<T>[] }
 ) {
   const { cols, rowMaps, pageRowIds } = useTable<T>(props, props.visibleCols);
+  const untyped = props as unknown as TPropsTable<DataRecord>;
   const { hiddenKeys } = useColumnVisibility();
   const { reset: resetRange } = useRangeActionContext();
 
@@ -256,8 +262,8 @@ function BaseTable<T extends DataRecord>(
                     rowIndex={i}
                     row={rowMaps[rowId].data}
                     cols={cols as TTableColumn<DataRecord>[]}
-                    onClickRow={props.onClickRow}
-                    applyRowFormatting={props.applyRowFormatting}
+                    onClickRow={untyped.onClickRow}
+                    applyRowFormatting={untyped.applyRowFormatting}
                     conditionalFormattingString={generateFormattingString(
                       rowMaps[rowId].data,
                       cols as TTableColumn<DataRecord>[],

@@ -3,7 +3,6 @@ import { TPasteHookArguments, TPasteReducerReturn } from "./types";
 import { usePasteReducer } from "./hooks";
 
 const PasteContext = createContext<TPasteReducerReturn>({
-  setRows: () => {},
   onPaste: () => {},
 });
 

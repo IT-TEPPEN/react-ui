@@ -1,16 +1,25 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useMemo, useRef } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { DataRecord, TTableColumn } from "../table/type";
 import {
   generateValidateFunction,
   TErrorValidation,
+  TValidateFunction,
 } from "../libs/generate-validate-function";
+
+type TValidates = { [key: string]: TValidateFunction };
 import { useMessages } from "../locale/provider";
 
 const ColsContext = createContext<{
   cols: TTableColumn<DataRecord>[];
-  validates: { [key: string]: (value: any) => boolean };
+  validates: TValidates;
 }>({
   cols: [],
   validates: {},
@@ -43,29 +52,25 @@ export function ColumnsProvider<T extends DataRecord>({
       }
     };
 
-    return cols.reduce((acc, col) => {
-      const { key } = col;
-
-      acc[key] = generateValidateFunction(col as any, handleErrors);
-
-      return acc;
-    }, {} as { [key in keyof T]: (value: any) => boolean });
+    const result: TValidates = {};
+    for (const col of cols) {
+      result[String(col.key)] = generateValidateFunction(
+        // The column has what the validator needs (type, constraints,
+        // options); its label may be missing, as before.
+        { ...col, key: String(col.key), label: col.label as string },
+        handleErrors
+      );
+    }
+    return result;
   }, [cols, messages]);
 
-  const state = useMemo(() => ({ cols, validates }), [cols, validates]);
-
-  return (
-    <ColsContext.Provider
-      value={
-        state as {
-          cols: TTableColumn<DataRecord>[];
-          validates: { [key: string]: (value: any) => boolean };
-        }
-      }
-    >
-      {children}
-    </ColsContext.Provider>
+  // Inside the table, rows have no own type (see TTableColumn<DataRecord>).
+  const state = useMemo(
+    () => ({ cols: cols as TTableColumn<DataRecord>[], validates }),
+    [cols, validates]
   );
+
+  return <ColsContext.Provider value={state}>{children}</ColsContext.Provider>;
 }
 
 export function useColumnsContext() {
