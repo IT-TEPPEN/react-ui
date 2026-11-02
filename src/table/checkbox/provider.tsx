@@ -9,21 +9,16 @@ const CheckboxStatusContext = createContext<
     checkedRecords: [],
   },
   dispatchCheckboxStatus: () => {},
-  allUnchecked: false,
-  existChecked: false,
-  indeterminate: false,
 });
 
 export function CheckboxStatusProvider({
   children,
-  checkboxCount,
 }: {
   children: React.JSX.Element;
-  checkboxCount: number;
 }) {
   return (
     <CheckboxStatusContext.Provider
-      value={useCheckboxStatusReducer(checkboxCount)}
+      value={useCheckboxStatusReducer()}
     >
       {children}
     </CheckboxStatusContext.Provider>

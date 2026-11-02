@@ -9,19 +9,11 @@ const checkboxReducer: CheckboxStatusReducer<DataRecord> = (state, action) => {
   }
 };
 
-export function useCheckboxStatusReducer(checkboxCount: number) {
+export function useCheckboxStatusReducer() {
   const [checkboxStatusState, dispatchCheckboxStatus] = useReducer(
     checkboxReducer,
     { checkedRecords: [] }
   );
 
-  return {
-    checkboxStatusState,
-    dispatchCheckboxStatus,
-    allUnchecked: checkboxStatusState.checkedRecords.length === 0,
-    existChecked: checkboxStatusState.checkedRecords.length > 0,
-    indeterminate:
-      checkboxStatusState.checkedRecords.length > 0 &&
-      checkboxStatusState.checkedRecords.length < checkboxCount,
-  };
+  return { checkboxStatusState, dispatchCheckboxStatus };
 }

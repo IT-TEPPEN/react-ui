@@ -108,7 +108,7 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
                     currentPage={pagination?.page}
                   >
                     <CheckboxProvider checkbox={untyped.checkbox}>
-                      <CheckboxStatusProvider checkboxCount={props.rows.length}>
+                      <CheckboxStatusProvider>
                         <ColumnsProvider
                           cols={cols}
                           errorHandler={props.errorHandler}
@@ -158,7 +158,10 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
 function BaseTable<T extends DataRecord>(
   props: TPropsTable<T> & { visibleCols: TTableColumn<T>[] }
 ) {
-  const { cols, rowMaps, pageRowIds } = useTable<T>(props, props.visibleCols);
+  const { cols, rowMaps, pageRowIds, selectAllRows } = useTable<T>(
+    props,
+    props.visibleCols
+  );
   const untyped = props as unknown as TPropsTable<DataRecord>;
   const { hiddenKeys } = useColumnVisibility();
   const { reset: resetRange } = useRangeActionContext();
@@ -201,7 +204,7 @@ function BaseTable<T extends DataRecord>(
             ) : undefined
           }
           checkbox={!!props.checkbox}
-          rows={props.rows}
+          rows={selectAllRows}
           maxWidth={props.maxWidth}
           generateSortButton={generateSortButton}
         />

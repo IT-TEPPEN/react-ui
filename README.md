@@ -600,7 +600,31 @@ type TCheckbox = {
   checked: (row: DataObject) => boolean;
   onChecked: (row: DataObject) => void;
   onUnchecked: (row: DataObject) => void;
+  selectAll?: "all" | "filtered" | "page"; // rows the header checkbox checks (default "all")
 };
+```
+
+The checkbox in the header checks all of its rows, or unchecks them when some are checked. `selectAll` chooses which rows those are:
+
+| `selectAll` | Rows |
+|---|---|
+| `"all"` (default) | Every row, including rows hidden by filters |
+| `"filtered"` | The rows that pass the filters, on every page |
+| `"page"` | The rows on the current page |
+
+With `"filtered"` or `"page"`, rows outside of it are left as they are, and the header checkbox shows the state of its rows only (checked when some are, a dash when only some are).
+
+```tsx
+<Table
+  rows={rows}
+  cols={cols}
+  checkbox={{
+    checked: (row) => selectedIds.includes(row.id),
+    onChecked: (row) => setSelectedIds((ids) => [...ids, row.id]),
+    onUnchecked: (row) => setSelectedIds((ids) => ids.filter((id) => id !== row.id)),
+    selectAll: "filtered",
+  }}
+/>
 ```
 
 ##### conditionalFormattings

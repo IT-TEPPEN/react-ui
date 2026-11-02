@@ -151,6 +151,13 @@ export type TCheckboxProperty<T extends DataRecord> = {
     checked: (row: DataObject<T>) => boolean;
     onChecked: (row: DataObject<T>) => void;
     onUnchecked: (row: DataObject<T>) => void;
+    /**
+     * Which rows the checkbox in the header checks and unchecks:
+     * - "all" (default): every row, including rows hidden by filters
+     * - "filtered": the rows that pass the filters, on every page
+     * - "page": the rows on the current page
+     */
+    selectAll?: "all" | "filtered" | "page";
   };
 };
 

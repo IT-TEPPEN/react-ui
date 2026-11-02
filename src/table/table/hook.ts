@@ -199,7 +199,19 @@ export function useTable<T extends DataRecord>(
     shownRows.current = pageRowIds.map((id) => rowMaps[id].data);
   }, [rowMaps]);
 
+  // Rows the checkbox in the header checks (checkbox.selectAll). Sorting and
+  // paging keep row objects from when they ran, so give the current ones.
+  const selectAll = props.checkbox?.selectAll ?? "all";
+  const selectAllRows = useMemo(() => {
+    if (selectAll === "all") return props.rows;
+
+    const current = new Map(props.rows.map((row) => [row.id, row]));
+    const scope = selectAll === "page" ? pageRows : sortedRows;
+    return scope.map((row) => current.get(row.id) ?? row);
+  }, [selectAll, props.rows, pageRows, sortedRows]);
+
   return {
+    selectAllRows,
     cols: visibleCols,
     rowMaps,
     pageRowIds,
