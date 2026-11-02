@@ -1,0 +1,17 @@
+{
+  "name": "react-ui-bench",
+  "private": true,
+  "type": "module",
+  "description": "Browser benchmark that compares versions of @teppen/react-ui",
+  "scripts": {
+    "bench": "node run.mjs"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.3",
+    "esbuild": "^0.28.2",
+    "playwright": "^1.56.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "tailwindcss": "^4.3.3"
+  }
+}

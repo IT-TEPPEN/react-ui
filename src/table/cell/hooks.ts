@@ -21,13 +21,15 @@ export function useCell(id: string, row: DataObject<DataRecord>) {
       ? col.render(value instanceof Date ? value : new Date(value))
       : (value as string | number);
 
+  const render = "render" in col ? col.render : undefined;
   const component = useMemo(() => {
     if (col.type === "date" || col.type === "datetime" || col.editable) {
       return label;
     } else {
       return col.render ? col.render(value as never, row) : label;
     }
-  }, [col.editable, label, value, row]);
+    // A new render (e.g. reading names the app loaded later) is shown too.
+  }, [col.editable, render, label, value, row]);
 
   const type: TColumnType | "component" =
     !col.editable && col.render ? "component" : col.type;

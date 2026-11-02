@@ -389,6 +389,10 @@ Filters that do not fit the column (unknown key, operator or value) are ignored 
 
 `rowCountPerPage` defaults to 50. With pagination, the table stays fast regardless of the number of rows (all operations took under 50 ms with 10,000 rows in our measurements). `"all"` renders every row at once, so it gets slower as rows increase: with 1,000 rows sorting takes about 0.6 s, and with 10,000 rows the first render and sorting take several seconds. For more than about 1,000 rows, use pagination.
 
+Updating one row redraws only that row, also when `cols` is written inline (a new array and new `onCellBlur` functions on every render). Functions that change what is shown, such as `render` and `applyRowFormatting`, redraw every row when they are new functions, so that the table shows what they return now; define them outside the component or with `useCallback` / `useMemo` when they do not change.
+
+`bench/` holds a browser benchmark that compares versions (see `bench/README.md`).
+
 ##### onConditionChange
 
 `onConditionChange` is called with the current filters and sort, and the rows that pass the filters in the shown order (all pages, not only the current page). It is called when the table first renders and whenever the filters, the sort or the rows change. This is optional.
