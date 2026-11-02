@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useReducer } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import {
   IIndex,
   TRangeReducer,
   IRangeConstraint,
+  TRangeAction,
   TRangeActionContext,
+  TRangeState,
   TReturnRangeReducer,
 } from "./type";
 import { useTableIdGenerator } from "../id";
@@ -234,10 +236,22 @@ type TKeyAction = (typeof KEY_ACTIONS)[number];
 
 export function useRangeReducer(): TReturnRangeReducer {
   const IdGenerator = useTableIdGenerator();
-  const [state, dispatch] = useReducer(rangeReducer, {
+  const [initialState] = useState<TRangeState>(() => ({
     constraint: newRangeConstraint({ maxColIndex: 0, maxRowIndex: 0 }),
     isSelecting: false,
-  });
+  }));
+  const [state, reactDispatch] = useReducer(rangeReducer, initialState);
+
+  // The reducer is pure, so applying each action here as well gives the
+  // state React will draw next, readable at once (see getSelection).
+  const current = useRef(initialState);
+  const dispatch = useMemo(
+    () => (action: TRangeAction) => {
+      current.current = rangeReducer(current.current, action);
+      reactDispatch(action);
+    },
+    []
+  );
 
   const actions = useMemo<TRangeActionContext>(() => {
     const keyActions = Object.fromEntries(
@@ -254,6 +268,12 @@ export function useRangeReducer(): TReturnRangeReducer {
       endSelectRange: () => dispatch({ type: "endSelectRange" }),
       reset: () => dispatch({ type: "reset" }),
       setRange: (payload) => dispatch({ type: "setRange", payload }),
+      getSelection: () => {
+        const selection = current.current;
+        return selection.isSelecting
+          ? { start: selection.start, end: selection.end }
+          : null;
+      },
     };
   }, []);
 

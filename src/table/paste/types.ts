@@ -8,6 +8,16 @@ export type TPasteError = {
 
 export type TPasteReducerReturn = {
   onPaste: (pasteData: string[][]) => void;
+  /**
+   * Empties the selected cells that can be empty. Returns false when it
+   * cannot run (no onUpdateRow, or nothing selected).
+   */
+  emptySelection: () => boolean;
+  /**
+   * Copies the top row of the selection to the rows below it. Returns false
+   * when it cannot run (no onUpdateRow, or one row selected).
+   */
+  fillDown: () => boolean;
 };
 
 /** onUpdateRow as the table calls it inside, where rows have no own type. */
