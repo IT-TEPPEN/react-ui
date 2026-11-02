@@ -3,9 +3,11 @@ import {
   IIndex,
   TRangeReducer,
   IRangeConstraint,
+  TRangeActionContext,
   TReturnRangeReducer,
 } from "./type";
 import { useTableIdGenerator } from "../id";
+import { measureCell, measureRange, TBox } from "./measure";
 
 function newRangeConstraint(props: {
   maxColIndex: number;
@@ -44,56 +46,39 @@ function equalIndex(a: IIndex, b: IIndex): boolean {
   return a.rowIndex === b.rowIndex && a.colIndex === b.colIndex;
 }
 
-const MOVE_ACTION = {
-  UP: { deltaRow: -1, deltaCol: 0 },
-  DOWN: { deltaRow: 1, deltaCol: 0 },
-  LEFT: { deltaRow: 0, deltaCol: -1 },
-  RIGHT: { deltaRow: 0, deltaCol: 1 },
+/** Where a key moves a cell to (before it is kept inside the table). */
+const STEPS = {
+  Up: (i: IIndex) => ({ rowIndex: i.rowIndex - 1, colIndex: i.colIndex }),
+  Down: (i: IIndex) => ({ rowIndex: i.rowIndex + 1, colIndex: i.colIndex }),
+  Left: (i: IIndex) => ({ rowIndex: i.rowIndex, colIndex: i.colIndex - 1 }),
+  Right: (i: IIndex) => ({ rowIndex: i.rowIndex, colIndex: i.colIndex + 1 }),
+  Top: (i: IIndex) => ({ rowIndex: 0, colIndex: i.colIndex }),
+  Bottom: (i: IIndex, c: IRangeConstraint) => ({
+    rowIndex: c.maxRowIndex,
+    colIndex: i.colIndex,
+  }),
+  LeftEnd: (i: IIndex) => ({ rowIndex: i.rowIndex, colIndex: 0 }),
+  RightEnd: (i: IIndex, c: IRangeConstraint) => ({
+    rowIndex: i.rowIndex,
+    colIndex: c.maxColIndex,
+  }),
 } as const;
 
-type TMoveAction = keyof typeof MOVE_ACTION;
+type TStep = keyof typeof STEPS;
 
-function moveIndex({
-  index,
-  direction,
-  constraint,
-}: {
-  index: IIndex;
-  direction: TMoveAction;
-  constraint: IRangeConstraint;
-}): IIndex {
-  const { deltaRow, deltaCol } = MOVE_ACTION[direction];
-
-  const newRow = index.rowIndex + deltaRow;
-  const newCol = index.colIndex + deltaCol;
-
-  return newIndex({
-    rowIndex: newRow,
-    colIndex: newCol,
-    constraint,
-  });
+function stepIndex(index: IIndex, step: TStep, constraint: IRangeConstraint) {
+  return newIndex({ ...STEPS[step](index, constraint), constraint });
 }
 
 export const rangeReducer: TRangeReducer = (state, action) => {
   switch (action.type) {
-    /**
-     * Actionが"setMax"の場合の説明:
-     * - Actionのtypeが"setMax"の場合、選択範囲の最大値を設定します。
-     * - payloadのmaxRowIndexとmaxColIndexが範囲外の場合、OutOfRangeErrorをスローします。
-     * - 範囲内の場合、constraintを新しい範囲制約に設定します。
-     */
     case "setMax":
       return {
         ...state,
         constraint: newRangeConstraint(action.payload),
       };
 
-    /**
-     * Actionが"start"の場合の説明:
-     * - Actionのtypeが"start"の場合、選択範囲の開始位置を設定します。
-     * - payloadのrowIndexとcolIndexが範囲外の場合、OutOfRangeErrorをスローします。
-     * - 範囲内の場合、isSelectingをtrueに設定し、startとendの位置をpayloadの位置に設定します。
-     */
+    // Mouse down on a cell: a new selection of that cell.
     case "startSelectRange": {
       const startIndex = newIndex({
         rowIndex: action.payload.rowIndex,
@@ -119,6 +104,7 @@ export const rangeReducer: TRangeReducer = (state, action) => {
       };
     }
 
+    // Dragging: the end follows the mouse.
     case "moveSelectRange": {
       if (!state.isSelecting || !state.inProgress) {
         return state;
@@ -140,13 +126,7 @@ export const rangeReducer: TRangeReducer = (state, action) => {
       };
     }
 
-    /**
-     * Actionが"end"の場合の説明:
-     * - Actionのtypeが"end"の場合、選択範囲の終了位置を設定します。
-     * - payloadのrowIndexとcolIndexが範囲外の場合、OutOfRangeErrorをスローします。
-     * - 範囲内の場合、endの位置をpayloadの位置に設定します。
-     * - この場合、isSelectingはtrueのままです。
-     */
+    // Mouse up: the selection stays.
     case "endSelectRange": {
       if (!state.isSelecting || !state.inProgress) {
         return state;
@@ -158,502 +138,67 @@ export const rangeReducer: TRangeReducer = (state, action) => {
       };
     }
 
-    /**
-     * Actionが"moveUp"の場合の説明:
-     * - Actionのtypeが"moveUp"の場合、選択範囲を上に移動します。
-     * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
-     * - 移動後の位置がstartとendが同じ場合、stateをそのまま返します。
-     * - それ以外の場合、endの位置を1つ上に移動します。
-     */
-    case "moveUp": {
-      if (!state.isSelecting) {
-        return state;
-      }
-
-      const startIndex = moveIndex({
-        index: state.start,
-        direction: "UP",
-        constraint: state.constraint,
-      });
-
-      if (
-        equalIndex(startIndex, state.start) &&
-        equalIndex(startIndex, state.end)
-      ) {
-        return state;
-      }
-
-      return {
-        ...state,
-        start: startIndex,
-        end: startIndex,
-      };
-    }
-
-    /**
-     * Actionが"moveDown"の場合の説明:
-     * - Actionのtypeが"moveDown"の場合、選択範囲を下に移動します。
-     * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
-     * - 移動後の位置がstartとendが同じ場合、stateをそのまま返します。
-     * - それ以外の場合、endの位置を1つ下に移動します。
-     */
-    case "moveDown": {
-      if (!state.isSelecting) {
-        return state;
-      }
-
-      const startIndex = moveIndex({
-        index: state.start,
-        direction: "DOWN",
-        constraint: state.constraint,
-      });
-
-      if (
-        equalIndex(startIndex, state.start) &&
-        equalIndex(startIndex, state.end)
-      ) {
-        return state;
-      }
-
-      return {
-        ...state,
-        start: startIndex,
-        end: startIndex,
-      };
-    }
-
-    /**
-     * Actionが"moveLeft"の場合の説明:
-     * - Actionのtypeが"moveLeft"の場合、選択範囲を左に移動します。
-     * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
-     * - 移動後の位置がstartとendが同じ場合、stateをそのまま返します。
-     * - それ以外の場合、endの位置を1つ左に移動します。
-     */
-    case "moveLeft": {
-      if (!state.isSelecting) {
-        return state;
-      }
-
-      const startIndex = moveIndex({
-        index: state.start,
-        direction: "LEFT",
-        constraint: state.constraint,
-      });
-
-      if (
-        equalIndex(startIndex, state.start) &&
-        equalIndex(startIndex, state.end)
-      ) {
-        return state;
-      }
-
-      return {
-        ...state,
-        start: startIndex,
-        end: startIndex,
-      };
-    }
-
-    /**
-     * Actionが"moveRight"の場合の説明:
-     * - Actionのtypeが"moveRight"の場合、選択範囲を右に移動します。
-     * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
-     * - 移動後の位置がstartとendが同じ場合、stateをそのまま返します。
-     * - それ以外の場合、endの位置を1つ右に移動します。
-     */
-    case "moveRight": {
-      if (!state.isSelecting) {
-        return state;
-      }
-
-      const startIndex = moveIndex({
-        index: state.start,
-        direction: "RIGHT",
-        constraint: state.constraint,
-      });
-
-      if (
-        equalIndex(startIndex, state.start) &&
-        equalIndex(startIndex, state.end)
-      ) {
-        return state;
-      }
-
-      return {
-        ...state,
-        start: startIndex,
-        end: startIndex,
-      };
-    }
-
-    /**
-     * Actionが"moveTop"の場合の説明:
-     * - Actionのtypeが"moveTop"の場合、選択範囲を一番上に移動します。
-     * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
-     * - 移動後の位置がstartとendが同じ場合、stateをそのまま返します。
-     * - それ以外の場合、startとendの位置を一番上に設定します。
-     */
-    case "moveTop": {
-      if (!state.isSelecting) {
-        return state;
-      }
-
-      const startIndex = newIndex({
-        rowIndex: 0,
-        colIndex: state.start.colIndex,
-        constraint: state.constraint,
-      });
-
-      if (
-        equalIndex(startIndex, state.start) &&
-        equalIndex(startIndex, state.end)
-      ) {
-        return state;
-      }
-
-      return {
-        ...state,
-        start: startIndex,
-        end: startIndex,
-      };
-    }
-
-    /**
-     * Actionが"moveBottom"の場合の説明:
-     * - Actionのtypeが"moveBottom"の場合、選択範囲を一番下に移動します。
-     * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
-     * - 移動後の位置がstartとendが同じ場合、stateをそのまま返します。
-     * - それ以外の場合、startとendの位置を一番下に設定します。
-     */
-    case "moveBottom": {
-      if (!state.isSelecting) {
-        return state;
-      }
-
-      const startIndex = newIndex({
-        rowIndex: state.constraint.maxRowIndex,
-        colIndex: state.start.colIndex,
-        constraint: state.constraint,
-      });
-
-      if (
-        equalIndex(startIndex, state.start) &&
-        equalIndex(startIndex, state.end)
-      ) {
-        return state;
-      }
-
-      return {
-        ...state,
-        start: startIndex,
-        end: startIndex,
-      };
-    }
-
-    /**
-     * Actionが"moveRightEnd"の場合の説明:
-     * - Actionのtypeが"moveRightEnd"の場合、選択範囲を一番右に移動します。
-     * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
-     * - 移動後の位置がstartとendが同じ場合、stateをそのまま返します。
-     * - それ以外の場合、startとendの位置を一番右に設定します。
-     */
-    case "moveLeftEnd": {
-      if (!state.isSelecting) {
-        return state;
-      }
-
-      const startIndex = newIndex({
-        rowIndex: state.start.rowIndex,
-        colIndex: 0,
-        constraint: state.constraint,
-      });
-
-      if (
-        equalIndex(startIndex, state.start) &&
-        equalIndex(startIndex, state.end)
-      ) {
-        return state;
-      }
-
-      return {
-        ...state,
-        start: startIndex,
-        end: startIndex,
-      };
-    }
-
-    /**
-     * Actionが"moveRightEnd"の場合の説明:
-     * - Actionのtypeが"moveRightEnd"の場合、選択範囲を一番右に移動します。
-     * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
-     * - 移動後の位置がstartとendが同じ場合、stateをそのまま返します。
-     * - それ以外の場合、startとendの位置を一番右に設定します。
-     */
+    // Arrow keys (with Ctrl: to the edge): select the one cell next to
+    // the start of the selection.
+    case "moveUp":
+    case "moveDown":
+    case "moveLeft":
+    case "moveRight":
+    case "moveTop":
+    case "moveBottom":
+    case "moveLeftEnd":
     case "moveRightEnd": {
       if (!state.isSelecting) {
         return state;
       }
 
-      const startIndex = newIndex({
-        rowIndex: state.start.rowIndex,
-        colIndex: state.constraint.maxColIndex,
-        constraint: state.constraint,
-      });
+      const step = action.type.slice("move".length) as TStep;
+      const index = stepIndex(state.start, step, state.constraint);
 
-      if (
-        equalIndex(startIndex, state.start) &&
-        equalIndex(startIndex, state.end)
-      ) {
+      if (equalIndex(index, state.start) && equalIndex(index, state.end)) {
         return state;
       }
 
       return {
         ...state,
-        start: startIndex,
-        end: startIndex,
+        start: index,
+        end: index,
       };
     }
 
-    /**
-     * Actionが"extendUp"の場合の説明:
-     * - Actionのtypeが"extendUp"の場合、選択範囲を上に拡張します。
-     * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
-     * - 移動後の位置がstartとendが同じ場合、stateをそのまま返します。
-     * - それ以外の場合、endの位置を1つ上に拡張します。
-     */
-    case "extendUp": {
-      if (!state.isSelecting) {
-        return state;
-      }
-
-      const endIndex = moveIndex({
-        index: state.end,
-        direction: "UP",
-        constraint: state.constraint,
-      });
-
-      if (equalIndex(endIndex, state.end)) {
-        return state;
-      }
-
-      return {
-        ...state,
-        end: endIndex,
-      };
-    }
-
-    /**
-     * Actionが"extendDown"の場合の説明:
-     * - Actionのtypeが"extendDown"の場合、選択範囲を下に拡張します。
-     * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
-     * - 移動後の位置がstartとendが同じ場合、stateをそのまま返します。
-     * - それ以外の場合、endの位置を1つ下に拡張します。
-     */
-    case "extendDown": {
-      if (!state.isSelecting) {
-        return state;
-      }
-
-      const endIndex = moveIndex({
-        index: state.end,
-        direction: "DOWN",
-        constraint: state.constraint,
-      });
-
-      if (equalIndex(endIndex, state.end)) {
-        return state;
-      }
-
-      return {
-        ...state,
-        end: endIndex,
-      };
-    }
-
-    /**
-     * Actionが"extendLeft"の場合の説明:
-     * - Actionのtypeが"extendLeft"の場合、選択範囲を左に拡張します。
-     * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
-     * - 移動後の位置がstartとendが同じ場合、stateをそのまま返します。
-     * - それ以外の場合、endの位置を1つ左に拡張します。
-     */
-    case "extendLeft": {
-      if (!state.isSelecting) {
-        return state;
-      }
-
-      const endIndex = moveIndex({
-        index: state.end,
-        direction: "LEFT",
-        constraint: state.constraint,
-      });
-
-      if (equalIndex(endIndex, state.end)) {
-        return state;
-      }
-
-      return {
-        ...state,
-        end: endIndex,
-      };
-    }
-
-    /**
-     * Actionが"extendRight"の場合の説明:
-     * - Actionのtypeが"extendRight"の場合、選択範囲を右に拡張します。
-     * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
-     * - 移動後の位置がstartとendが同じ場合、stateをそのまま返します。
-     *  - それ以外の場合、endの位置を1つ右に拡張します。
-     */
-    case "extendRight": {
-      if (!state.isSelecting) {
-        return state;
-      }
-
-      const endIndex = moveIndex({
-        index: state.end,
-        direction: "RIGHT",
-        constraint: state.constraint,
-      });
-
-      if (equalIndex(endIndex, state.end)) {
-        return state;
-      }
-
-      return {
-        ...state,
-        end: endIndex,
-      };
-    }
-
-    /**
-     * Actionが"extendTop"の場合の説明:
-     * - Actionのtypeが"extendTop"の場合、選択範囲を一番上に拡張します。
-     * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
-     * - 移動後の位置がstartとendが同じ場合、stateをそのまま返します。
-     * - それ以外の場合、endの位置を一番上に拡張します。
-     */
-    case "extendTop": {
-      if (!state.isSelecting) {
-        return state;
-      }
-
-      const endIndex = newIndex({
-        rowIndex: 0,
-        colIndex: state.end.colIndex,
-        constraint: state.constraint,
-      });
-
-      if (equalIndex(endIndex, state.end)) {
-        return state;
-      }
-
-      return {
-        ...state,
-        end: endIndex,
-      };
-    }
-
-    /**
-     * Actionが"extendBottom"の場合の説明:
-     * - Actionのtypeが"extendBottom"の場合、選択範囲を一番下に拡張します。
-     * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
-     * - 移動後の位置がstartとendが同じ場合、stateをそのまま返します。
-     * - それ以外の場合、endの位置を一番下に拡張します。
-     */
-    case "extendBottom": {
-      if (!state.isSelecting) {
-        return state;
-      }
-
-      const endIndex = newIndex({
-        rowIndex: state.constraint.maxRowIndex,
-        colIndex: state.end.colIndex,
-        constraint: state.constraint,
-      });
-
-      if (equalIndex(endIndex, state.end)) {
-        return state;
-      }
-
-      return {
-        ...state,
-        end: endIndex,
-      };
-    }
-
-    /**
-     * Actionが"extendRightEnd"の場合の説明:
-     * - Actionのtypeが"extendRightEnd"の場合、選択範囲を一番右に拡張します。
-     * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
-     * - 移動後の位置がstartとendが同じ場合、stateをそのまま返します。
-     * - それ以外の場合、endの位置を一番右に拡張します。
-     */
-    case "extendLeftEnd": {
-      if (!state.isSelecting) {
-        return state;
-      }
-
-      const endIndex = newIndex({
-        rowIndex: state.end.rowIndex,
-        colIndex: 0,
-        constraint: state.constraint,
-      });
-
-      if (equalIndex(endIndex, state.end)) {
-        return state;
-      }
-
-      return {
-        ...state,
-        end: endIndex,
-      };
-    }
-
-    /**
-     * Actionが"extendRightEnd"の場合の説明:
-     * - Actionのtypeが"extendRightEnd"の場合、選択範囲を一番右に拡張します。
-     * - isSelectingがfalseの場合、InvalidOperationErrorをスローします。
-     * - 移動後の位置がstartとendが同じ場合、stateをそのまま返します。
-     * - それ以外の場合、endの位置を一番右に拡張します。
-     */
+    // Shift + arrow keys (with Ctrl: to the edge): move the end of the
+    // selection, keeping its start.
+    case "extendUp":
+    case "extendDown":
+    case "extendLeft":
+    case "extendRight":
+    case "extendTop":
+    case "extendBottom":
+    case "extendLeftEnd":
     case "extendRightEnd": {
       if (!state.isSelecting) {
         return state;
       }
 
-      const endIndex = newIndex({
-        rowIndex: state.end.rowIndex,
-        colIndex: state.constraint.maxColIndex,
-        constraint: state.constraint,
-      });
+      const step = action.type.slice("extend".length) as TStep;
+      const index = stepIndex(state.end, step, state.constraint);
 
-      if (equalIndex(endIndex, state.end)) {
+      if (equalIndex(index, state.end)) {
         return state;
       }
 
       return {
         ...state,
-        end: endIndex,
+        end: index,
       };
     }
 
-    /**
-     * Actionが"reset"の場合の説明:
-     * - Actionのtypeが"reset"の場合、選択範囲をリセットします。
-     * - isSelectingをfalseに設定します。
-     */
     case "reset":
       return {
         constraint: state.constraint,
         isSelecting: false,
       };
 
-    /**
-     * Actionが"setRange"の場合の説明:
-     * - Actionのtypeが"setRange"の場合、選択範囲を設定します。
-     * - payloadのstartとendの位置を設定します。
-     */
     case "setRange":
       return {
         ...state,
@@ -665,6 +210,28 @@ export const rangeReducer: TRangeReducer = (state, action) => {
   }
 };
 
+// Actions without a payload, one per key the table handles.
+const KEY_ACTIONS = [
+  "moveUp",
+  "moveDown",
+  "moveLeft",
+  "moveRight",
+  "moveTop",
+  "moveBottom",
+  "moveRightEnd",
+  "moveLeftEnd",
+  "extendUp",
+  "extendDown",
+  "extendLeft",
+  "extendRight",
+  "extendTop",
+  "extendBottom",
+  "extendRightEnd",
+  "extendLeftEnd",
+] as const;
+
+type TKeyAction = (typeof KEY_ACTIONS)[number];
+
 export function useRangeReducer(): TReturnRangeReducer {
   const IdGenerator = useTableIdGenerator();
   const [state, dispatch] = useReducer(rangeReducer, {
@@ -672,77 +239,23 @@ export function useRangeReducer(): TReturnRangeReducer {
     isSelecting: false,
   });
 
-  const actions = useMemo(
-    () => ({
-      setMax: (payload: { maxRowIndex: number; maxColIndex: number }) => {
-        dispatch({ type: "setMax", payload });
-      },
-      startSelectRange: (payload: { rowIndex: number; colIndex: number }) => {
-        dispatch({ type: "startSelectRange", payload });
-      },
-      moveSelectRange: (payload: { rowIndex: number; colIndex: number }) => {
-        dispatch({ type: "moveSelectRange", payload });
-      },
-      endSelectRange: () => {
-        dispatch({ type: "endSelectRange" });
-      },
-      moveUp: () => {
-        dispatch({ type: "moveUp" });
-      },
-      moveDown: () => {
-        dispatch({ type: "moveDown" });
-      },
-      moveLeft: () => {
-        dispatch({ type: "moveLeft" });
-      },
-      moveRight: () => {
-        dispatch({ type: "moveRight" });
-      },
-      moveTop: () => {
-        dispatch({ type: "moveTop" });
-      },
-      moveBottom: () => {
-        dispatch({ type: "moveBottom" });
-      },
-      moveRightEnd: () => {
-        dispatch({ type: "moveRightEnd" });
-      },
-      moveLeftEnd: () => {
-        dispatch({ type: "moveLeftEnd" });
-      },
-      extendUp: () => {
-        dispatch({ type: "extendUp" });
-      },
-      extendDown: () => {
-        dispatch({ type: "extendDown" });
-      },
-      extendLeft: () => {
-        dispatch({ type: "extendLeft" });
-      },
-      extendRight: () => {
-        dispatch({ type: "extendRight" });
-      },
-      extendTop: () => {
-        dispatch({ type: "extendTop" });
-      },
-      extendBottom: () => {
-        dispatch({ type: "extendBottom" });
-      },
-      extendRightEnd: () => {
-        dispatch({ type: "extendRightEnd" });
-      },
-      extendLeftEnd: () => {
-        dispatch({ type: "extendLeftEnd" });
-      },
-      reset: () => {
-        dispatch({ type: "reset" });
-      },
-      setRange: (payload: { start: IIndex; end: IIndex }) => {
-        dispatch({ type: "setRange", payload });
-      },
-    }),
-    []
-  );
+  const actions = useMemo<TRangeActionContext>(() => {
+    const keyActions = Object.fromEntries(
+      KEY_ACTIONS.map((type) => [type, () => dispatch({ type })])
+    ) as Record<TKeyAction, () => void>;
+
+    return {
+      ...keyActions,
+      setMax: (payload) => dispatch({ type: "setMax", payload }),
+      startSelectRange: (payload) =>
+        dispatch({ type: "startSelectRange", payload }),
+      moveSelectRange: (payload) =>
+        dispatch({ type: "moveSelectRange", payload }),
+      endSelectRange: () => dispatch({ type: "endSelectRange" }),
+      reset: () => dispatch({ type: "reset" }),
+      setRange: (payload) => dispatch({ type: "setRange", payload }),
+    };
+  }, []);
 
   useEffect(() => {
     const onClickOutOfTable = (e: MouseEvent) => {
@@ -759,83 +272,35 @@ export function useRangeReducer(): TReturnRangeReducer {
     };
   }, []);
 
+  // The selection with where its cells are on screen.
   const exState = useMemo<TReturnRangeReducer["state"]>(() => {
     if (!state.isSelecting) {
       return state;
     }
 
-    const startElement = document.getElementById(
-      IdGenerator.getTableCellId({
-        rowIndex: state.start.rowIndex,
-        columnIndex: state.start.colIndex,
-      })
-    );
-    const endElement = document.getElementById(
-      IdGenerator.getTableCellId({
-        rowIndex: state.end.rowIndex,
-        columnIndex: state.end.colIndex,
-      })
-    );
-    const tableElement = document.getElementById(IdGenerator.getTableId());
+    const startBox = measureCell(IdGenerator, state.start);
+    const endBox = measureCell(IdGenerator, state.end);
+    const rangeBox = measureRange(IdGenerator, state.start, state.end);
 
-    if (!startElement || !endElement || !tableElement) {
+    // The cells are gone (e.g. fewer rows after filtering).
+    if (!startBox || !endBox || !rangeBox) {
       dispatch({ type: "reset" });
       return { isSelecting: false };
     }
 
-    const startRect = startElement.getBoundingClientRect();
-    const endRect = endElement.getBoundingClientRect();
-    const rectTable = tableElement.getBoundingClientRect();
-
-    const adjustSize = {
-      y: rectTable.top - tableElement.scrollTop,
-      x: rectTable.left - tableElement.scrollLeft,
-    };
-
-    const startDivProps = {
-      top: startRect.top - adjustSize.y,
-      left: startRect.left - adjustSize.x,
-      width: startRect.width,
-      height: startRect.height,
-    };
-
-    const endDivProps = {
-      top: endRect.top - adjustSize.y,
-      left: endRect.left - adjustSize.x,
-      width: endRect.width,
-      height: endRect.height,
-    };
+    const toPoint = (index: IIndex, box: TBox) => ({
+      ...index,
+      xStart: box.left,
+      xEnd: box.left + box.width,
+      yStart: box.top,
+      yEnd: box.top + box.height,
+    });
 
     return {
       isSelecting: true,
-      start: {
-        ...state.start,
-        xStart: startDivProps.left,
-        xEnd: startDivProps.left + startDivProps.width,
-        yStart: startDivProps.top,
-        yEnd: startDivProps.top + startDivProps.height,
-      },
-      end: {
-        ...state.end,
-        xStart: endDivProps.left,
-        xEnd: endDivProps.left + endDivProps.width,
-        yStart: endDivProps.top,
-        yEnd: endDivProps.top + endDivProps.height,
-      },
-      rangeBox: {
-        top: Math.min(startDivProps.top, endDivProps.top),
-        left: Math.min(startDivProps.left, endDivProps.left),
-        width:
-          Math.abs(startDivProps.left - endDivProps.left) +
-          (startDivProps.left <= endDivProps.left
-            ? endDivProps.width
-            : startDivProps.width),
-        height:
-          Math.abs(startDivProps.top - endDivProps.top) +
-          (startDivProps.top <= endDivProps.top
-            ? endDivProps.height
-            : startDivProps.height),
-      },
+      start: toPoint(state.start, startBox),
+      end: toPoint(state.end, endBox),
+      rangeBox,
     };
   }, [state]);
 
