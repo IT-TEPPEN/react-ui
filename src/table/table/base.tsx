@@ -119,7 +119,14 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
                 initialConditions={initialFilters}
                 initialMode={props.initialCondition?.filterMode}
               >
-                <SortProvider initialCondition={props.initialCondition?.sort}>
+                <SortProvider
+                  initialSorts={
+                    props.initialCondition?.sorts ??
+                    (props.initialCondition?.sort
+                      ? [props.initialCondition.sort]
+                      : [])
+                  }
+                >
                   <PagenationProvider
                     rowCount={props.rows.length}
                     perPage={pagination?.rowCountPerPage}

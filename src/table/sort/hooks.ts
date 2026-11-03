@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useReducer } from "react";
-import { TReturnSortReducer, TSortReducer } from "./types";
+import { TReturnSortReducer, TSortKey, TSortReducer } from "./types";
 import { DataObject, DataRecord } from "../table/type";
 import { compareText } from "../../share/text/normalize";
 
@@ -20,90 +20,117 @@ function compareValues(a: unknown, b: unknown): number {
   return compareText(String(a), String(b));
 }
 
-const reducer: TSortReducer = (state, action) => {
+const DEFAULT_SORT: TSortKey = { key: "id", asc: true };
+
+export const sortReducer: TSortReducer = (state, action) => {
   switch (action.type) {
-    case "changeKey":
+    case "click": {
+      const { key } = action.payload;
+      const only = state.sorts.length === 1 && state.sorts[0].key === key;
+
+      if (only && state.isUpdatedData) {
+        // The rows changed since the last sort: sort again, same order.
+        return { ...state, isUpdatedData: false, sortTiming: state.sortTiming + 1 };
+      }
       return {
-        key: action.payload.key,
-        asc: true,
+        sorts: [{ key, asc: only ? !state.sorts[0].asc : true }],
         isUpdatedData: false,
         sortTiming: state.sortTiming + 1,
       };
-    case "changeOrder":
-      if (state.isUpdatedData) {
-        return {
-          ...state,
-          isUpdatedData: false,
-          sortTiming: state.sortTiming + 1,
-        };
-      } else {
-        return { ...state, asc: !state.asc, sortTiming: state.sortTiming + 1 };
-      }
+    }
+    case "shiftClick": {
+      const { key } = action.payload;
+      const index = state.sorts.findIndex((sort) => sort.key === key);
+
+      // Not sorted by it yet: add it last. Ascending: make it descending, in
+      // its place. Descending: remove it (the ones after it move up).
+      const sorts =
+        index === -1
+          ? [...state.sorts, { key, asc: true }]
+          : state.sorts[index].asc
+          ? state.sorts.map((sort, i) => (i === index ? { key, asc: false } : sort))
+          : state.sorts.filter((_, i) => i !== index);
+
+      return { sorts, isUpdatedData: false, sortTiming: state.sortTiming + 1 };
+    }
     case "updateData":
       return { ...state, isUpdatedData: true };
   }
 };
 
-export function useSortReducer<T extends DataRecord>(initial?: {
-  key: string;
-  asc?: boolean;
-}): TReturnSortReducer<T> {
-  const [state, dispatch] = useReducer(reducer, {
-    key: initial?.key ?? "id",
-    asc: initial?.asc ?? true,
+/** Removes later conditions on a column that is already sorted by. */
+function uniqueSorts(sorts: { key: string; asc?: boolean }[]): TSortKey[] {
+  const seen = new Set<string>();
+  const result: TSortKey[] = [];
+  for (const sort of sorts) {
+    if (seen.has(sort.key)) continue;
+    seen.add(sort.key);
+    result.push({ key: sort.key, asc: sort.asc ?? true });
+  }
+  return result;
+}
+
+export function useSortReducer<T extends DataRecord>(
+  initial: { key: string; asc?: boolean }[] = []
+): TReturnSortReducer<T> {
+  const [state, dispatch] = useReducer(sortReducer, initial, (sorts) => ({
+    sorts: uniqueSorts(sorts),
     isUpdatedData: false,
     sortTiming: 0,
-  });
+  }));
 
-  const changeKey = (key: string) => {
-    dispatch({ type: "changeKey", payload: { key } });
-  };
-
-  const changeOrder = () => {
-    dispatch({ type: "changeOrder" });
-  };
-
-  const updatedData = () => {
-    dispatch({ type: "updateData" });
-  };
+  const sorts = state.sorts.length > 0 ? state.sorts : [DEFAULT_SORT];
 
   const sort = useCallback(
     <U extends DataRecord>(
       rows: DataObject<U>[],
-      getValue: (row: DataObject<U>) => unknown = (row) => row[state.key]
-    ) =>
-      [...rows].sort((rowA, rowB) => {
-        const a = getValue(rowA);
-        const b = getValue(rowB);
+      getValues: (((row: DataObject<U>) => unknown) | undefined)[] = []
+    ) => {
+      const conditions = sorts.map(({ key, asc }, i) => ({
+        asc,
+        getValue: getValues[i] ?? ((row: DataObject<U>) => row[key]),
+      }));
 
-        // Empty values stay at the end in both orders.
-        if (isEmpty(a) && isEmpty(b)) return 0;
-        if (isEmpty(a)) return 1;
-        if (isEmpty(b)) return -1;
+      return [...rows].sort((rowA, rowB) => {
+        for (const { asc, getValue } of conditions) {
+          const a = getValue(rowA);
+          const b = getValue(rowB);
 
-        const result = compareValues(a, b);
-        return state.asc ? result : -result;
-      }),
-    [state.key, state.asc]
+          // Empty values stay at the end in both orders.
+          if (isEmpty(a) && isEmpty(b)) continue;
+          if (isEmpty(a)) return 1;
+          if (isEmpty(b)) return -1;
+
+          const result = compareValues(a, b);
+          if (result !== 0) return asc ? result : -result;
+        }
+        // Equal in every condition: keep their order.
+        return 0;
+      });
+    },
+    [JSON.stringify(sorts)]
   );
 
-  const stateExcludeSortTiming = useMemo(
+  const publicState = useMemo(
     () => ({
-      key: state.key,
-      asc: state.asc,
+      sorts: state.sorts,
+      key: sorts[0].key as keyof T,
+      asc: sorts[0].asc,
       isUpdatedData: state.isUpdatedData,
     }),
-    [state.key, state.asc, state.isUpdatedData]
+    [state.sorts, state.isUpdatedData]
   );
 
   const actions = useMemo(
-    () => ({ changeKey, changeOrder, updatedData, sort }),
+    () => ({
+      click: (key: string) => dispatch({ type: "click", payload: { key } }),
+      shiftClick: (key: string) =>
+        dispatch({ type: "shiftClick", payload: { key } }),
+      updatedData: () => dispatch({ type: "updateData" }),
+      sort,
+    }),
     [sort]
   );
 
-  return {
-    state: stateExcludeSortTiming,
-    actions,
-    sortTiming: state.sortTiming,
-  };
+  return { state: publicState, actions, sortTiming: state.sortTiming };
 }

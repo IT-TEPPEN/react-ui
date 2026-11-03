@@ -118,6 +118,7 @@ describe("onConditionChange", () => {
       filters: [{ key: "age", operator: "lt", value: 30 }],
       filterMode: "and",
       sort: { key: "age", asc: false },
+      sorts: [{ key: "age", asc: false }],
       pagination: { rowCountPerPage: 50, page: 1 },
       columnWidths: {},
       hiddenColumns: [],

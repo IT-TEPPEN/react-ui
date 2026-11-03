@@ -9,6 +9,7 @@ const SortTimingContext = createContext<number>(0);
 
 const SortStateContext = createContext<TReturnSortReducer<DataRecord>["state"]>(
   {
+    sorts: [],
     key: "",
     asc: false,
     isUpdatedData: false,
@@ -18,10 +19,10 @@ const SortStateContext = createContext<TReturnSortReducer<DataRecord>["state"]>(
 const SortActionContext = createContext<
   TReturnSortReducer<DataRecord>["actions"]
 >({
-  changeKey: function (): void {
+  click: function (): void {
     throw new Error("Function not implemented.");
   },
-  changeOrder: function (): void {
+  shiftClick: function (): void {
     throw new Error("Function not implemented.");
   },
   sort: () => [],
@@ -32,9 +33,10 @@ const SortActionContext = createContext<
 
 export function SortProvider(props: {
   children: React.ReactNode;
-  initialCondition?: { key: string; asc?: boolean };
+  /** The sort conditions to start with, in order of priority. */
+  initialSorts?: { key: string; asc?: boolean }[];
 }) {
-  const { state, actions, sortTiming } = useSortReducer(props.initialCondition);
+  const { state, actions, sortTiming } = useSortReducer(props.initialSorts);
   return (
     <SortTimingContext.Provider value={sortTiming}>
       <SortStateContext.Provider value={state}>

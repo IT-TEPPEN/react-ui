@@ -211,7 +211,7 @@ export default App;
 A component that displays a table based on the row and column information passed as arguments. The table component has the following features:
 
 - Pagination function
-- Sorting function (`disableSort` turns it off for a column; columns with `render` need `disableSort: false`, see below)
+- Sorting function (`disableSort` turns it off for a column; columns with `render` need `disableSort: false`, see below). Click a sort button to sort by that column; Shift+click to sort by several columns (see "Sorting by several columns")
 - Filtering function (only when `label` is set in the column information; `disableFilter` turns it off for a column; columns with `render` need `disableFilter: false`)
 
 Sorting compares numbers and dates by value and text in Japanese order (`"2"` before `"10"`, hiragana and katakana together in kana order). Select columns are sorted by their labels. Empty values stay at the end in both orders.
@@ -221,6 +221,20 @@ The `like` / `not like` filters ignore differences between upper and lower case,
 - Checkbox function
 - Paste function
 - Conditional formatting function
+
+#### Sorting by several columns
+
+Click a sort button to sort by that column only (click again to reverse the order). Shift+click adds the column as the next sort condition, so rows are sorted by it where the earlier columns are equal:
+
+| Action | Sort conditions |
+|---|---|
+| Click 部署 | ① 部署 ascending |
+| Shift+click 年齢 | ① 部署 ascending → ② 年齢 ascending |
+| Shift+click 部署 | ① 部署 **descending** → ② 年齢 ascending (stays first) |
+| Shift+click 部署 | ① 年齢 ascending (部署 is removed; the rest move up) |
+| Click 部署 | ① 部署 ascending (a click sorts by one column again) |
+
+With two or more conditions, their priority (1, 2, …) is shown next to the sort icons. Each column is sorted as when sorting by it alone (`sortValue`, the labels of select options), and empty values stay last. The conditions are reported by `onConditionChange` (`sorts`) and restored with `initialCondition.sorts`; `sort` still holds the first one, so existing code keeps working.
 
 #### Keyboard
 
@@ -348,6 +362,7 @@ In `initialCondition`, you can set initial values for each function. This is opt
 ```ts
 type TInitialCondition = {
   sort?: { key: string; asc?: boolean };
+  sorts?: { key: string; asc?: boolean }[]; // several columns, in order of priority (used instead of sort)
   filters?: TFilter[]; // filters applied on the first render
   filterMode?: "and" | "or"; // how filters are combined (default "and")
   columnWidths?: { [key: string]: number }; // column widths to start with (px)
@@ -405,7 +420,8 @@ type TOnConditionChange = (
   condition: {
     filters: TFilter[];
     filterMode: "and" | "or";
-    sort: { key: string; asc: boolean };
+    sort: { key: string; asc: boolean }; // the first sort condition
+    sorts: { key: string; asc: boolean }[]; // every sort condition, in order of priority
     pagination: { rowCountPerPage: number | "all"; page: number };
     columnWidths: { [key: string]: number }; // widths the user set by dragging
     hiddenColumns: string[]; // keys of the columns the user hid
