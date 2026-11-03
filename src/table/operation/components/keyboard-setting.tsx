@@ -5,6 +5,7 @@ import { useEditContext } from "../../edit/provider";
 import { useColumnsContext } from "../../sheet/providers";
 import { useRangeContext } from "../../range/provider";
 import { useCopyActionContext } from "../../copy/provider";
+import { usePasteActionContext } from "../../paste/provider";
 import { useTableIdGenerator } from "../../id";
 import { isComposingKey, isTextEntryTarget } from "../event-target";
 import { setEditorInitialValue } from "../editor-input";
@@ -14,6 +15,7 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
   const edit = useEditContext();
   const range = useRangeContext();
   const { copy } = useCopyActionContext();
+  const { emptySelection, fillDown } = usePasteActionContext();
   const col = useColumnsContext()[range.isSelecting ? range.start.colIndex : 0];
 
   useEffect(() => {
@@ -22,12 +24,15 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
         return;
       }
 
+      // The selection is read with getSelection, not range.isSelecting, so a
+      // key pressed right after another (e.g. Delete after Shift+Arrow) sees
+      // the selection that key made, before the table is drawn again.
       if (edit.isEditing) {
         if (e.key === "Escape") {
           e.preventDefault();
           edit.endEditing();
         }
-      } else if (range.isSelecting && !isTextEntryTarget(e.target)) {
+      } else if (range.getSelection() && !isTextEntryTarget(e.target)) {
         if (e.key === "Enter") {
           e.preventDefault();
           if (e.shiftKey) {
@@ -96,6 +101,9 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
         } else if (e.key === "F2") {
           e.preventDefault();
           edit.startEditing();
+        } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "d") {
+          // Fill down, as in a spreadsheet (and not the browser's bookmark).
+          if (fillDown()) e.preventDefault();
         } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "c") {
           e.preventDefault();
           copy({ enableDeprecatedCopy: options?.enableDeprecatedCopy });
@@ -117,6 +125,15 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
         } else if (e.key === "Backspace" || e.key === "Delete") {
           e.preventDefault();
           e.stopPropagation();
+
+          // Several cells: empty them all. One cell: edit it, starting empty.
+          const selection = range.getSelection();
+          const severalCells =
+            !!selection &&
+            (selection.start.rowIndex !== selection.end.rowIndex ||
+              selection.start.colIndex !== selection.end.colIndex);
+          if (severalCells && emptySelection()) return;
+
           edit.startEditing();
 
           setTimeout(() => {

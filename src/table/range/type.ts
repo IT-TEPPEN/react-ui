@@ -107,6 +107,11 @@ export type TRangeActionContext = {
   extendLeftEnd: () => void;
   reset: () => void;
   setRange: (payload: { start: IIndex; end: IIndex }) => void;
+  /**
+   * The selected cells right now, including changes React has not drawn
+   * yet (e.g. a key pressed just after Shift+Arrow). Null when none.
+   */
+  getSelection: () => { start: IIndex; end: IIndex } | null;
 };
 
 export type TReturnRangeReducer = {

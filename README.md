@@ -232,11 +232,14 @@ Click a cell to select it (drag to select a range). Then:
 | Enter / Shift+Enter | Move down / up | Commit, then move down / up |
 | Tab / Shift+Tab | Move right / left | Commit, then move right / left |
 | F2, or start typing | Start editing (typing Japanese with an IME works too) | |
-| Delete / Backspace | Start editing with an empty value | |
+| Delete / Backspace | One cell: start editing with an empty value. Several cells: empty them (see below) | |
 | Escape | Clear the selection | Cancel the edit |
 | Ctrl+C (Cmd+C) / Ctrl+V (Cmd+V) | Copy / paste the selected range | |
+| Ctrl+D (Cmd+D) | Fill down: copy the top row of the range to the rows below | |
 
 After Enter / Tab, the selection moves only when the value was committed: if it fails the column's `constraints`, the editor stays open.
+
+Emptying several cells (Delete / Backspace) and filling down (Ctrl+D) change many cells at once, like a paste: each changed row is passed to `onUpdateRow`. Without `onUpdateRow`, Delete edits the first cell as before and Ctrl+D does nothing. Only editable columns change. Emptying leaves cells that cannot be empty as they are: number columns, select columns without `allowEmpty`, and text columns whose `minLength` or `pattern` does not accept empty text.
 
 #### Arguments
 

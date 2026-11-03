@@ -4,6 +4,8 @@ import { usePasteReducer } from "./hooks";
 
 const PasteContext = createContext<TPasteReducerReturn>({
   onPaste: () => {},
+  emptySelection: () => false,
+  fillDown: () => false,
 });
 
 export function PasteProvider({

@@ -34,6 +34,7 @@ const RangeActionContext = createContext<TRangeActionContext>({
   extendLeftEnd: NoImplementeFunction,
   reset: NoImplementeFunction,
   setRange: NoImplementeFunction,
+  getSelection: () => null,
 });
 
 export function useRangeStateContext() {
