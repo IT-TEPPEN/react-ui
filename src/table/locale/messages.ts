@@ -22,6 +22,8 @@ export type TMessages = {
   allColumns: string;
   search: {
     selectColumn: string;
+    /** First option while typing a word: search every column for it. */
+    searchEverywhere: (text: string) => string;
     selectCondition: string;
     enterValue: string;
     selectValue: string;
@@ -178,6 +180,7 @@ const ja: TMessages = {
   allColumns: "すべての列",
   search: {
     selectColumn: "絞り込む列を選択",
+    searchEverywhere: (text) => `「${text}」をすべての列から探す`,
     selectCondition: "条件を選択",
     enterValue: "値を入力して Enter",
     selectValue: "値を選択",
@@ -292,6 +295,7 @@ const en: TMessages = {
   allColumns: "All columns",
   search: {
     selectColumn: "Filter by column",
+    searchEverywhere: (text) => `Search all columns for "${text}"`,
     selectCondition: "Choose a condition",
     enterValue: "Type a value and press Enter",
     selectValue: "Choose a value",

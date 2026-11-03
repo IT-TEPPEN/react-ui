@@ -12,15 +12,25 @@ export function OptionsArea() {
   );
   const [position, setPosition] = useState({ top: 0, left: 0 });
 
+  // The first option is chosen until the user moves, so Enter alone picks
+  // it (the list is filtered as the user types).
+  const activeIndex =
+    typeof selectingIndex === "number" &&
+    selectingIndex < (state.isOpen ? state.options.length : 0) &&
+    selectingIndex >= 0
+      ? selectingIndex
+      : 0;
   const selectingValue = state.isOpen
     ? state.options.length === 0
       ? undefined
-      : typeof selectingIndex === "number" &&
-        selectingIndex < state.options.length &&
-        selectingIndex >= 0
-      ? state.options[selectingIndex].value
-      : undefined
+      : state.options[activeIndex].value
     : undefined;
+
+  // Typing filters the list: start again from its first option.
+  const searchText = state.isOpen ? state.searchText : "";
+  useEffect(() => {
+    setSelectingIndex(undefined);
+  }, [searchText]);
 
   useEffect(() => {
     if (state.isOpen) {
@@ -44,36 +54,30 @@ export function OptionsArea() {
   useEffect(() => {
     if (state.isOpen) {
       const handleKeydown = (e: KeyboardEvent) => {
+        // Keys that confirm or cancel IME conversion (e.g. Japanese) are not
+        // meant for the list.
+        if (e.isComposing || e.keyCode === 229) return;
+
         if (e.key === "ArrowDown") {
           e.preventDefault();
-          setSelectingIndex((prev) =>
-            typeof prev === "number"
-              ? Math.min(prev + 1, state.options.length - 1)
-              : 0
+          setSelectingIndex(() =>
+            Math.min(activeIndex + 1, state.options.length - 1)
           );
         } else if (e.key === "ArrowUp") {
           e.preventDefault();
-          setSelectingIndex((prev) =>
-            typeof prev === "number" ? Math.max(prev - 1, 0) : 0
-          );
+          setSelectingIndex(() => Math.max(activeIndex - 1, 0));
         } else if (e.key === "Enter") {
           e.preventDefault();
-          if (typeof selectingIndex === "number") {
-            if (
-              state.options.length === 0 ||
-              state.options.length <= selectingIndex
-            )
-              return;
+          if (state.options.length === 0) return;
 
-            // "" is a valid value (e.g. the option that clears the cell).
-            const value = state.options[selectingIndex].value;
+          // "" is a valid value (e.g. the option that clears the cell).
+          const value = state.options[activeIndex].value;
 
-            if (typeof value !== "string") return;
+          if (typeof value !== "string") return;
 
-            setValue(value);
-            state.onSelect(value);
-            actions.closeOptionsWindow();
-          }
+          setValue(value);
+          state.onSelect(value, state.searchText);
+          actions.closeOptionsWindow();
         } else if (e.key === "Escape") {
           e.preventDefault();
           actions.closeOptionsWindow();
@@ -86,7 +90,7 @@ export function OptionsArea() {
         document.removeEventListener("keydown", handleKeydown);
       };
     }
-  }, [state, selectingIndex, setSelectingIndex, actions]);
+  }, [state, selectingIndex, activeIndex, setSelectingIndex, actions]);
 
   useEffect(() => {
     const searchParentElement = () => {
@@ -183,15 +187,15 @@ export function OptionsArea() {
           className={`hover:bg-[color:var(--teppen-table-hover,#e5e7eb)] px-2 py-1 ${
             typeof selectingValue === "string"
               ? selectingValue === option.value
-                ? "bg-[color:var(--teppen-table-active,#f3f4f6)]"
+                ? "bg-[color:var(--teppen-table-active,rgb(36_89_214/0.1))]"
                 : "bg-[color:var(--teppen-table-bg,#ffffff)]"
               : value === option.value
-              ? "bg-[color:var(--teppen-table-active,#f3f4f6)]"
+              ? "bg-[color:var(--teppen-table-active,rgb(36_89_214/0.1))]"
               : "bg-[color:var(--teppen-table-bg,#ffffff)]"
           }`}
           key={option.value}
           onClick={() => {
-            state.onSelect(option.value);
+            state.onSelect(option.value, state.searchText);
             actions.closeOptionsWindow();
           }}
         >

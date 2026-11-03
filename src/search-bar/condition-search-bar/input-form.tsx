@@ -11,6 +11,7 @@ import { TiDeleteOutline } from "react-icons/ti";
 import { parseNumberText } from "../../share/text/normalize";
 import { isComposingKey } from "../../table/operation/event-target";
 import { useMessages } from "../../table/locale/provider";
+import { KEYWORD_TARGET_KEY } from "../../share/search-operator";
 
 export function SearchBarInputForm(props: {
   size?: "small" | "medium" | "large";
@@ -27,22 +28,44 @@ export function SearchBarInputForm(props: {
   }
 }
 
+// The option that searches every column for the typed word.
+const SEARCH_EVERYWHERE = "teppen:search-everywhere";
+
 function TargetInputForm() {
   const messages = useMessages();
   const { generateId } = useIdGenerator();
   const { targets } = useConditionInputState();
-  const { inputTarget } = useConditionInputAction();
+  const { inputTarget, inputOperator, inputValue } = useConditionInputAction();
+
+  // Typing a word and pressing Enter searches every column for it (when the
+  // table allows it); to filter one column, choose it from the list.
+  const canSearchEverywhere = targets.some((t) => t.key === KEYWORD_TARGET_KEY);
+  const options: Options[] = targets.map((t) => ({ value: t.key, label: t.label }));
+  if (canSearchEverywhere) {
+    options.unshift({
+      value: SEARCH_EVERYWHERE,
+      label: "",
+      fromSearchText: (text: string) =>
+        text.trim() === "" ? null : messages.search.searchEverywhere(text.trim()),
+    });
+  }
 
   return (
     <SelectBox
       id={generateId("TargetInput")}
-      onSelect={(value) => {
+      onSelect={(value, searchText) => {
+        if (value === SEARCH_EVERYWHERE) {
+          inputTarget(KEYWORD_TARGET_KEY);
+          inputOperator("string:like");
+          inputValue({
+            type: "single string",
+            payload: { value: searchText.trim() },
+          });
+          return;
+        }
         inputTarget(value);
       }}
-      options={targets.map((t) => ({
-        value: t.key,
-        label: t.label,
-      }))}
+      options={options}
       placeholder={messages.search.selectColumn}
       no_appearance
       no_icon

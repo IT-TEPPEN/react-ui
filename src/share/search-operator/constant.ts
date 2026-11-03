@@ -10,18 +10,8 @@ export const SELECT = "select";
 export const MULTI_SELECT = "multi select";
 
 export const DEFAULT_SEARCH_OPERATOR = [
-  {
-    key: "string:eq",
-    label: "=",
-    type: "string",
-    inputType: SINGLE_STRING,
-  },
-  {
-    key: "string:neq",
-    label: "≠",
-    type: "string",
-    inputType: SINGLE_STRING,
-  },
+  // Text columns start with "contains": what people expect when they type a
+  // word (an exact match finds nothing for part of a word).
   {
     key: "string:like",
     label: "like",
@@ -31,6 +21,18 @@ export const DEFAULT_SEARCH_OPERATOR = [
   {
     key: "string:not_like",
     label: "not like",
+    type: "string",
+    inputType: SINGLE_STRING,
+  },
+  {
+    key: "string:eq",
+    label: "=",
+    type: "string",
+    inputType: SINGLE_STRING,
+  },
+  {
+    key: "string:neq",
+    label: "≠",
     type: "string",
     inputType: SINGLE_STRING,
   },
