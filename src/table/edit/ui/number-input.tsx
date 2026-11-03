@@ -10,10 +10,16 @@ import {
   TColumnProperty,
   TNumberCellEditingCondition,
 } from "../../table/type";
+import { IIndex } from "../../range/type";
+import { useEditFeedback } from "../feedback";
 
 type TPropsCellInput = {
   col: TColumnProperty<DataRecord> & TNumberCellEditingCondition<DataRecord>;
   row: DataObject<DataRecord>;
+  /** The cell being edited (lit up once saved). */
+  cell: IIndex;
+  /** Called on every change (e.g. to clear an error). */
+  onChangeValue?: () => void;
 };
 
 // Text that can still become a number while typing, e.g. "", "-", "1.", ".5".
@@ -44,17 +50,22 @@ export function NumberCellInput(props: TPropsCellInput) {
   const col = props.col;
   const validate = useColumnValidateContext(col.key);
   const { endEditing } = useEditActionContext();
+  const { markSaved } = useEditFeedback();
   const prevValue = props.row[col.key] as number;
   const [value, setValue] = useState(prevValue.toString());
 
   const updateCellValue = (value: string) => {
     if (col.editable) {
-      col.onCellBlur(col.key, Number(value), props.row, endEditing);
+      col.onCellBlur(col.key, Number(value), props.row, () => {
+        markSaved(props.cell);
+        endEditing();
+      });
     }
   };
 
   return (
     <CellInput
+      inputMode="decimal"
       value={value}
       onChange={(e) => {
         e.preventDefault();
@@ -68,6 +79,7 @@ export function NumberCellInput(props: TPropsCellInput) {
         }
 
         setValue(next);
+        props.onChangeValue?.();
       }}
       onBlur={(e) => {
         e.preventDefault();

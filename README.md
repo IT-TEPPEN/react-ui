@@ -253,6 +253,8 @@ Click a cell to select it (drag to select a range). Then:
 
 After Enter / Tab, the selection moves only when the value was committed: if it fails the column's `constraints`, the editor stays open.
 
+While a cell is edited, the cell itself becomes the input (a blue frame) and the keys to use are shown under it. A saved cell glows for a moment, so it is easy to see what changed. In a select cell, the options open under the cell, with the current one checked; typing filters them. Typing on a read-only column shows "この列は編集できません". The hint and the notice are marked `data-teppen-part="edit-hint"` / `"read-only-note"`, so CSS can hide them.
+
 Emptying several cells (Delete / Backspace) and filling down (Ctrl+D) change many cells at once, like a paste: each changed row is passed to `onUpdateRow`. Without `onUpdateRow`, Delete edits the first cell as before and Ctrl+D does nothing. Only editable columns change. Emptying leaves cells that cannot be empty as they are: number columns, select columns without `allowEmpty`, and text columns whose `minLength` or `pattern` does not accept empty text.
 
 #### Arguments
@@ -482,7 +484,9 @@ type TOnPasteError = (error: {
 
 ##### errorHandler
 
-In `errorHandler`, you can handle values that break a column's `constraints` (when editing a cell or pasting). This is optional; if it is not set, the errors are shown with `window.alert`.
+In `errorHandler`, you can handle values that break a column's `constraints` (when editing a cell or pasting). This is optional.
+
+Without it, an invalid edit is shown in the table: the cell gets a red frame and a short reason under it ("150以下で入力してください"). The value stays so it can be fixed, and Esc puts back the previous value. Invalid pasted values are shown with `window.alert`. With `errorHandler`, the app shows the errors (also for edits); the cell still gets the red frame.
 
 ```ts
 type TErrorHandler = (errors: TErrorValidation[]) => void;
@@ -569,7 +573,13 @@ Colors, borders and corner radius come from CSS variables named `--teppen-table-
 | `--teppen-table-border` | Borders of the table and rows | `#e5e7eb` |
 | `--teppen-table-header-bg` / `--teppen-table-header-text` | Header background / text | `#e5e7eb` / `#4b5563` |
 | `--teppen-table-row-hover` | Row under the mouse | `rgb(107 114 128 / 0.1)` |
-| `--teppen-table-selection-border` / `--teppen-table-selection-bg` | Selected cells | `#6b7280` / `rgb(107 114 128 / 0.1)` |
+| `--teppen-table-selection-border` / `--teppen-table-selection-bg` | Selected cells | `#2459d6` / `rgb(36 89 214 / 0.08)` |
+| `--teppen-table-selection-readonly-border` | A selected cell of a read-only column | `#6b7280` |
+| `--teppen-table-editing-border` | Frame of the cell being edited, and of a select cell's options | `#2459d6` |
+| `--teppen-table-hint-bg` / `--teppen-table-hint-text` | The key hint under the cell being edited | `#111827` / `#ffffff` |
+| `--teppen-table-hint-muted-bg` | The "cannot be edited" notice | `#4b5563` |
+| `--teppen-table-error` / `--teppen-table-error-text` / `--teppen-table-error-bg` | An invalid value: frame and message / message text / cell tint | `#c4312b` / `#ffffff` / `rgb(196 49 43 / 0.06)` |
+| `--teppen-table-saved` | The short glow on a cell that was just saved | `rgb(36 89 214 / 0.18)` |
 | `--teppen-table-accent` / `--teppen-table-accent-text` | Condition chips, chosen values, current page | `#0284c7` (`#2563eb` for the page) / `#ffffff` |
 | `--teppen-table-search-border` | Border of the search bar | `#334155` |
 | `--teppen-table-control-border` | Borders of buttons and select boxes | `#94a3b8` – `#d1d5db` |

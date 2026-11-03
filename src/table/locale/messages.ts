@@ -58,6 +58,16 @@ export type TMessages = {
   rowsPerPage: string;
   /** A rows-per-page choice: 50 -> "50件" / "50", "all" -> "すべて" / "All". */
   rowsPerPageOption: (count: number | "all") => string;
+  /** Shown under the cell being edited. */
+  editHint: { enter: string; tab: string; escape: string };
+  /** Shown with an error under the cell being edited. */
+  escapeToRevert: string;
+  /** In a select cell's options when typing matches none. */
+  noOptions: string;
+  /** Shown when typing on a column that cannot be edited. */
+  readOnlyColumn: string;
+  /** One short line for an invalid value, shown under the cell. */
+  validationShort: (error: TErrorValidation) => string;
   /** Tooltip of the sort button. */
   sortHint: string;
   /** The column selector (see the columnSelector prop). */
@@ -197,6 +207,32 @@ const ja: TMessages = {
   },
   rowsPerPage: "表示件数",
   rowsPerPageOption: (count) => (count === "all" ? "すべて" : `${count}件`),
+  editHint: { enter: "確定", tab: "確定して右へ", escape: "取り消し" },
+  escapeToRevert: "で元に戻す",
+  readOnlyColumn: "この列は編集できません",
+  noOptions: "一致する選択肢がありません",
+  validationShort: (error) => {
+    switch (error.type) {
+      case "STRING_IS_TOO_LONG":
+        return `${error.maxLength}文字以内で入力してください（今 ${error.currentLength}文字）`;
+      case "STRING_IS_TOO_SHORT":
+        return `${error.minLength}文字以上で入力してください（今 ${error.currentLength}文字）`;
+      case "STRING_PATTERN_NOT_MATCH":
+        return `決められた形式で入力してください（${error.pattern}）`;
+      case "NUMBER_IS_TOO_LARGE":
+        return `${error.max}以下で入力してください`;
+      case "NUMBER_IS_TOO_SMALL":
+        return `${error.min}以上で入力してください`;
+      case "NOT_NUMBER":
+        return "数値で入力してください";
+      case "NOT_IN_OPTIONS":
+        return "選択肢にない値です";
+      case "NOT_DATE":
+        return "日付の形式で入力してください";
+      case "NOT_DATETIME":
+        return "日時の形式で入力してください";
+    }
+  },
   sortHint: "クリック：この列で並べ替え／Shift+クリック：並べ替えの条件に追加",
   columnSelector: {
     button: "表示列",
@@ -285,6 +321,32 @@ const en: TMessages = {
   },
   rowsPerPage: "Rows per page",
   rowsPerPageOption: (count) => (count === "all" ? "All" : String(count)),
+  editHint: { enter: "save", tab: "save and go right", escape: "cancel" },
+  escapeToRevert: "to undo",
+  readOnlyColumn: "This column cannot be edited",
+  noOptions: "No matching option",
+  validationShort: (error) => {
+    switch (error.type) {
+      case "STRING_IS_TOO_LONG":
+        return `Use at most ${error.maxLength} characters (now ${error.currentLength})`;
+      case "STRING_IS_TOO_SHORT":
+        return `Use at least ${error.minLength} characters (now ${error.currentLength})`;
+      case "STRING_PATTERN_NOT_MATCH":
+        return `Use the required format (${error.pattern})`;
+      case "NUMBER_IS_TOO_LARGE":
+        return `Enter ${error.max} or less`;
+      case "NUMBER_IS_TOO_SMALL":
+        return `Enter ${error.min} or more`;
+      case "NOT_NUMBER":
+        return "Enter a number";
+      case "NOT_IN_OPTIONS":
+        return "Not one of the options";
+      case "NOT_DATE":
+        return "Enter a date";
+      case "NOT_DATETIME":
+        return "Enter a date and time";
+    }
+  },
   sortHint: "Click: sort by this column / Shift+click: add to the sort",
   columnSelector: {
     button: "Columns",

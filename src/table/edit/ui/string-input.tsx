@@ -10,22 +10,32 @@ import {
   TColumnProperty,
   TStringCellEditingCondition,
 } from "../../table/type";
+import { IIndex } from "../../range/type";
+import { useEditFeedback } from "../feedback";
 
 type TPropsCellInput = {
   col: TColumnProperty<DataRecord> & TStringCellEditingCondition<DataRecord>;
   row: DataObject<DataRecord>;
+  /** The cell being edited (lit up once saved). */
+  cell: IIndex;
+  /** Called on every change (e.g. to clear an error). */
+  onChangeValue?: () => void;
 };
 
 export function StringCellInput(props: TPropsCellInput) {
   const col = props.col;
   const validate = useColumnValidateContext(col.key);
   const { endEditing } = useEditActionContext();
+  const { markSaved } = useEditFeedback();
   const prevValue = props.row[col.key] as string;
   const [value, setValue] = useState(prevValue);
 
   const updateCellValue = (value: string) => {
     if (col.editable) {
-      col.onCellBlur(col.key, value, props.row, endEditing);
+      col.onCellBlur(col.key, value, props.row, () => {
+        markSaved(props.cell);
+        endEditing();
+      });
     }
   };
 
@@ -35,6 +45,7 @@ export function StringCellInput(props: TPropsCellInput) {
       onChange={(e) => {
         e.preventDefault();
         setValue(e.target.value);
+        props.onChangeValue?.();
       }}
       onBlur={(e) => {
         e.preventDefault();

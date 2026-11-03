@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useMemo,
   useRef,
+  useState,
 } from "react";
 import { DataRecord, TTableColumn } from "../table/type";
 import {
@@ -17,6 +18,8 @@ import {
 type TValidates = { [key: string]: TValidateFunction };
 import { useMessages } from "../locale/provider";
 
+type TErrorSink = (errors: TErrorValidation[]) => void;
+
 const ColsContext = createContext<{
   cols: TTableColumn<DataRecord>[];
   validates: TValidates;
@@ -24,6 +27,12 @@ const ColsContext = createContext<{
   cols: [],
   validates: {},
 });
+
+// Where validation errors go while a cell editor is open (see
+// useValidationErrorSink). Returns a function that stops it.
+const ErrorSinkContext = createContext<(sink: TErrorSink) => () => void>(
+  () => () => {}
+);
 
 export function ColumnsProvider<T extends DataRecord>({
   children,
@@ -43,10 +52,24 @@ export function ColumnsProvider<T extends DataRecord>({
     errorHandlerRef.current = errorHandler;
   });
 
+  // The cell editor that is open shows errors in the table. Pastes and other
+  // checks without an editor still use window.alert.
+  const sinkRef = useRef<TErrorSink | null>(null);
+  const [setErrorSink] = useState(() => (sink: TErrorSink) => {
+    sinkRef.current = sink;
+    return () => {
+      if (sinkRef.current === sink) sinkRef.current = null;
+    };
+  });
+
   const validates = useMemo(() => {
     const handleErrors = (errors: TErrorValidation[]) => {
       if (errorHandlerRef.current) {
         errorHandlerRef.current(errors);
+        // The editor still marks the cell (without a message of its own).
+        sinkRef.current?.([]);
+      } else if (sinkRef.current) {
+        sinkRef.current(errors);
       } else {
         alert(messages.validation(errors));
       }
@@ -70,7 +93,25 @@ export function ColumnsProvider<T extends DataRecord>({
     [cols, validates]
   );
 
-  return <ColsContext.Provider value={state}>{children}</ColsContext.Provider>;
+  return (
+    <ColsContext.Provider value={state}>
+      <ErrorSinkContext.Provider value={setErrorSink}>
+        {children}
+      </ErrorSinkContext.Provider>
+    </ColsContext.Provider>
+  );
+}
+
+/**
+ * While the calling editor is mounted, validation errors are passed to
+ * `sink` instead of window.alert: the errors, or [] when the app's
+ * errorHandler has already shown them.
+ */
+export function useValidationErrorSink(sink: TErrorSink) {
+  const setErrorSink = useContext(ErrorSinkContext);
+  const latest = useRef(sink);
+  latest.current = sink;
+  useEffect(() => setErrorSink((errors) => latest.current(errors)), []);
 }
 
 export function useColumnsContext() {

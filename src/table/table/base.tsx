@@ -26,6 +26,7 @@ import { Row } from "../sheet/components";
 import { PasteProvider } from "../paste/provider";
 import { generateFormattingString } from "../libs/conditional-formatting";
 import { Editor } from "../edit/ui/editor";
+import { EditFeedback, EditFeedbackProvider } from "../edit/feedback";
 import { RangeProvider, TestRange } from "../range/provider";
 import { CopyProvider } from "../copy/provider";
 import { ShownRowsProvider } from "../shown-rows/provider";
@@ -138,35 +139,39 @@ export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
                           cols={cols}
                           errorHandler={props.errorHandler}
                         >
-                          <EditProvider>
-                            <TablePropertyProvider>
-                              <RangeProvider>
-                                <ShownRowsProvider>
-                                  <CopyProvider>
-                                    <CopiedMessage />
-                                    <PasteProvider
-                                      onUpdateRowFunction={untyped.onUpdateRow}
-                                      onPasteError={props.onPasteError}
-                                    >
-                                      <KeyboardSetting
-                                        enableDeprecatedCopy={
-                                          props.deprecatedOptions
-                                            ?.enableDeprecatedCopy
+                          <EditFeedbackProvider>
+                            <EditProvider>
+                              <TablePropertyProvider>
+                                <RangeProvider>
+                                  <ShownRowsProvider>
+                                    <CopyProvider>
+                                      <CopiedMessage />
+                                      <PasteProvider
+                                        onUpdateRowFunction={
+                                          untyped.onUpdateRow
                                         }
-                                      />
-                                      <ScrollXPositionProvider>
-                                        <BaseTable
-                                          {...props}
-                                          cols={stableCols}
-                                          visibleCols={cols}
+                                        onPasteError={props.onPasteError}
+                                      >
+                                        <KeyboardSetting
+                                          enableDeprecatedCopy={
+                                            props.deprecatedOptions
+                                              ?.enableDeprecatedCopy
+                                          }
                                         />
-                                      </ScrollXPositionProvider>
-                                    </PasteProvider>
-                                  </CopyProvider>
-                                </ShownRowsProvider>
-                              </RangeProvider>
-                            </TablePropertyProvider>
-                          </EditProvider>
+                                        <ScrollXPositionProvider>
+                                          <BaseTable
+                                            {...props}
+                                            cols={stableCols}
+                                            visibleCols={cols}
+                                          />
+                                        </ScrollXPositionProvider>
+                                      </PasteProvider>
+                                    </CopyProvider>
+                                  </ShownRowsProvider>
+                                </RangeProvider>
+                              </TablePropertyProvider>
+                            </EditProvider>
+                          </EditFeedbackProvider>
                         </ColumnsProvider>
                       </CheckboxStatusProvider>
                     </CheckboxProvider>
@@ -307,6 +312,7 @@ function BaseTable<T extends DataRecord>(
             <TestRange />
             <KeyCatcher />
             <Editor rowMaps={rowMaps} pageRowIds={pageRowIds} />
+            <EditFeedback />
           </Frame>
         </SelectBoxProvider>
       </div>
