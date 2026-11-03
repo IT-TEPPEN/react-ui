@@ -6,6 +6,7 @@ import { useTablePropertyStateContext } from "../table-property/provider";
 import { useTableIdGenerator } from "../id";
 import { useScrollXPosition } from "../header/x-scroll-position";
 import { measureRange } from "./measure";
+import { useColumnsContext } from "../sheet/providers";
 
 const RangeStateContext = createContext<TRangeStateContext>({
   isSelecting: false,
@@ -67,6 +68,7 @@ function EffectSetMax() {
 export function TestRange(props: { isCopied?: boolean }) {
   const IdGenerator = useTableIdGenerator();
   const state = useRangeStateContext();
+  const cols = useColumnsContext();
   // Re-measure while scrolling sideways: pinned cells stay put.
   useScrollXPosition();
 
@@ -95,6 +97,11 @@ export function TestRange(props: { isCopied?: boolean }) {
   }
 
   const { start, end } = state;
+  // One cell of a read-only column: a gray frame, as it cannot be edited.
+  const readOnly =
+    start.rowIndex === end.rowIndex &&
+    start.colIndex === end.colIndex &&
+    !cols[start.colIndex]?.editable;
   const rangeBox = measureRange(IdGenerator, start, end) ?? state.rangeBox;
 
   const clickboxPoint = {
@@ -106,7 +113,12 @@ export function TestRange(props: { isCopied?: boolean }) {
     <>
       <div
         data-teppen-part="selection"
-        className={`absolute z-[3] border border-[color:var(--teppen-table-selection-border,#6b7280)] bg-[color:var(--teppen-table-selection-bg,rgb(107_114_128/0.1))] ${
+        data-read-only={readOnly ? "" : undefined}
+        className={`absolute z-[3] border ${
+          readOnly
+            ? "border-[color:var(--teppen-table-selection-readonly-border,#6b7280)]"
+            : "border-[color:var(--teppen-table-selection-border,#2459d6)] bg-[color:var(--teppen-table-selection-bg,rgb(36_89_214/0.08))]"
+        } ${
           props.isCopied ? "border-dashed" : "border-solid"
         }`}
         style={{

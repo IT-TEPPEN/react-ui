@@ -9,6 +9,7 @@ import { KEY_CATCHER_ATTRIBUTE } from "../event-target";
 import { setEditorInitialValue } from "../editor-input";
 import { useScrollXPosition } from "../../header/x-scroll-position";
 import { measureCell } from "../../range/measure";
+import { useEditFeedback } from "../../edit/feedback";
 
 /**
  * A hidden input placed over the selected cell that holds the focus while a
@@ -27,6 +28,7 @@ export function KeyCatcher() {
   const range = useRangeStateContext();
   const { isEditing } = useEditStateContext();
   const { startEditing } = useEditActionContext();
+  const { showReadOnly } = useEditFeedback();
   const cols = useColumnsContext();
   const ref = useRef<HTMLInputElement>(null);
   const [isComposing, setIsComposing] = useState(false);
@@ -61,7 +63,7 @@ export function KeyCatcher() {
       autoComplete="off"
       tabIndex={-1}
       className={`absolute z-10 px-2 text-[color:var(--teppen-table-text,#111827)] outline-none ${
-        isComposing ? "bg-[color:var(--teppen-table-bg,#ffffff)] border border-[color:var(--teppen-table-selection-border,#6b7280)]" : "opacity-0"
+        isComposing ? "bg-[color:var(--teppen-table-bg,#ffffff)] shadow-[inset_0_0_0_2px_var(--teppen-table-editing-border,#2459d6)]" : "opacity-0"
       }`}
       style={{
         top: box.top,
@@ -78,7 +80,9 @@ export function KeyCatcher() {
         setIsComposing(false);
         e.currentTarget.value = "";
 
-        if (text && col?.editable) {
+        if (text && !col?.editable) {
+          showReadOnly(range.isSelecting ? range.start : { rowIndex: 0, colIndex: 0 });
+        } else if (text) {
           startEditing();
           setTimeout(() => {
             setEditorInitialValue(text, IdGenerator.getEditorId());

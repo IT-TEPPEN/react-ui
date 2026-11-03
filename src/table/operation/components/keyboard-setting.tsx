@@ -6,6 +6,7 @@ import { useColumnsContext } from "../../sheet/providers";
 import { useRangeContext } from "../../range/provider";
 import { useCopyActionContext } from "../../copy/provider";
 import { usePasteActionContext } from "../../paste/provider";
+import { useEditFeedback } from "../../edit/feedback";
 import { useTableIdGenerator } from "../../id";
 import { isComposingKey, isTextEntryTarget } from "../event-target";
 import { setEditorInitialValue } from "../editor-input";
@@ -16,9 +17,20 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
   const range = useRangeContext();
   const { copy } = useCopyActionContext();
   const { emptySelection, fillDown } = usePasteActionContext();
-  const col = useColumnsContext()[range.isSelecting ? range.start.colIndex : 0];
+  const cols = useColumnsContext();
+  const col = cols[range.isSelecting ? range.start.colIndex : 0];
+  const { showReadOnly } = useEditFeedback();
 
   useEffect(() => {
+    // Whether the selected cell can be edited; if not, say so by the cell.
+    const canEditSelected = () => {
+      const selection = range.getSelection();
+      if (!selection) return false;
+      if (cols[selection.start.colIndex]?.editable) return true;
+      showReadOnly(selection.start);
+      return false;
+    };
+
     const listener = (e: KeyboardEvent) => {
       if (isComposingKey(e)) {
         return;
@@ -100,7 +112,7 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
           }
         } else if (e.key === "F2") {
           e.preventDefault();
-          edit.startEditing();
+          if (canEditSelected()) edit.startEditing();
         } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "d") {
           // Fill down, as in a spreadsheet (and not the browser's bookmark).
           if (fillDown()) e.preventDefault();
@@ -117,6 +129,7 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
         ) {
           e.preventDefault();
           e.stopPropagation();
+          if (!canEditSelected()) return;
           edit.startEditing();
 
           setTimeout(() => {
@@ -134,6 +147,7 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
               selection.start.colIndex !== selection.end.colIndex);
           if (severalCells && emptySelection()) return;
 
+          if (!canEditSelected()) return;
           edit.startEditing();
 
           setTimeout(() => {
@@ -148,7 +162,7 @@ export function KeyboardSetting(options?: { enableDeprecatedCopy?: boolean }) {
     return () => {
       document.removeEventListener("keydown", listener);
     };
-  }, [range, edit.isEditing]);
+  }, [range, edit.isEditing, cols]);
 
   // After a cell is committed with Enter / Tab, move the selection once
   // editing has actually ended.

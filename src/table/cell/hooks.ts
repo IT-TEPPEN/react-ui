@@ -51,17 +51,24 @@ export function useCell(id: string, row: DataObject<DataRecord>) {
       return;
     }
 
+    // Listen for the mouse up now: a quick click (e.g. a trackpad tap) can
+    // release before the timer runs, and a missed release would leave the
+    // selection following the mouse.
+    let started = false;
+    let released = false;
+    const onMouseUp = (e: MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      document.removeEventListener("mouseup", onMouseUp);
+      released = true;
+      if (started) endSelectRange();
+    };
+    document.addEventListener("mouseup", onMouseUp);
+
     setTimeout(() => {
       startSelectRange({ rowIndex, colIndex });
-
-      const onMouseUp = (e: MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        endSelectRange();
-        document.removeEventListener("mouseup", onMouseUp);
-      };
-
-      document.addEventListener("mouseup", onMouseUp);
+      started = true;
+      if (released) endSelectRange();
     }, 0);
   };
 

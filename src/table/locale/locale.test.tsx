@@ -74,9 +74,30 @@ function paste(text: string) {
 }
 
 describe("locale", () => {
-  test("validation alerts are in Japanese by default, worded as before", () => {
+  test("an invalid edit is shown under the cell in Japanese by default", () => {
     const { alert } = setup();
     editName("abcd");
+
+    expect(alert).not.toHaveBeenCalled();
+    expect(
+      document.querySelector('[data-teppen-part="edit-error"]')?.textContent
+    ).toContain("3文字以内で入力してください（今 4文字）");
+  });
+
+  test('an invalid edit is shown in English with locale="en"', () => {
+    const { alert } = setup({ locale: "en" });
+    editName("abcd");
+
+    expect(alert).not.toHaveBeenCalled();
+    expect(
+      document.querySelector('[data-teppen-part="edit-error"]')?.textContent
+    ).toContain("Use at most 3 characters (now 4)");
+  });
+
+  test("invalid pasted values are alerted in Japanese by default, worded as before", () => {
+    const { alert } = setup({ onUpdateRow: jest.fn() });
+    selectCell(0);
+    paste("abcd");
 
     expect(alert).toHaveBeenCalledWith(
       "入力値が不正のため、エラーを確認し修正してください。\n\n" +
@@ -86,9 +107,10 @@ describe("locale", () => {
     );
   });
 
-  test('validation alerts are in English with locale="en"', () => {
-    const { alert } = setup({ locale: "en" });
-    editName("abcd");
+  test('invalid pasted values are alerted in English with locale="en"', () => {
+    const { alert } = setup({ locale: "en", onUpdateRow: jest.fn() });
+    selectCell(0);
+    paste("abcd");
 
     expect(alert).toHaveBeenCalledWith(
       "The value is not valid. Please check the errors and fix it.\n\n" +
