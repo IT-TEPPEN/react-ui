@@ -14,7 +14,7 @@ interface IPropsSelectBox {
   defaultIsOpen?: boolean;
   options: Options[];
   value?: string;
-  onSelect: (value: string) => void;
+  onSelect: (value: string, searchText: string) => void;
   no_appearance?: boolean;
   no_icon?: boolean;
   placeholder?: string;

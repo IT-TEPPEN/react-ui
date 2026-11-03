@@ -215,6 +215,8 @@ A component that displays a table based on the row and column information passed
 - Filtering function (only when `label` is set in the column information; `disableFilter` turns it off for a column; columns with `render` need `disableFilter: false`)
 
 Sorting compares numbers and dates by value and text in Japanese order (`"2"` before `"10"`, hiragana and katakana together in kana order). Select columns are sorted by their labels. Empty values stay at the end in both orders.
+Type a word in the search bar and press Enter to search every column for it: the first option is "「営業」をすべての列から探す" / "Search all columns for …". To filter one column, choose it instead (typing its name puts it first); its conditions follow, with "を含む" / "contains" first for text columns. In each list the first option is chosen, so Enter alone goes on; ↑↓ choose another.
+
 The search bar can also search every column at once ("すべての列" / "All columns", which looks in what each column shows, e.g. option labels), filter a select column by several values (`in` / `not in`), and combine conditions with OR instead of AND (the AND / OR button shown with two or more conditions).
 The `like` / `not like` filters ignore differences between upper and lower case, full-width and half-width characters, and hiragana and katakana (`"tokyo"` matches `"Tokyo"`, `"とうきょう"` matches `"ﾄｳｷｮｳ"`). `=` and `≠` compare the text exactly.
 - Editing function (only when `editable` is true and `onCellBlur` is set in the column information)
@@ -583,7 +585,7 @@ Colors, borders and corner radius come from CSS variables named `--teppen-table-
 | `--teppen-table-accent` / `--teppen-table-accent-text` | Condition chips, chosen values, current page | `#0284c7` (`#2563eb` for the page) / `#ffffff` |
 | `--teppen-table-search-border` | Border of the search bar | `#334155` |
 | `--teppen-table-control-border` | Borders of buttons and select boxes | `#94a3b8` – `#d1d5db` |
-| `--teppen-table-hover` / `--teppen-table-active` | Buttons and options under the mouse / chosen | light grays |
+| `--teppen-table-hover` / `--teppen-table-active` | Buttons and options under the mouse / the chosen option | light gray / `rgb(36 89 214 / 0.1)` |
 | `--teppen-table-muted` | Secondary text (row range, search icon) | `#4b5563` |
 | `--teppen-table-button-bg` / `--teppen-table-button-text` | The "add" button of the search bar | `#334155` / `#ffffff` |
 | `--teppen-table-sort-icon` / `--teppen-table-sort-icon-border` | Sort icon (active / inactive outline) | `#374151` / `#6b7280` |

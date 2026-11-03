@@ -93,7 +93,7 @@ describe("SelectBox", () => {
     const { input, onSelect, key } = setup();
     fireEvent.click(input);
 
-    key("ArrowDown"); // -- 選択解除 --
+    // The first option (-- 選択解除 --) starts chosen.
     key("ArrowDown"); // 東京
     key("ArrowDown"); // 大阪
     key("ArrowUp"); // 東京
@@ -102,14 +102,23 @@ describe("SelectBox", () => {
     expect(onSelect).toHaveBeenCalledWith("tokyo");
   });
 
-  test("the empty option can be chosen with Enter", () => {
+  test("Enter alone chooses the first option (here the empty one)", () => {
     const { input, onSelect, key } = setup("tokyo");
     fireEvent.click(input);
 
-    key("ArrowDown");
     key("Enter");
 
     expect(onSelect).toHaveBeenCalledWith("");
+  });
+
+  test("after typing, Enter chooses the first option that matches", () => {
+    const { input, onSelect, key } = setup();
+    fireEvent.click(input);
+    fireEvent.change(input, { target: { value: "おおさか" } });
+
+    key("Enter");
+
+    expect(onSelect).toHaveBeenCalledWith("osaka");
   });
 
   test("Escape and clicking outside close the options", () => {

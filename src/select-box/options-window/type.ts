@@ -26,6 +26,11 @@ export interface Options {
    * If searchText is undefined, the search will use searchLabel if defined, otherwise it will use label.
    */
   searchText?: string;
+  /**
+   * An option made from the text typed in the box, e.g. "search everything
+   * for 「…」": returns its label, or null to hide it. It is not filtered.
+   */
+  fromSearchText?: (searchText: string) => string | null;
 }
 
 export type OptionsWindowState =
@@ -38,7 +43,7 @@ export type OptionsWindowState =
       options: Options[];
       searchText: string;
       selectingValue?: string;
-      onSelect: (value: string) => void;
+      onSelect: (value: string, searchText: string) => void;
     };
 
 export type OptionsWindowAction =
@@ -47,7 +52,7 @@ export type OptionsWindowAction =
       payload: {
         selectBoxId: string;
         options: Options[];
-        onSelect: (value: string) => void;
+        onSelect: (value: string, searchText: string) => void;
         searchText?: string;
         defaultValue?: string;
       };
@@ -72,7 +77,7 @@ export type TOptionsWindowActionContext = {
   openOptionsWindow: (
     selectBoxId: string,
     options: Options[],
-    onSelect: (value: string) => void,
+    onSelect: (value: string, searchText: string) => void,
     option?: { defaultValue?: string; searchText?: string }
   ) => void;
   setSearchText: (searchText: string) => void;

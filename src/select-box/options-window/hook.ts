@@ -11,9 +11,16 @@ export const useOptionsWindowHook: TOptionsWindowHook = () => {
     if (!state.isOpen) {
       return state;
     } else {
-      return {
-        ...state,
-        options: state.options.filter((option) => {
+      const query = state.searchText.trim().toLowerCase();
+      const options = state.options.flatMap((option) => {
+        if (option.fromSearchText) {
+          const label = option.fromSearchText(state.searchText);
+          return label === null ? [] : [{ ...option, label }];
+        }
+        return [option];
+      });
+      const shown = options.filter((option) => {
+          if (option.fromSearchText) return true;
           if (option.searchText) {
             return option.searchText
               .toLowerCase()
@@ -27,8 +34,16 @@ export const useOptionsWindowHook: TOptionsWindowHook = () => {
               .toLowerCase()
               .includes(state.searchText.toLowerCase());
           }
-        }),
-      };
+        });
+      // An option named exactly as typed comes first (e.g. a column name).
+      const exact = shown.findIndex(
+        (option) =>
+          !option.fromSearchText && option.label.trim().toLowerCase() === query
+      );
+      if (query !== "" && exact > 0) {
+        shown.unshift(...shown.splice(exact, 1));
+      }
+      return { ...state, options: shown };
     }
   }, [state]);
 
@@ -37,7 +52,7 @@ export const useOptionsWindowHook: TOptionsWindowHook = () => {
       openOptionsWindow: (
         selectBoxId: string,
         options: Options[],
-        onSelect: (value: string) => void,
+        onSelect: (value: string, searchText: string) => void,
         option?: { defaultValue?: string; searchText?: string }
       ) => {
         dispatch({
