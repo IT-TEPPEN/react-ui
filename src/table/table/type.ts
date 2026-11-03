@@ -203,7 +203,10 @@ export type TFilter = {
 export type TTableCondition = {
   filters: TFilter[];
   filterMode: "and" | "or";
+  /** The first sort condition (id ascending when there is none). */
   sort: { key: string; asc: boolean };
+  /** Every sort condition, in order of priority. */
+  sorts: { key: string; asc: boolean }[];
   /** Rows per page and the page shown (1 when all rows are shown). */
   pagination: { rowCountPerPage: number | "all"; page: number };
   /** Widths the user set by dragging, by column key (px). */
@@ -236,6 +239,11 @@ export type TPropsTable<T extends DataRecord> = {
   onUpdateRow?: (newRow: DataObject<T>, oldRow: DataObject<T>) => void;
   initialCondition?: {
     sort?: { key: string; asc?: boolean };
+    /**
+     * Sort by several columns, in order of priority. Takes the place of
+     * `sort` when both are given.
+     */
+    sorts?: { key: string; asc?: boolean }[];
     /** Filters applied when the table first renders. */
     filters?: TFilter[];
     /** How the filters are combined. Defaults to "and". */

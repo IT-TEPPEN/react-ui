@@ -24,7 +24,7 @@ export function useTable<T extends DataRecord>(
   const { filter } = useFilterFunctions();
   const { sort, updatedData } = useSortActionContext();
   const sortTiming = useSortTimingContext();
-  const { key: sortKey, asc: sortAsc } = useSortStateContext();
+  const { sorts, key: sortKey, asc: sortAsc } = useSortStateContext();
   const { conditions, mode } = useFilterState();
   const {
     setRowCount,
@@ -93,31 +93,43 @@ export function useTable<T extends DataRecord>(
     });
   }, [checkedIdsKey]);
 
-  // Sort by the column's sortValue if it has one; select columns otherwise
-  // by the labels shown, not the stored values.
-  const sortCol = props.cols.find((c) => c.key === sortKey);
-  const hasSortValue = !!sortCol?.sortValue;
-  const sortLabelsKey =
-    !hasSortValue && sortCol?.type === "select"
-      ? JSON.stringify(sortCol.options.map((o) => [o.value, o.label]))
-      : "";
-  const getSortValue = useMemo(() => {
-    if (hasSortValue) {
-      return (row: DataObject<T>) =>
-        colsRef.current.find((c) => c.key === sortKey)?.sortValue?.(row);
-    }
-    if (sortLabelsKey === "") return undefined;
-
-    const labels = new Map<unknown, string>(JSON.parse(sortLabelsKey));
-    return (row: DataObject<T>) => {
-      const value = row[sortKey as keyof T];
-      return labels.get(value) ?? value;
-    };
-  }, [sortKey, sortLabelsKey, hasSortValue]);
+  // For each sort condition, what to compare: the column's sortValue if it
+  // has one; for select columns the labels shown, not the stored values.
+  // Keyed on content, so cols defined inline do not re-sort.
+  const sortSpecKey = JSON.stringify(
+    sorts.map(({ key }) => {
+      const col = props.cols.find((c) => c.key === key);
+      if (col?.sortValue) return [key, "sortValue"];
+      if (col?.type === "select") {
+        return [key, "labels", col.options.map((o) => [o.value, o.label])];
+      }
+      return [key, "value"];
+    })
+  );
+  const getSortValues = useMemo(
+    () =>
+      (JSON.parse(sortSpecKey) as [string, string, [unknown, string][]?][]).map(
+        ([key, kind, options]) => {
+          if (kind === "sortValue") {
+            return (row: DataObject<T>) =>
+              colsRef.current.find((c) => c.key === key)?.sortValue?.(row);
+          }
+          if (kind === "labels") {
+            const labels = new Map(options);
+            return (row: DataObject<T>) => {
+              const value = row[key as keyof T];
+              return labels.get(value) ?? value;
+            };
+          }
+          return undefined;
+        }
+      ),
+    [sortSpecKey]
+  );
 
   const sortedRows = useMemo(
-    () => sort(filteredRows, getSortValue),
-    [filteredRows, sortTiming, getSortValue]
+    () => sort(filteredRows, getSortValues),
+    [filteredRows, sortTiming, getSortValues]
   );
 
   useEffect(() => {
@@ -143,6 +155,7 @@ export function useTable<T extends DataRecord>(
         filters: conditions.map(fromCondition),
         filterMode: mode,
         sort: { key: String(sortKey), asc: sortAsc },
+        sorts: sorts.map(({ key, asc }) => ({ key, asc })),
         pagination: {
           rowCountPerPage: paginationEnabled ? perPage : "all",
           page: paginationEnabled ? currentPage : 1,
@@ -155,6 +168,7 @@ export function useTable<T extends DataRecord>(
   }, [
     conditions,
     mode,
+    sorts,
     sortKey,
     sortAsc,
     sortedRows,

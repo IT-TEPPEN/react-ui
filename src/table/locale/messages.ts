@@ -58,6 +58,8 @@ export type TMessages = {
   rowsPerPage: string;
   /** A rows-per-page choice: 50 -> "50件" / "50", "all" -> "すべて" / "All". */
   rowsPerPageOption: (count: number | "all") => string;
+  /** Tooltip of the sort button. */
+  sortHint: string;
   /** The column selector (see the columnSelector prop). */
   columnSelector: {
     button: string;
@@ -195,6 +197,7 @@ const ja: TMessages = {
   },
   rowsPerPage: "表示件数",
   rowsPerPageOption: (count) => (count === "all" ? "すべて" : `${count}件`),
+  sortHint: "クリック：この列で並べ替え／Shift+クリック：並べ替えの条件に追加",
   columnSelector: {
     button: "表示列",
     title: "表示する列",
@@ -282,6 +285,7 @@ const en: TMessages = {
   },
   rowsPerPage: "Rows per page",
   rowsPerPageOption: (count) => (count === "all" ? "All" : String(count)),
+  sortHint: "Click: sort by this column / Shift+click: add to the sort",
   columnSelector: {
     button: "Columns",
     title: "Shown columns",
