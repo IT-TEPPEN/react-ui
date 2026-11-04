@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useBrowserLayoutEffect } from "../../share/use-browser-layout-effect";
 import {
   DEFAULT_SEARCH_OPERATOR,
   usableOperatorsFor,
@@ -113,7 +114,7 @@ export function ConditionPanel(props: {
 
   // Open right under the anchor, inside the search bar.
   const [position, setPosition] = useState({ top: 0, left: 0 });
-  useLayoutEffect(() => {
+  useBrowserLayoutEffect(() => {
     const panel = ref.current;
     const root = panel?.offsetParent as HTMLElement | null;
     const anchor = document.getElementById(props.anchorId);

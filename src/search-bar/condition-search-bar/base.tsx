@@ -1,6 +1,7 @@
 "use client";
 
-import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
+import { useBrowserLayoutEffect } from "../../share/use-browser-layout-effect";
 import { SelectBoxProvider } from "../../select-box/provider";
 import { IdGeneratorProvider, useIdGenerator } from "../id-generator";
 import {
@@ -100,7 +101,7 @@ export function SearchBar(props: SearcchBarProps) {
 
   // ---- fitting the folded line ----
   const [width, setWidth] = useState(0);
-  useLayoutEffect(() => {
+  useBrowserLayoutEffect(() => {
     const element = ref.current;
     if (!element) return;
     setWidth(element.clientWidth);
@@ -125,7 +126,7 @@ export function SearchBar(props: SearcchBarProps) {
   const measured = !expanded && fold?.key === foldKey;
 
   // With every condition on the line, see how many fit (before painting).
-  useLayoutEffect(() => {
+  useBrowserLayoutEffect(() => {
     const element = ref.current;
     if (expanded || !element || fold?.key === foldKey) return;
 
