@@ -2,6 +2,7 @@ import { act, cleanup, fireEvent, render, within } from "@testing-library/react"
 import Table from "./base";
 import { TTableColumn } from "./type";
 import { buildKeywordTextGetter } from "../filter-v2/keyword";
+import { addCondition as addConditionInPanel, searchBox, shownOptions as listedOptions } from "../../search-bar/condition-search-bar/test-helpers";
 
 type Row = { owner: string; score: number };
 
@@ -52,15 +53,8 @@ const sortButton = (container: HTMLElement, label: string) =>
 const optionsList = () =>
   document.querySelector('[id="ReactUI:SelectBox:OptionsArea"]') as HTMLElement;
 
-function addCondition(container: HTMLElement, target: string, operator: string, value: string) {
-  fireEvent.click(container.querySelector('input[placeholder="絞り込む列を選択"]')!);
-  fireEvent.click(within(optionsList()).getByText(target));
-  act(() => { jest.runAllTimers(); });
-  fireEvent.click(within(optionsList()).getByText(operator));
-  act(() => { jest.runAllTimers(); });
-  const input = container.querySelector('input[placeholder="値を入力して Enter"]') as HTMLInputElement;
-  fireEvent.change(input, { target: { value } });
-  fireEvent.keyDown(input, { key: "Enter" });
+function addCondition(container: HTMLElement, target: string, choice: string, value: string) {
+  addConditionInPanel(container, target, { choice, value });
 }
 
 describe("sortValue / filterValue", () => {
@@ -91,8 +85,8 @@ describe("sortValue / filterValue", () => {
     );
 
     expect(sortButton(container, "担当")).toBeNull();
-    fireEvent.click(container.querySelector('input[placeholder="絞り込む列を選択"]')!);
-    expect(within(optionsList()).queryByText("担当")).toBeNull();
+    fireEvent.click(searchBox(container));
+    expect(listedOptions()).not.toContain("担当");
   });
 
   test("sortValue also works on a column without render", () => {

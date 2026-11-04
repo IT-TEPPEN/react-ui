@@ -24,6 +24,10 @@ export type TFilterAction =
       };
     }
   | {
+      type: "replace";
+      payload: { index: number; condition: Condition };
+    }
+  | {
       type: "clear";
     }
   | {
@@ -37,6 +41,8 @@ export type TFilterStateContext = TFilterState;
 export type TFilterActionContext = {
   addFilter: (condition: Condition) => void;
   removeFilter: (index: number) => void;
+  /** Puts `condition` in place of the condition at `index` (an edit). */
+  replaceFilter: (index: number, condition: Condition) => void;
   clearFilter: () => void;
   setMode: (mode: TFilterMode) => void;
 };

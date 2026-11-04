@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useReducer } from "react";
-import { SearchInput, Target, TConditionInputHook } from "./type";
+import { Condition, Target, TConditionInputHook } from "./type";
 import { conditionInputReducer } from "./reducer";
 
 export const useConditionInputHook: TConditionInputHook = (
@@ -29,26 +29,23 @@ export const useConditionInputHook: TConditionInputHook = (
       inputTarget: (targetKey: string) => {
         dispatch({ type: "inputTarget", payload: { targetKey } });
       },
-      inputOperator: (operatorKey: string) => {
-        dispatch({ type: "inputOperator", payload: { operatorKey } });
+      editCondition: (index: number, condition: Condition) => {
+        dispatch({ type: "editCondition", payload: { index, condition } });
       },
-      inputValue: (value: SearchInput) => {
-        dispatch({ type: "inputValue", payload: value });
+      applyCondition: (condition: Condition) => {
+        dispatch({ type: "applyCondition", payload: { condition } });
       },
       deleteCondition: (index: number) => {
         dispatch({ type: "deleteCondition", payload: { index } });
+      },
+      clearConditions: () => {
+        dispatch({ type: "clearConditions" });
       },
       reset: () => {
         dispatch({ type: "reset" });
       },
       updateTargets: (targets: Target[]) => {
         dispatch({ type: "updateTargets", payload: { targets } });
-      },
-      removeInputedTarget: () => {
-        dispatch({ type: "removeInputedTarget" });
-      },
-      removeInputedOperator: () => {
-        dispatch({ type: "removeInputedOperator" });
       },
     }),
     []

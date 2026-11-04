@@ -2,6 +2,7 @@ import { act, cleanup, fireEvent, render, within } from "@testing-library/react"
 import Table from "../table/base";
 import { TTableColumn } from "../table/type";
 import { buildKeywordTextGetter } from "./keyword";
+import { addCondition as addConditionInPanel, searchBox, shownOptions as listedOptions } from "../../search-bar/condition-search-bar/test-helpers";
 
 type Row = { owner: string; score: number; link: string };
 
@@ -42,30 +43,23 @@ const renderedIds = (container: HTMLElement) =>
 const optionsList = () =>
   document.querySelector('[id="ReactUI:SelectBox:OptionsArea"]') as HTMLElement;
 
-function addCondition(container: HTMLElement, target: string, operator: string, value: string) {
-  fireEvent.click(container.querySelector('input[placeholder="絞り込む列を選択"]')!);
-  fireEvent.click(within(optionsList()).getByText(target));
-  act(() => { jest.runAllTimers(); });
-  fireEvent.click(within(optionsList()).getByText(operator));
-  act(() => { jest.runAllTimers(); });
-  const input = container.querySelector('input[placeholder="値を入力して Enter"]') as HTMLInputElement;
-  fireEvent.change(input, { target: { value } });
-  fireEvent.keyDown(input, { key: "Enter" });
+function addCondition(container: HTMLElement, target: string, choice: string, value: string) {
+  addConditionInPanel(container, target, { choice, value });
 }
 
 describe("columns with render", () => {
   test("only columns that opt in are offered as filter targets", () => {
     const { container } = render(<Table cols={cols} rows={rows} />);
 
-    fireEvent.click(container.querySelector('input[placeholder="絞り込む列を選択"]')!);
-    const targets = Array.from(optionsList().children).map((el) => el.textContent);
+    fireEvent.click(searchBox(container));
+    const targets = listedOptions();
     expect(targets).toEqual(["すべての列", "点数"]);
   });
 
   test("a column that opts in is filtered by its value", () => {
     const { container } = render(<Table cols={cols} rows={rows} />);
 
-    addCondition(container, "点数", "以上", "80");
+    addCondition(container, "点数", "≥", "80");
     expect(renderedIds(container)).toEqual(["1", "3"]);
   });
 

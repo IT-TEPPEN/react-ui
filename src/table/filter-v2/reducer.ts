@@ -14,6 +14,13 @@ export const filterReducer: TFilterReducer = (state, action) => {
           (_, index) => index !== action.payload.index
         ),
       };
+    case "replace":
+      return {
+        ...state,
+        conditions: state.conditions.map((condition, index) =>
+          index === action.payload.index ? action.payload.condition : condition
+        ),
+      };
     case "clear":
       return {
         ...state,

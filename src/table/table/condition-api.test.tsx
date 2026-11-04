@@ -2,6 +2,7 @@ import { act, cleanup, fireEvent, render, within } from "@testing-library/react"
 import { useState } from "react";
 import Table from "./base";
 import { TPropsTable, TTableColumn, TTableCondition } from "./type";
+import { conditionTexts, addCondition as addConditionInPanel, searchBox, shownOptions as listedOptions } from "../../search-bar/condition-search-bar/test-helpers";
 
 type Row = { name: string; role: string; age: number; joined: Date };
 
@@ -51,7 +52,7 @@ const renderTable = (props: Partial<TPropsTable<Row>> = {}) =>
 
 describe("initialCondition.filters", () => {
   test("applies the filters on the first render and shows them", () => {
-    const { container, getByText } = renderTable({
+    const { container } = renderTable({
       initialCondition: {
         filters: [
           { key: "role", operator: "in", value: ["1", "3"] },
@@ -62,12 +63,15 @@ describe("initialCondition.filters", () => {
     });
 
     expect(renderedIds(container)).toEqual(["1"]);
-    expect(getByText("役割：管理者、ゲスト のいずれか")).toBeDefined();
-    expect(getByText("年齢：25 以上")).toBeDefined();
+    expect(conditionTexts(container)).toEqual([
+      "役割 が 管理者・ゲスト のどれか",
+      "年齢 ≥ 25",
+      "入社日 が 2021/1/1 より前",
+    ]);
   });
 
   test("supports the keyword filter and OR", () => {
-    const { container, getByText } = renderTable({
+    const { container, getByRole } = renderTable({
       initialCondition: {
         filters: [
           { key: "*", operator: "like", value: "げすと" },
@@ -78,8 +82,11 @@ describe("initialCondition.filters", () => {
     });
 
     expect(renderedIds(container)).toEqual(["1", "3"]);
-    expect(getByText("すべての列：げすと を含む")).toBeDefined();
-    expect(getByText("どれかに一致")).toBeDefined();
+    expect(conditionTexts(container)).toEqual([
+      "すべての列 に「げすと」を含む",
+      "名前 が「Taro」",
+    ]);
+    expect(getByRole("button", { name: /どれか満たす/ })).toBeDefined();
   });
 
   test("ignores filters that do not fit, with a warning", () => {
@@ -133,15 +140,7 @@ describe("onConditionChange", () => {
     const last = () => onConditionChange.mock.calls.at(-1)!;
 
     // Add 名前 を含む "ro" with the search bar.
-    fireEvent.click(container.querySelector('input[placeholder="絞り込む列を選択"]')!);
-    const options = () => document.querySelector('[id="ReactUI:SelectBox:OptionsArea"]') as HTMLElement;
-    fireEvent.click(within(options()).getByText("名前"));
-    act(() => { jest.runAllTimers(); });
-    fireEvent.click(within(options()).getByText("を含む"));
-    act(() => { jest.runAllTimers(); });
-    const input = container.querySelector('input[placeholder="値を入力して Enter"]') as HTMLInputElement;
-    fireEvent.change(input, { target: { value: "ro" } });
-    fireEvent.keyDown(input, { key: "Enter" });
+    addConditionInPanel(container, "名前", { value: "ro" });
 
     expect(last()[0].filters).toEqual([{ key: "name", operator: "like", value: "ro" }]);
     expect(last()[1].map((r: { id: string }) => r.id)).toEqual(["1", "2"]);

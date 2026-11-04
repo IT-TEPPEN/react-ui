@@ -1,5 +1,11 @@
 import { act, cleanup, fireEvent, render, within } from "@testing-library/react";
 import Table from "../table/base";
+import {
+  chooseColumn,
+  conditionTexts,
+  panel,
+  searchBox,
+} from "../../search-bar/condition-search-bar/test-helpers";
 import { TPropsTable, TTableColumn } from "../table/type";
 
 type Row = { name: string; dept: string; age: number; joined: Date };
@@ -29,10 +35,9 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
-const optionsList = () =>
-  document.querySelector('[id="ReactUI:SelectBox:OptionsArea"]') as HTMLElement;
-const shownOptions = () =>
-  Array.from(optionsList()?.children ?? []).map((el) => el.textContent);
+// The condition buttons of the open panel.
+const choices = () =>
+  Array.from(panel()!.querySelectorAll("button[aria-pressed]")).map((b) => b.textContent);
 
 const renderTable = (props: Partial<TPropsTable<Row>> = {}) =>
   render(<Table cols={cols} rows={rows} {...props} />);
@@ -52,35 +57,35 @@ describe("wording in English", () => {
       },
     });
 
-    expect(getByText("Name contains ro")).toBeDefined();
-    expect(getByText("Dept is any of Sales, Dev")).toBeDefined();
-    expect(getByText("Age ≥ 20")).toBeDefined();
-    expect(getByText("Joined before 1/1/2024")).toBeDefined();
-    expect(getByText("Name is not empty")).toBeDefined();
-    expect(getByRole("button", { name: "Match all" })).toBeDefined();
+    expect(conditionTexts(container)).toEqual([
+      'Name contains "ro"',
+      "Dept is any of Sales, Dev",
+      "Age ≥ 20",
+      "Joined before 1/1/2024",
+      "Name is not empty",
+    ]);
+    expect(getByRole("button", { name: /Match all/ })).toBeDefined();
     expect(getByText("1–2 of 2")).toBeDefined();
+    expect(searchBox(container).placeholder).toBe("Add a condition");
 
-    fireEvent.click(container.querySelector('input[placeholder="Filter by column"]')!);
-    fireEvent.click(within(optionsList()).getByText("Age"));
-    act(() => { jest.runAllTimers(); });
-    expect(shownOptions()).toEqual(["is", "is not", ">", "<", "≥", "≤"]);
+    chooseColumn(container, "Age");
+    expect(choices()).toEqual(["≥", "≤", "=", "≠", ">", "<"]);
+    expect(panel()!.textContent).toContain("Number");
   });
 
   test("date conditions read as dates", () => {
     const { container } = renderTable({ locale: "en" });
 
-    fireEvent.click(container.querySelector('input[placeholder="Filter by column"]')!);
-    fireEvent.click(within(optionsList()).getByText("Joined"));
-    act(() => { jest.runAllTimers(); });
-    expect(shownOptions()).toEqual([
-      "is", "is not", "after", "before", "on or after", "on or before", "is empty", "is not empty",
+    chooseColumn(container, "Joined");
+    expect(choices()).toEqual([
+      "on or after", "on or before", "on", "not on", "after", "before", "is empty", "is not empty",
     ]);
   });
 });
 
 describe("wording in Japanese (default)", () => {
   test("conditions read as Japanese phrases", () => {
-    const { getByText, getByRole } = renderTable({
+    const { container, getByText, getByRole } = renderTable({
       initialCondition: {
         filters: [
           { key: "dept", operator: "not_in", value: ["d"] },
@@ -90,9 +95,8 @@ describe("wording in Japanese (default)", () => {
       },
     });
 
-    expect(getByText("Dept：Dev のいずれでもない")).toBeDefined();
-    expect(getByText("Joined：2020/1/1 以降")).toBeDefined();
-    expect(getByRole("button", { name: "どれかに一致" })).toBeDefined();
+    expect(conditionTexts(container)).toEqual(["Dept が Dev 以外", "Joined が 2020/1/1 以降"]);
+    expect(getByRole("button", { name: /どれか満たす/ })).toBeDefined();
     expect(getByText("2件中 1〜2件")).toBeDefined();
   });
 });
