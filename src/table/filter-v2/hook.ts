@@ -23,6 +23,9 @@ export const useFilterHook: TFilterHook = (initialConditions, initialMode) => {
       removeFilter: (index: number) => {
         dispatch({ type: "remove", payload: { index } });
       },
+      replaceFilter: (index: number, condition: Condition) => {
+        dispatch({ type: "replace", payload: { index, condition } });
+      },
       clearFilter: () => {
         dispatch({ type: "clear" });
       },

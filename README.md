@@ -215,9 +215,18 @@ A component that displays a table based on the row and column information passed
 - Filtering function (only when `label` is set in the column information; `disableFilter` turns it off for a column; columns with `render` need `disableFilter: false`)
 
 Sorting compares numbers and dates by value and text in Japanese order (`"2"` before `"10"`, hiragana and katakana together in kana order). Select columns are sorted by their labels. Empty values stay at the end in both orders.
-Type a word in the search bar and press Enter to search every column for it: the first option is "「営業」をすべての列から探す" / "Search all columns for …". To filter one column, choose it instead (typing its name puts it first); its conditions follow, with "を含む" / "contains" first for text columns. In each list the first option is chosen, so Enter alone goes on; ↑↓ choose another.
+Type a word in the search bar and press Enter to search every column for it: the first option is "「営業」をすべての列から探す" / "Search all columns for …" (it looks in what each column shows, e.g. option labels). To filter one column, choose it instead (typing its name puts it first; in the list the first option is chosen, so Enter alone picks it). A panel opens under the search bar to set the condition and its value at once:
 
-The search bar can also search every column at once ("すべての列" / "All columns", which looks in what each column shows, e.g. option labels), filter a select column by several values (`in` / `not in`), and combine conditions with OR instead of AND (the AND / OR button shown with two or more conditions).
+| Column | Conditions | Value |
+|---|---|---|
+| Text | を含む / を含まない / と同じ / と違う / 空欄 / 空欄でない | text |
+| Number | ≥ / ≤ / = / ≠ / > / < | a number (full-width digits and "1,000" are fine) |
+| Date / date and time | 以降 / 以前 / の日 / 以外の日 / より後 / より前 / 空欄 | a date (and time) |
+| Select | が / 以外 / 空欄 / 空欄でない | check one or more options |
+
+Enter (or 追加) adds it; Esc closes the panel. Conditions read as words, such as "部署 が 営業部・開発部 のどれか", "年齢 ≥ 30" or "氏名 に「佐」を含む". Click one to change it in the same panel (変更 / 外す); × removes it, and "すべて解除" removes them all. With two or more conditions, "すべて満たす ⇄" switches to "どれか満たす" (AND / OR).
+
+While the table is being looked at, the conditions take one line, and those that do not fit are folded into "ほか N 件", so the table keeps its height. Clicking the search bar, a condition or "ほか N 件" shows them all. On narrow screens the folded line shows only conditions (the first one shortened with "…" if needed); tapping it opens the search bar.
 The `like` / `not like` filters ignore differences between upper and lower case, full-width and half-width characters, and hiragana and katakana (`"tokyo"` matches `"Tokyo"`, `"とうきょう"` matches `"ﾄｳｷｮｳ"`). `=` and `≠` compare the text exactly.
 - Editing function (only when `editable` is true and `onCellBlur` is set in the column information)
 - Checkbox function
@@ -496,7 +505,7 @@ type TErrorHandler = (errors: TErrorValidation[]) => void;
 
 ##### locale
 
-`locale` sets the language of everything the table shows by itself: the search bar (placeholders, condition names such as "を含む" / "contains", the "match all / any" button), the row range under the table, the empty and loading messages, the default `errorHandler` alert, paste error messages, the "copied" notice and the empty option of select cells. `"ja"` (default) or `"en"`.
+`locale` sets the language of everything the table shows by itself: the search bar (placeholders, conditions such as "を含む" / "contains", the "すべて満たす / どれか満たす" switch), the row range under the table, the empty and loading messages, the default `errorHandler` alert, paste error messages, the "copied" notice and the empty option of select cells. `"ja"` (default) or `"en"`.
 
 The condition names in `initialCondition.filters` and `onConditionChange` (`"like"`, `"in"` and so on) do not depend on the locale.
 
@@ -581,6 +590,7 @@ Colors, borders and corner radius come from CSS variables named `--teppen-table-
 | `--teppen-table-hint-bg` / `--teppen-table-hint-text` | The key hint under the cell being edited | `#111827` / `#ffffff` |
 | `--teppen-table-hint-muted-bg` | The "cannot be edited" notice | `#4b5563` |
 | `--teppen-table-error` / `--teppen-table-error-text` / `--teppen-table-error-bg` | An invalid value: frame and message / message text / cell tint | `#c4312b` / `#ffffff` / `rgb(196 49 43 / 0.06)` |
+| `--teppen-table-chip-bg` / `--teppen-table-chip-border` | Conditions in the search bar | `#eef2fb` / `#c9d5f2` |
 | `--teppen-table-saved` | The short glow on a cell that was just saved | `rgb(36 89 214 / 0.18)` |
 | `--teppen-table-accent` / `--teppen-table-accent-text` | Condition chips, chosen values, current page | `#0284c7` (`#2563eb` for the page) / `#ffffff` |
 | `--teppen-table-search-border` | Border of the search bar | `#334155` |

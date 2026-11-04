@@ -1,5 +1,6 @@
 import { act, cleanup, fireEvent, render } from "@testing-library/react";
 import Table from "../../table/table/base";
+import { panel } from "./test-helpers";
 import { TTableColumn, TTableCondition } from "../../table/table/type";
 
 type Row = { name: string; dept: string; age: number };
@@ -82,22 +83,19 @@ test("a word that is a column name chooses that column first", () => {
   expect(options().slice(0, 2)).toEqual(["部署", "「部署」をすべての列から探す"]);
 
   key("Enter");
-  // Now choosing the condition for 部署.
-  expect(bar().textContent).toContain("部署");
-  expect(options()[0]).toBe("と等しい");
+  // Now the panel for 部署 is open.
+  expect(panel()?.getAttribute("aria-label")).toBe("部署");
 });
 
-test("each list starts with its first option chosen, so Enter alone goes on", () => {
-  const { type, key, ids, input } = setup();
+test("Enter alone goes on: the column, then the value in its panel", () => {
+  const { type, key, ids } = setup();
   type("氏名");
-  key("Enter"); // the column
-  key("Enter"); // its first condition: を含む
+  key("Enter"); // the column; its panel opens with を含む chosen
+  const value = panel()!.querySelector("[data-panel-value]") as HTMLInputElement;
+  fireEvent.change(value, { target: { value: "佐" } });
   act(() => {
+    fireEvent.keyDown(value, { key: "Enter" });
     jest.runAllTimers();
-  });
-  fireEvent.change(input(), { target: { value: "佐" } });
-  act(() => {
-    fireEvent.keyDown(input(), { key: "Enter" });
   });
 
   // "を含む": both 佐藤 and 佐々木 match part of their name.
@@ -115,10 +113,19 @@ test("the Enter that confirms Japanese input does not choose an option", () => {
 });
 
 test("text columns list を含む first", () => {
-  const { type, key, options } = setup();
+  const { type, key } = setup();
   type("氏名");
   key("Enter");
-  expect(options().slice(0, 4)).toEqual(["を含む", "を含まない", "と等しい", "と等しくない"]);
+  const choices = Array.from(panel()!.querySelectorAll("button[aria-pressed]"));
+  expect(choices.map((b) => b.textContent)).toEqual([
+    "を含む",
+    "を含まない",
+    "と同じ",
+    "と違う",
+    "空欄",
+    "空欄でない",
+  ]);
+  expect(choices[0].getAttribute("aria-pressed")).toBe("true");
 });
 
 test("without typing, the list shows the columns as before", () => {

@@ -21,25 +21,46 @@ export type TMessages = {
   /** Search bar target that searches every column. */
   allColumns: string;
   search: {
-    selectColumn: string;
+    /** Placeholder of the search box, without / with conditions. */
+    placeholder: string;
+    placeholderMore: string;
     /** First option while typing a word: search every column for it. */
     searchEverywhere: (text: string) => string;
-    selectCondition: string;
-    enterValue: string;
-    selectValue: string;
-    /** Button that adds the values chosen for "is any of" / "is none of". */
-    add: string;
-    /** The AND / OR toggle. */
+    /** Title of the panel for the all-columns search. */
+    everywhereTitle: string;
+    /** How the conditions combine (one button that switches). */
     matchAll: string;
     matchAny: string;
-    /** Explains what clicking the toggle does. */
+    /** Explains what clicking the switch does. */
     modeHint: (mode: "and" | "or") => string;
-    /** Label of an operator, by its key such as "string:like". */
-    operator: (key: string) => string;
-    /** A condition as shown in the search bar. `value` is null when none. */
-    condition: (column: string, operatorKey: string, value: string | null) => string;
+    /** Short name of a condition, on its button in the panel. */
+    choice: (operatorKey: string) => string;
+    /**
+     * What follows the column name in a condition, e.g. " が 営業部" or
+     * " ≥ 30". `values` is empty when the condition has no value.
+     */
+    phrase: (operatorKey: string, values: string[]) => string;
     /** Separator between several values. */
     valueSeparator: string;
+    /** Kind of a column, shown in the panel. */
+    typeName: (type: "string" | "number" | "date" | "datetime" | "select") => string;
+    /** The panel's buttons, hints and messages. */
+    add: string;
+    change: string;
+    remove: string;
+    preview: string;
+    enterKey: string;
+    escapeKey: string;
+    needValue: string;
+    needChoice: string;
+    valuePlaceholder: string;
+    /** "+ N" for conditions folded away, and its accessible name. */
+    more: (count: number) => string;
+    moreLabel: (count: number) => string;
+    clearAll: string;
+    /** Accessible names. */
+    editCondition: string;
+    removeCondition: string;
   };
   /** BCP 47 tag used to format dates in conditions. */
   dateLocale: string;
@@ -82,53 +103,12 @@ export type TMessages = {
   range: (from: number, to: number, total: number) => string;
 };
 
-const JA_OPERATORS: Record<string, string> = {
-  like: "を含む",
-  not_like: "を含まない",
-  eq: "と等しい",
-  neq: "と等しくない",
-  gt: "より大きい",
-  gte: "以上",
-  lt: "より小さい",
-  lte: "以下",
-  "date:gt": "より後",
-  "date:gte": "以降",
-  "date:lt": "より前",
-  "date:lte": "以前",
-  in: "のいずれか",
-  not_in: "のいずれでもない",
-  is_null: "が空欄",
-  is_not_null: "が空欄でない",
-};
+const SYMBOLS: Record<string, string> = { eq: "=", neq: "≠", gt: ">", gte: "≥", lt: "<", lte: "≤" };
 
-const EN_OPERATORS: Record<string, string> = {
-  like: "contains",
-  not_like: "does not contain",
-  eq: "is",
-  neq: "is not",
-  gt: ">",
-  gte: "≥",
-  lt: "<",
-  lte: "≤",
-  "date:gt": "after",
-  "date:gte": "on or after",
-  "date:lt": "before",
-  "date:lte": "on or before",
-  in: "is any of",
-  not_in: "is none of",
-  is_null: "is empty",
-  is_not_null: "is not empty",
-};
-
-// "date:gt" and "datetime:gt" read as dates; other types use the operator
-// name alone ("string:like" -> "like").
-function operatorLabel(labels: Record<string, string>, key: string): string {
+// Splits "date:gte" into its column type and the operator name.
+function splitKey(key: string) {
   const [type, name] = key.split(":");
-  const dateKey = `date:${name}`;
-  if ((type === "date" || type === "datetime") && labels[dateKey]) {
-    return labels[dateKey];
-  }
-  return labels[name] ?? name;
+  return { type, name };
 }
 
 const ja: TMessages = {
@@ -179,24 +159,62 @@ const ja: TMessages = {
   selectPlaceholder: "選択してください",
   allColumns: "すべての列",
   search: {
-    selectColumn: "絞り込む列を選択",
+    placeholder: "言葉で探す、または列を選ぶ",
+    placeholderMore: "条件を追加",
     searchEverywhere: (text) => `「${text}」をすべての列から探す`,
-    selectCondition: "条件を選択",
-    enterValue: "値を入力して Enter",
-    selectValue: "値を選択",
-    add: "追加",
-    matchAll: "すべてに一致",
-    matchAny: "どれかに一致",
+    everywhereTitle: "すべての列から探す",
+    matchAll: "すべて満たす",
+    matchAny: "どれか満たす",
     modeHint: (mode) =>
       mode === "and"
-        ? "すべての条件に一致する行を表示中。押すと、どれかの条件に一致する行を表示します"
-        : "どれかの条件に一致する行を表示中。押すと、すべての条件に一致する行を表示します",
-    operator: (key) => operatorLabel(JA_OPERATORS, key),
-    condition: (column, operatorKey, value) => {
-      const op = operatorLabel(JA_OPERATORS, operatorKey);
-      return value === null ? `${column} ${op}` : `${column}：${value} ${op}`;
+        ? "すべての条件を満たす行を表示中。押すと、どれかの条件を満たす行を表示します"
+        : "どれかの条件を満たす行を表示中。押すと、すべての条件を満たす行を表示します",
+    choice: (key) => {
+      const { type, name } = splitKey(key);
+      if (name === "is_null") return "空欄";
+      if (name === "is_not_null") return "空欄でない";
+      if (type === "string") {
+        return { like: "を含む", not_like: "を含まない", eq: "と同じ", neq: "と違う" }[name] ?? name;
+      }
+      if (type === "select") return name === "in" || name === "eq" ? "が" : "以外";
+      if (type === "date" || type === "datetime") {
+        return { gte: "以降", lte: "以前", eq: "の日", neq: "以外の日", gt: "より後", lt: "より前" }[name] ?? name;
+      }
+      return SYMBOLS[name] ?? name;
     },
-    valueSeparator: "、",
+    phrase: (key, values) => {
+      const { type, name } = splitKey(key);
+      const v = values.join("・");
+      if (name === "is_null") return " が空欄";
+      if (name === "is_not_null") return " が空欄でない";
+      if (type === "string") {
+        return { like: ` に「${v}」を含む`, not_like: ` に「${v}」を含まない`, eq: ` が「${v}」`, neq: ` が「${v}」以外` }[name] ?? ` ${name} ${v}`;
+      }
+      if (type === "select") {
+        if (name === "in" || name === "eq") return values.length > 1 ? ` が ${v} のどれか` : ` が ${v}`;
+        return ` が ${v} 以外`;
+      }
+      if (type === "date" || type === "datetime") {
+        return { gte: ` が ${v} 以降`, lte: ` が ${v} 以前`, eq: ` が ${v}`, neq: ` が ${v} 以外`, gt: ` が ${v} より後`, lt: ` が ${v} より前` }[name] ?? ` ${name} ${v}`;
+      }
+      return ` ${SYMBOLS[name] ?? name} ${v}`;
+    },
+    valueSeparator: "・",
+    typeName: (type) => ({ string: "文字", number: "数値", date: "日付", datetime: "日時", select: "選択肢" })[type],
+    add: "追加",
+    change: "変更",
+    remove: "外す",
+    preview: "この条件：",
+    enterKey: "適用",
+    escapeKey: "閉じる",
+    needValue: "値を入れてください",
+    needChoice: "1つ以上選んでください",
+    valuePlaceholder: "値",
+    more: (count) => `ほか${count}件`,
+    moreLabel: (count) => `ほかの条件${count}件をすべて表示`,
+    clearAll: "すべて解除",
+    editCondition: "クリックで変更",
+    removeCondition: "この条件を外す",
   },
   dateLocale: "ja-JP",
   noData: "データがありません",
@@ -294,24 +312,62 @@ const en: TMessages = {
   selectPlaceholder: "Select...",
   allColumns: "All columns",
   search: {
-    selectColumn: "Filter by column",
+    placeholder: "Search, or choose a column",
+    placeholderMore: "Add a condition",
     searchEverywhere: (text) => `Search all columns for "${text}"`,
-    selectCondition: "Choose a condition",
-    enterValue: "Type a value and press Enter",
-    selectValue: "Choose a value",
-    add: "Add",
+    everywhereTitle: "Search all columns",
     matchAll: "Match all",
     matchAny: "Match any",
     modeHint: (mode) =>
       mode === "and"
         ? "Showing rows that match all conditions. Click to show rows that match any."
         : "Showing rows that match any condition. Click to show rows that match all.",
-    operator: (key) => operatorLabel(EN_OPERATORS, key),
-    condition: (column, operatorKey, value) => {
-      const op = operatorLabel(EN_OPERATORS, operatorKey);
-      return value === null ? `${column} ${op}` : `${column} ${op} ${value}`;
+    choice: (key) => {
+      const { type, name } = splitKey(key);
+      if (name === "is_null") return "is empty";
+      if (name === "is_not_null") return "is not empty";
+      if (type === "string") {
+        return { like: "contains", not_like: "doesn't contain", eq: "is", neq: "is not" }[name] ?? name;
+      }
+      if (type === "select") return name === "in" || name === "eq" ? "is" : "is not";
+      if (type === "date" || type === "datetime") {
+        return { gte: "on or after", lte: "on or before", eq: "on", neq: "not on", gt: "after", lt: "before" }[name] ?? name;
+      }
+      return SYMBOLS[name] ?? name;
+    },
+    phrase: (key, values) => {
+      const { type, name } = splitKey(key);
+      const v = values.join(", ");
+      if (name === "is_null") return " is empty";
+      if (name === "is_not_null") return " is not empty";
+      if (type === "string") {
+        return { like: ` contains "${v}"`, not_like: ` doesn't contain "${v}"`, eq: ` is "${v}"`, neq: ` is not "${v}"` }[name] ?? ` ${name} ${v}`;
+      }
+      if (type === "select") {
+        if (name === "in" || name === "eq") return values.length > 1 ? ` is any of ${v}` : ` is ${v}`;
+        return values.length > 1 ? ` is none of ${v}` : ` is not ${v}`;
+      }
+      if (type === "date" || type === "datetime") {
+        return { gte: ` on or after ${v}`, lte: ` on or before ${v}`, eq: ` on ${v}`, neq: ` not on ${v}`, gt: ` after ${v}`, lt: ` before ${v}` }[name] ?? ` ${name} ${v}`;
+      }
+      return ` ${SYMBOLS[name] ?? name} ${v}`;
     },
     valueSeparator: ", ",
+    typeName: (type) => ({ string: "Text", number: "Number", date: "Date", datetime: "Date and time", select: "Options" })[type],
+    add: "Add",
+    change: "Change",
+    remove: "Remove",
+    preview: "This condition: ",
+    enterKey: "apply",
+    escapeKey: "close",
+    needValue: "Enter a value",
+    needChoice: "Choose at least one",
+    valuePlaceholder: "Value",
+    more: (count) => `+${count} more`,
+    moreLabel: (count) => `Show ${count} more conditions`,
+    clearAll: "Clear all",
+    editCondition: "click to change",
+    removeCondition: "Remove this condition",
   },
   dateLocale: "en-US",
   noData: "No data",

@@ -1,6 +1,16 @@
 import { act, cleanup, fireEvent, render, within } from "@testing-library/react";
 import { useState } from "react";
 import Table from "../../table/table/base";
+import {
+  addCondition,
+  applyPanel,
+  chooseColumn,
+  conditionTexts,
+  panel,
+  searchBox,
+  setPanel,
+  shownOptions,
+} from "./test-helpers";
 import { TTableColumn } from "../../table/table/type";
 
 type Row = { name: string; role: string; age: number };
@@ -44,128 +54,81 @@ const renderedIds = (container: HTMLElement) =>
     tr.getAttribute("data-testid")
   );
 
-const optionsList = () =>
-  document.querySelector('[id="ReactUI:SelectBox:OptionsArea"]') as HTMLElement;
-const shownOptions = () =>
-  Array.from(optionsList()?.children ?? []).map((el) => el.textContent);
-
-function chooseTarget(container: HTMLElement, target: string) {
-  fireEvent.click(
-    container.querySelector('input[placeholder="絞り込む列を選択"]')!
-  );
-  fireEvent.click(within(optionsList()).getByText(target));
-  act(() => {
-    jest.runAllTimers();
-  });
-}
-
-function chooseOperator(operator: string) {
-  fireEvent.click(within(optionsList()).getByText(operator));
-  act(() => {
-    jest.runAllTimers();
-  });
-}
-
-function typeValue(container: HTMLElement, value: string) {
-  const input = container.querySelector(
-    'input[placeholder="値を入力して Enter"]'
-  ) as HTMLInputElement;
-  fireEvent.change(input, { target: { value } });
-  fireEvent.keyDown(input, { key: "Enter" });
-}
-
 describe("keyword search over all columns", () => {
   test('"すべての列" is the first target and offers contains / does not contain', () => {
     const { container } = render(<Table cols={cols} rows={rows} />);
 
-    fireEvent.click(
-      container.querySelector('input[placeholder="絞り込む列を選択"]')!
-    );
+    fireEvent.click(searchBox(container));
     expect(shownOptions()[0]).toBe("すべての列");
 
-    fireEvent.click(within(optionsList()).getByText("すべての列"));
-    act(() => {
-      jest.runAllTimers();
-    });
-    expect(shownOptions()).toEqual(["を含む", "を含まない"]);
+    chooseColumn(container, "すべての列");
+    const choices = within(panel()!)
+      .getAllByRole("button")
+      .filter((b) => b.hasAttribute("aria-pressed"))
+      .map((b) => b.textContent);
+    expect(choices).toEqual(["を含む", "を含まない"]);
   });
 
   test("finds rows by any column, using option labels", () => {
-    const { container, getByText } = render(<Table cols={cols} rows={rows} />);
+    const { container } = render(<Table cols={cols} rows={rows} />);
 
-    chooseTarget(container, "すべての列");
-    chooseOperator("を含む");
-    typeValue(container, "げすと");
+    addCondition(container, "すべての列", { value: "げすと" });
 
-    expect(getByText("すべての列：げすと を含む")).toBeDefined();
+    expect(conditionTexts(container)).toEqual(["すべての列 に「げすと」を含む"]);
     expect(renderedIds(container)).toEqual(["3"]);
   });
 
   test('is called "All columns" with locale="en"', () => {
     const { container } = render(<Table cols={cols} rows={rows} locale="en" />);
 
-    fireEvent.click(
-      container.querySelector('input[placeholder="Filter by column"]')!
-    );
+    fireEvent.click(searchBox(container));
     expect(shownOptions()[0]).toBe("All columns");
   });
 });
 
 describe("in / not in", () => {
   test("filters by several values of a select column", () => {
-    const { container, getByText, getByRole } = render(
-      <Table cols={cols} rows={rows} />
-    );
+    const { container } = render(<Table cols={cols} rows={rows} />);
 
-    chooseTarget(container, "役割");
-    chooseOperator("のいずれか");
+    chooseColumn(container, "役割");
+    // Nothing checked yet: not added.
+    applyPanel();
+    expect(conditionTexts(container)).toEqual([]);
+    expect(within(panel()!).getByRole("alert").textContent).toBe("1つ以上選んでください");
 
-    const ok = getByRole("button", { name: "追加" }) as HTMLButtonElement;
-    expect(ok.disabled).toBe(true);
-
-    fireEvent.click(getByRole("button", { name: "ゲスト" }));
-    fireEvent.click(getByRole("button", { name: "管理者" }));
-    fireEvent.click(getByRole("button", { name: "ユーザー" }));
-    fireEvent.click(getByRole("button", { name: "ユーザー" })); // unselect
-    fireEvent.click(ok);
+    setPanel({ checks: ["ゲスト", "管理者", "ユーザー", "ユーザー"] }); // the last unchecks
+    applyPanel();
 
     // Labels in the order of the options.
-    expect(getByText("役割：管理者、ゲスト のいずれか")).toBeDefined();
+    expect(conditionTexts(container)).toEqual(["役割 が 管理者・ゲスト のどれか"]);
     expect(renderedIds(container)).toEqual(["1", "3"]);
   });
 
   test("not in leaves out the chosen values", () => {
-    const { container, getByRole } = render(<Table cols={cols} rows={rows} />);
+    const { container } = render(<Table cols={cols} rows={rows} />);
 
-    chooseTarget(container, "役割");
-    chooseOperator("のいずれでもない");
-    fireEvent.click(getByRole("button", { name: "管理者" }));
-    fireEvent.click(getByRole("button", { name: "追加" }));
+    addCondition(container, "役割", { choice: "以外", checks: ["管理者"] });
 
+    expect(conditionTexts(container)).toEqual(["役割 が 管理者 以外"]);
     expect(renderedIds(container)).toEqual(["2", "3"]);
   });
 });
 
 describe("AND / OR", () => {
-  test("the toggle appears with two conditions and switches the result", () => {
+  test("the switch appears with two conditions and changes the result", () => {
     const { container, queryByRole, getByRole } = render(
       <Table cols={cols} rows={rows} />
     );
 
-    chooseTarget(container, "名前");
-    chooseOperator("を含む");
-    typeValue(container, "taro");
-    expect(queryByRole("button", { name: "すべてに一致" })).toBeNull();
+    addCondition(container, "名前", { value: "taro" });
+    expect(queryByRole("button", { name: /すべて満たす/ })).toBeNull();
 
-    chooseTarget(container, "年齢");
-    chooseOperator("より小さい");
-    typeValue(container, "25");
+    addCondition(container, "年齢", { choice: "<", value: "25" });
     expect(renderedIds(container)).toEqual([]);
 
-    const toggle = getByRole("button", { name: "すべてに一致" });
-    fireEvent.click(toggle);
+    fireEvent.click(getByRole("button", { name: /すべて満たす/ }));
 
-    expect(toggle.textContent).toBe("どれかに一致");
+    expect(getByRole("button", { name: /どれか満たす/ })).toBeDefined();
     expect(renderedIds(container)).toEqual(["1", "2"]);
   });
 });
@@ -180,14 +143,13 @@ test("a condition being entered survives a re-render with new cols", () => {
   }
   const { container } = render(<Parent />);
 
-  chooseTarget(container, "名前");
+  chooseColumn(container, "名前");
+  setPanel({ value: "jiro" });
   act(() => rerenderParent());
 
-  // Still waiting for the operator of 名前.
-  expect(shownOptions()).toContain("を含む");
-  expect(container.textContent).toContain("名前");
-  chooseOperator("を含む");
-  typeValue(container, "jiro");
+  // The panel for 名前 is still open, with the value typed.
+  expect((panel()!.querySelector("[data-panel-value]") as HTMLInputElement).value).toBe("jiro");
+  applyPanel();
   expect(renderedIds(container)).toEqual(["2"]);
 });
 
@@ -207,14 +169,13 @@ test("options that arrive later do not reset a condition being entered", () => {
       />
     );
   }
-  const { container, getByRole } = render(<Parent />);
+  const { container } = render(<Parent />);
 
-  chooseTarget(container, "役割");
-  chooseOperator("のいずれか");
+  chooseColumn(container, "役割");
   act(() => loadOptions());
 
   // Still choosing values, now with the new option.
-  fireEvent.click(getByRole("button", { name: "ゲスト" }));
-  fireEvent.click(getByRole("button", { name: "追加" }));
+  setPanel({ checks: ["ゲスト"] });
+  applyPanel();
   expect(renderedIds(container)).toEqual(["3"]);
 });

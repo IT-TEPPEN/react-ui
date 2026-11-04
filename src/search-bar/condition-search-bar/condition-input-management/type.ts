@@ -107,71 +107,46 @@ export type TConditionChangeAction =
       payload: {
         index: number;
       };
+    }
+  | {
+      /** An edited condition, in place of the one at `index`. */
+      type: "replace";
+      payload: {
+        index: number;
+        condition: Condition;
+      };
+    }
+  | {
+      type: "clear";
     };
 
-export type TConditionInputState =
+export type TConditionInputState = {
+  targets: Target[];
+  changeAction?: TConditionChangeAction;
+} & (
   | {
-      targets: Target[];
-      changeAction?: TConditionChangeAction;
-    } & (
-      | {
-          status: "waiting for input";
-        }
-      | {
-          status: "inputted target";
-          inputtingCondition: {
-            type: T_DEFAULT_SEARCH_OPERATOR["type"];
-            target: Target;
-          };
-          useableOperators: T_DEFAULT_SEARCH_OPERATOR[];
-        }
-      | {
-          status: "inputted operator";
-          inputtingCondition: {
-            type: T_DEFAULT_SEARCH_OPERATOR["type"];
-            target: Target;
-            operator: T_DEFAULT_SEARCH_OPERATOR;
-          };
-        }
-    );
+      status: "waiting for input";
+    }
+  | {
+      /** The panel is open for one column: adding, or editing a condition. */
+      status: "editing";
+      target: Target;
+      /** The condition being changed, or null for a new one. */
+      editingIndex: number | null;
+      /** Its current value, to fill the panel. */
+      initial?: Condition;
+    }
+);
 
 export type TConditionInputAction =
-  | {
-      type: "inputTarget";
-      payload: {
-        targetKey: string;
-      };
-    }
-  | {
-      type: "inputOperator";
-      payload: {
-        operatorKey: string;
-      };
-    }
-  | {
-      type: "inputValue";
-      payload: SearchInput;
-    }
-  | {
-      type: "deleteCondition";
-      payload: { index: number };
-    }
-  | {
-      type: "reset";
-    }
-  | {
-      type: "updateTargets";
-      payload: { targets: Target[] };
-    }
-  | {
-      type: "removeInputedTarget";
-    }
-  | {
-      type: "removeInputedOperator";
-    }
-  | {
-      type: "executedChangeAction";
-    };
+  | { type: "inputTarget"; payload: { targetKey: string } }
+  | { type: "editCondition"; payload: { index: number; condition: Condition } }
+  | { type: "applyCondition"; payload: { condition: Condition } }
+  | { type: "deleteCondition"; payload: { index: number } }
+  | { type: "clearConditions" }
+  | { type: "reset" }
+  | { type: "updateTargets"; payload: { targets: Target[] } }
+  | { type: "executedChangeAction" };
 
 export type TConditionInputReducer = Reducer<
   TConditionInputState,
@@ -180,22 +155,22 @@ export type TConditionInputReducer = Reducer<
 
 export type TConditionInputStateContext = TConditionInputState;
 export type TConditionInputActionContext = {
+  /** Opens the panel to add a condition on this column. */
   inputTarget: (targetKey: string) => void;
-  inputOperator: (operatorKey: string) => void;
-  inputValue: (value: SearchInput) => void;
+  /** Opens the panel to change the condition at `index`. */
+  editCondition: (index: number, condition: Condition) => void;
+  /** Adds the condition, or puts it in place of the one being edited. */
+  applyCondition: (condition: Condition) => void;
   deleteCondition: (index: number) => void;
+  clearConditions: () => void;
+  /** Closes the panel without a change. */
   reset: () => void;
   updateTargets: (targets: Target[]) => void;
-  removeInputedTarget: () => void;
-  removeInputedOperator: () => void;
 };
 
 export type TConditionInputHook = (
   targets: Target[],
-  onChangeCondition: (action: TConditionChangeAction) => void,
-  options?: {
-    operators?: T_DEFAULT_SEARCH_OPERATOR[];
-  }
+  onChangeCondition: (action: TConditionChangeAction) => void
 ) => {
   state: TConditionInputState;
   actions: TConditionInputActionContext;

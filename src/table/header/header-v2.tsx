@@ -38,7 +38,15 @@ interface IPropsTableHeader<T extends DataRecord> {
 export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
   const idGenerator = useTableIdGenerator();
   const { getColumnWidth, getColumn, checkboxPinned } = useColumnsWidthState();
-  const { conditions, mode, addFilter, removeFilter, setMode } = useFilter();
+  const {
+    conditions,
+    mode,
+    addFilter,
+    removeFilter,
+    replaceFilter,
+    clearFilter,
+    setMode,
+  } = useFilter();
   const messages = useMessages();
   const ref = useScrollXRef();
 
@@ -68,6 +76,12 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
         break;
       case "remove":
         removeFilter(action.payload.index);
+        break;
+      case "replace":
+        replaceFilter(action.payload.index, action.payload.condition);
+        break;
+      case "clear":
+        clearFilter();
         break;
     }
   }, []);
