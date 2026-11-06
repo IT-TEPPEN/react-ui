@@ -28,16 +28,20 @@ The components are styled with Tailwind CSS classes. Choose one of the two ways 
 
 #### Without Tailwind CSS (2.18.0 ～)
 
-Import the CSS file that comes with the library, once in your app (for example in the root layout or the entry file).
+Import the CSS file that comes with the library, once in your app (for example in the root layout or the entry file). Import it **before your own CSS**.
 
 ```js
-import "@teppen/react-ui/dist/style.css";
+import "@teppen/react-ui/dist/style.css"; // first
+import "./app.css"; // then your own CSS
 ```
+
+When a rule of yours and a rule of the library are equally specific, the one loaded later wins. With this order, a rule you give through `className` (for example `.my-table { max-width: 800px }`) wins over the library's own classes on the same element.
 
 - It holds only the styles the components use (about 38 KiB, 6 KiB gzipped).
 - It does not change the rest of your page. Tailwind's reset and variables apply inside the components only.
 - Your own rules for tags, such as `button { … }`, `p { … }` or `table td { … }`, do not change the components either. Rules with classes or ids that target elements inside the components still can.
 - The components take the font of the page. Colors and borders can be changed with the `--teppen-table-*` CSS variables (see [className / style](#classname--style-changing-the-design)).
+- The file uses Tailwind's class names (`flex`, `border`, `p-2` …). If your app's CSS defines classes with the same names (some CSS frameworks do), they also apply to the components and can change how they look.
 
 If your app uses Tailwind CSS, use the setup below instead of this file.
 
