@@ -50,6 +50,9 @@ try {
     const uploader = renderToString(createElement(FileUploader, {}));
     if (!table.includes("Taro") || !table.includes("2000")) throw new Error("Table did not render");
     if (!uploader.includes("<input")) throw new Error("FileUploader did not render");
+    // dist/style.css applies its reset inside these elements only.
+    if (!table.includes('data-teppen-part="table"')) throw new Error("The table's root is not marked");
+    if (!uploader.includes('data-teppen-part="file-uploader"')) throw new Error("The uploader's root is not marked");
     if (typeof useFileUploader !== "function") throw new Error("useFileUploader is missing");
   `;
 
@@ -109,6 +112,22 @@ console.log("CommonJS ok");
     }
   }
   console.log("Types ok");
+
+  // The CSS for apps without Tailwind CSS (scripts/build-css.mjs).
+  const css = readFileSync(join(installed, "dist/style.css"), "utf8");
+  const missing = [
+    ".flex{",
+    ".min-h-10{",
+    "--teppen-table-border",
+    '[data-teppen-part=table]',
+    '[data-teppen-part=file-uploader]',
+  ].filter((part) => !css.includes(part));
+  if (missing.length > 0) throw new Error(`dist/style.css lacks ${missing.join(", ")}`);
+  // In a layer, the app's own styles outside layers would win over it.
+  if (css.includes("@layer")) throw new Error("dist/style.css has @layer");
+  // Tailwind's variables stay on the components, off the app's :root.
+  if (css.includes(":root")) throw new Error("dist/style.css sets variables on :root");
+  console.log(`CSS ok (${(css.length / 1024).toFixed(1)} KiB)`);
 } finally {
   rmSync(work, { recursive: true, force: true });
 }

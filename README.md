@@ -22,7 +22,30 @@ This library has the following peer dependencies:
 - react (18.2 or later, 19 supported)
 - react-dom (18.2 or later, 19 supported)
 
-### Tailwind CSS Installation and Setup
+### Styles
+
+The components are styled with Tailwind CSS classes. Choose one of the two ways below.
+
+#### Without Tailwind CSS (2.18.0 ～)
+
+Import the CSS file that comes with the library, once in your app (for example in the root layout or the entry file). Import it **before your own CSS**.
+
+```js
+import "@teppen/react-ui/dist/style.css"; // first
+import "./app.css"; // then your own CSS
+```
+
+When a rule of yours and a rule of the library are equally specific, the one loaded later wins. With this order, a rule you give through `className` (for example `.my-table { max-width: 800px }`) wins over the library's own classes on the same element.
+
+- It holds only the styles the components use (about 38 KiB, 6 KiB gzipped).
+- It does not change the rest of your page. Tailwind's reset and variables apply inside the components only.
+- Your own rules for tags, such as `button { … }`, `p { … }` or `table td { … }`, do not change the components either. Rules with classes or ids that target elements inside the components still can.
+- The components take the font of the page. Colors and borders can be changed with the `--teppen-table-*` CSS variables (see [className / style](#classname--style-changing-the-design)).
+- The file uses Tailwind's class names (`flex`, `border`, `p-2` …). If your app's CSS defines classes with the same names (some CSS frameworks do), they also apply to the components and can change how they look.
+
+If your app uses Tailwind CSS, use the setup below instead of this file.
+
+#### With Tailwind CSS
 
 Please follow the installation procedure described in the following tailwindcss website.
 
@@ -30,7 +53,7 @@ Please follow the installation procedure described in the following tailwindcss 
 
 This library works with both Tailwind CSS v4 and v3. Tell Tailwind to scan the library's files so that the classes it uses are generated.
 
-#### Tailwind CSS v4
+##### Tailwind CSS v4
 
 Add an `@source` for the library to the CSS file that imports Tailwind CSS. The path is relative to that CSS file.
 
@@ -39,7 +62,7 @@ Add an `@source` for the library to the CSS file that imports Tailwind CSS. The 
 @source "../node_modules/@teppen/react-ui/dist";
 ```
 
-#### Tailwind CSS v3
+##### Tailwind CSS v3
 
 Add `"./node_modules/@teppen/react-ui/dist/**/*.js"` to `content` in `tailwind.config.js`.
 

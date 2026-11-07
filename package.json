@@ -7,7 +7,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "clean": "rimraf dist",
-    "rollup": "npm run clean && rollup -c --bundleConfigAsCjs --forceExit",
+    "rollup": "npm run clean && rollup -c --bundleConfigAsCjs --forceExit && node scripts/build-css.mjs",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test": "jest",
@@ -42,6 +42,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.5.2",
     "jest-environment-jsdom": "^30.5.2",
+    "lightningcss": "^1.32.0",
     "postcss": "^8.4.35",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

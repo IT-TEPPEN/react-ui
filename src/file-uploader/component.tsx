@@ -142,6 +142,7 @@ export function FileUploader({
   return (
     <>
       <div
+        data-teppen-part="file-uploader"
         className={`w-full mx-auto border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 ${className}`}
       >
         <div
@@ -157,7 +158,7 @@ export function FileUploader({
       </div>
 
       {showFileList && files.length > 0 && (
-        <ul className="space-y-2 mt-4">
+        <ul data-teppen-part="file-list" className="space-y-2 mt-4">
           {files.map((file) => (
             <li
               key={`${file.name}-${file.lastModified}`}
@@ -170,7 +171,7 @@ export function FileUploader({
       )}
 
       {showRejectedFiles && rejectedFiles.length > 0 && (
-        <div className="mt-4 text-red-500">
+        <div data-teppen-part="rejected-files" className="mt-4 text-red-500">
           <p>{rejectedFilesText}</p>
           <ul className="space-y-2">
             {rejectedFiles.map((file) => (
