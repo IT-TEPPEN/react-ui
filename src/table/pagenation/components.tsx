@@ -72,6 +72,55 @@ export function Pagenation() {
   );
 }
 
+/**
+ * The short page navigation above the table: the rows shown and ‹ ›, so the
+ * page can be changed without going to the bottom. Not shown with one page.
+ */
+export function PageStepper() {
+  const { enable, current, pageCount, from, to, rowCount, prev, next } =
+    usePageContext();
+  const messages = useMessages();
+
+  if (!enable || pageCount <= 1) {
+    return <></>;
+  }
+
+  const step =
+    "inline-grid place-items-center w-8 h-8 rounded text-base leading-none cursor-pointer hover:bg-[color:var(--teppen-table-hover,#f3f4f6)] disabled:opacity-40 disabled:cursor-default disabled:hover:bg-transparent";
+
+  return (
+    <nav
+      data-teppen-part="page-stepper"
+      aria-label={messages.pagination.stepperLabel}
+      className="shrink-0 ml-auto flex items-center gap-1 text-sm whitespace-nowrap"
+    >
+      <span className="px-1 tabular-nums">
+        {messages.range(from + 1, Math.min(to, rowCount), rowCount)}
+      </span>
+      <button
+        type="button"
+        className={step}
+        aria-label={messages.pagination.prev}
+        title={messages.pagination.prev}
+        onClick={() => prev()}
+        disabled={current <= 1}
+      >
+        <span aria-hidden="true">‹</span>
+      </button>
+      <button
+        type="button"
+        className={step}
+        aria-label={messages.pagination.next}
+        title={messages.pagination.next}
+        onClick={() => next()}
+        disabled={current >= pageCount}
+      >
+        <span aria-hidden="true">›</span>
+      </button>
+    </nav>
+  );
+}
+
 export function DisplayRange() {
   const { enable, from, to, rowCount } = usePageContext();
   const messages = useMessages();

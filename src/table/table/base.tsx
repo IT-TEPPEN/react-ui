@@ -12,6 +12,7 @@ import {
   PagenationProvider,
   DisplayRange,
   Pagenation,
+  PageStepper,
   RowsPerPageSelect,
 } from "../pagenation";
 import { FilterProvider } from "../filter-v2";
@@ -57,6 +58,7 @@ import {
   visibleColumns,
 } from "../column-visibility";
 import { useRangeActionContext } from "../range/provider";
+import { useShowFirstRow } from "../pagenation/use-show-first-row";
 
 export default function Table<T extends DataRecord>(props: TPropsTable<T>) {
   const pagination =
@@ -218,6 +220,7 @@ function BaseTable<T extends DataRecord>(
       : (props.noDataMessage ?? messages.noData);
   const IdGenerator = useTableIdGenerator();
   const generateSortButton = useGenerateSortButton();
+  useShowFirstRow(IdGenerator.getTableId());
 
   return (
     <div
@@ -235,6 +238,9 @@ function BaseTable<T extends DataRecord>(
             props.columnSelector ? (
               <ColumnSelector cols={props.cols} />
             ) : undefined
+          }
+          pageStepper={
+            props.paginationPosition === "bottom" ? undefined : <PageStepper />
           }
           checkbox={!!props.checkbox}
           rows={selectAllRows}
