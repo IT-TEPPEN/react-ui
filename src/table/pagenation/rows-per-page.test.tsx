@@ -42,16 +42,17 @@ describe("rows per page", () => {
   });
 
   test("changing it shows that many rows from page 1, and is reported", () => {
-    const { container, last, getByText } = renderTable({
+    const { container, last } = renderTable({
       rowCountPerPageOptions: [10, 25, 50],
       initialCondition: { pagination: { page: 2, rowCountPerPage: 25 } },
     });
-    expect(getByText("60件中 26〜50件")).toBeDefined();
+    const range = () => container.querySelector('[data-teppen-part="range"]')!.textContent;
+    expect(range()).toBe("60件中 26〜50件");
 
     fireEvent.change(select(container)!, { target: { value: "10" } });
 
     expect(rowCount(container)).toBe(10);
-    expect(getByText("60件中 1〜10件")).toBeDefined();
+    expect(range()).toBe("60件中 1〜10件");
     expect(last().pagination).toEqual({ rowCountPerPage: 10, page: 1 });
   });
 

@@ -293,7 +293,7 @@ Emptying several cells (Delete / Backspace) and filling down (Ctrl+D) change man
 
 #### Arguments
 
-The table component accepts the arguments `id`, `rows`, `cols`, `initialCondition`, `onClickRow`, `onUpdateRow`, `onPasteError`, `onConditionChange`, `errorHandler`, `locale`, `loading`, `noDataMessage`, `rowCountPerPageOptions`, `className`, `style`, `applyRowFormatting`, `checkbox`, `conditionalFormattings`, `maxHeight` and `maxWidth`. Details for each argument are described below.
+The table component accepts the arguments `id`, `rows`, `cols`, `initialCondition`, `onClickRow`, `onUpdateRow`, `onPasteError`, `onConditionChange`, `errorHandler`, `locale`, `loading`, `noDataMessage`, `rowCountPerPageOptions`, `paginationPosition`, `className`, `style`, `applyRowFormatting`, `checkbox`, `conditionalFormattings`, `maxHeight` and `maxWidth`. Details for each argument are described below.
 
 All of these types are exported from the package, e.g. `import type { TTableColumn, TPropsTable } from "@teppen/react-ui";`.
 
@@ -550,6 +550,21 @@ type TLocale = "ja" | "en";
 ```
 
 Choosing a count goes back to page 1. The chosen count is reported by `onConditionChange` (`pagination.rowCountPerPage`), so it can be saved and restored. Choices that are not positive whole numbers or `"all"` are left out with a console warning; the count in use is added to the choices if it is not one of them.
+
+##### paginationPosition
+
+When the rows take more than one page, the page navigation is shown in two places (2.19.0 ～):
+
+- under the table: the page numbers, the rows shown and the rows-per-page select, as before;
+- above the table, next to the search bar: the rows shown and ‹ › ("237件中 51〜100件 ‹ ›"), so the page can be changed without going to the bottom. On a narrow screen it goes to its own line under the search bar.
+
+`paginationPosition="bottom"` keeps only the one under the table.
+
+```tsx
+<Table rows={rows} cols={cols} paginationPosition="bottom" />
+```
+
+When the page changes (‹ ›, a page number, the rows-per-page select, or a filter that goes back to page 1), the new page is shown from its first row: the rows scroll back to the top, and if the table's top is above the screen, the page scrolls up to it.
 
 ##### columnSelector
 

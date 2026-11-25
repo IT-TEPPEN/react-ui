@@ -28,6 +28,8 @@ interface IPropsTableHeader<T extends DataRecord> {
   filterCols?: TTableColumn<T>[];
   /** Shown next to the search bar. */
   columnSelector?: React.ReactNode;
+  /** The short page navigation, after the column selector. */
+  pageStepper?: React.ReactNode;
   checkbox?: boolean;
   /** Rows the checkbox in the header checks (see checkbox.selectAll). */
   rows: DataObject<T>[];
@@ -120,8 +122,9 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
       className="border-[color:var(--teppen-table-border,#e5e7eb)] bg-[color:var(--teppen-table-header-bg,#e5e7eb)] text-[color:var(--teppen-table-header-text,#4b5563)] rounded-t-[var(--teppen-table-radius,0.375rem)]"
       style={{ maxWidth: props.maxWidth }}
     >
-      <div className="py-2 px-2 flex items-stretch gap-2">
-        <div className="flex-1 min-w-0">
+      {/* On a narrow screen the page navigation goes to its own line. */}
+      <div className="py-2 px-2 flex flex-wrap items-stretch gap-2">
+        <div className="flex-1 basis-64 min-w-0">
           <ConditionSearchBar
             id={idGenerator.getTableHeaderId()}
             targets={targets}
@@ -133,6 +136,7 @@ export function TableHeader<T extends DataRecord>(props: IPropsTableHeader<T>) {
           />
         </div>
         {props.columnSelector}
+        {props.pageStepper}
       </div>
 
       <style>{`

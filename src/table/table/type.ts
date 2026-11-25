@@ -290,6 +290,12 @@ export type TPropsTable<T extends DataRecord> = {
    */
   rowCountPerPageOptions?: (number | "all")[];
   /**
+   * Where the page navigation is shown. "both" (default): the full one under
+   * the table and a short one (the rows shown and ‹ ›) above it, next to the
+   * search bar. "bottom": only the one under the table.
+   */
+  paginationPosition?: "both" | "bottom";
+  /**
    * Shows a button next to the search bar that lets the user choose which
    * columns are shown. Columns with `disableHide` are always shown.
    */

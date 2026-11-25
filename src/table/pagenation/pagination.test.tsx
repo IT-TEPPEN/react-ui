@@ -2,6 +2,9 @@ import { cleanup, fireEvent, render, within } from "@testing-library/react";
 import Table from "../table/base";
 import { TTableColumn } from "../table/type";
 
+// The full navigation under the table (a short one is above it).
+const BOTTOM = /^(ページ送り|Pagination)$/;
+
 type Row = { name: string };
 const cols: TTableColumn<Row>[] = [{ key: "name", type: "string", label: "名前" }];
 const rows = Array.from({ length: 120 }, (_, i) => ({ id: String(i + 1), name: `n${i + 1}` }));
@@ -17,7 +20,7 @@ function renderTable(locale?: "ja" | "en") {
       initialCondition={{ pagination: { rowCountPerPage: 10 } }}
     />
   );
-  const nav = () => utils.getByRole("navigation");
+  const nav = () => utils.getByRole("navigation", { name: BOTTOM });
   // Page numbers and gaps: the nav's own children, without prev / next.
   const items = () =>
     Array.from(nav().children)
@@ -77,7 +80,7 @@ describe("pagination", () => {
     const { getByRole } = render(
       <Table cols={cols} rows={rows.slice(0, 7)} initialCondition={{ pagination: { rowCountPerPage: 10 } }} />
     );
-    const nav = getByRole("navigation");
+    const nav = getByRole("navigation", { name: BOTTOM });
 
     expect(Array.from(nav.children).map((el) => el.textContent)).toEqual(["‹前へ", "1", "次へ›"]);
     expect((within(nav).getByRole("button", { name: /前へ/ }) as HTMLButtonElement).disabled).toBe(true);
@@ -88,7 +91,7 @@ describe("pagination", () => {
     const { getByRole } = render(
       <Table cols={cols} rows={rows.slice(0, 60)} initialCondition={{ pagination: { rowCountPerPage: 10 } }} />
     );
-    const nav = getByRole("navigation");
+    const nav = getByRole("navigation", { name: BOTTOM });
 
     fireEvent.click(within(nav).getByRole("button", { name: "4ページ目" }));
     expect(Array.from(nav.children).map((el) => el.textContent)).toEqual([

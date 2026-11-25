@@ -76,6 +76,8 @@ export type TMessages = {
     next: string;
     /** Accessible name of a page number button. */
     goToPage: (page: number) => string;
+    /** Accessible name of the short page navigation above the table. */
+    stepperLabel: string;
   };
   /** Label of the rows-per-page select. */
   rowsPerPage: string;
@@ -225,6 +227,7 @@ const ja: TMessages = {
     prev: "前へ",
     next: "次へ",
     goToPage: (page) => `${page}ページ目`,
+    stepperLabel: "ページ送り（表の上）",
   },
   rowsPerPage: "表示件数",
   rowsPerPageOption: (count) => (count === "all" ? "すべて" : `${count}件`),
@@ -378,6 +381,7 @@ const en: TMessages = {
     prev: "Prev",
     next: "Next",
     goToPage: (page) => `Page ${page}`,
+    stepperLabel: "Pagination (above the table)",
   },
   rowsPerPage: "Rows per page",
   rowsPerPageOption: (count) => (count === "all" ? "All" : String(count)),
